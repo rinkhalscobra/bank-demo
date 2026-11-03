@@ -1,0 +1,270 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply text-surface-900 bg-white font-sans;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4 {
+    line-height: 1.2;
+  }
+
+  ::selection {
+    background: var(--palette-accent, #f1bf00);
+    color: var(--palette-primary-dark, #6B0F14);
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .animate-in {
+    animation: dropdown-in 0.2s ease-out;
+  }
+
+  .glass {
+    @apply bg-white/80 backdrop-blur-xl;
+  }
+
+  .glass-dark {
+    @apply bg-surface-950/80 backdrop-blur-xl;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent;
+  }
+
+  .section-padding {
+    @apply py-20 md:py-28;
+  }
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-110%);
+  }
+  50% {
+    transform: translateX(35%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+/* Public experience: Spanish institutional banking. */
+.public-site {
+  --bank-red: var(--palette-primary, #aa151b);
+  --bank-red-dark: var(--palette-primary-dark, #710d14);
+  --bank-gold: var(--palette-accent, #f1bf00);
+  --bank-ink: #171717;
+  --bank-ivory: var(--palette-surface, #FFFDF4);
+  color: #171717;
+  background:
+    radial-gradient(circle at 88% 8%, color-mix(in srgb, var(--bank-gold) 8%, transparent), transparent 24rem),
+    var(--bank-ivory);
+}
+
+.public-site :is(h1, h2, h3, h4, .font-display, .font-serif) {
+  font-family: "Playfair Display", Georgia, serif;
+  letter-spacing: -0.024em;
+}
+
+.public-site :is(p, li, a, button, input, select, textarea) {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.public-site [class*="rounded-4xl"],
+.public-site [class*="rounded-3xl"],
+.public-site [class*="rounded-2xl"],
+.public-site [class*="rounded-xl"] {
+  border-radius: 0.5rem;
+}
+
+.public-site [class*="shadow-soft"],
+.public-site [class*="shadow-lg"] {
+  box-shadow: 0 24px 60px -40px color-mix(in srgb, var(--palette-primary, #AA151B) 34%, transparent);
+}
+
+.public-site .section-padding {
+  padding-top: clamp(5rem, 9vw, 8rem);
+  padding-bottom: clamp(5rem, 9vw, 8rem);
+}
+
+/* Client portal: compact operational surface with warm institutional contrast. */
+.dashboard-shell {
+  --bank-red: var(--palette-primary, #aa151b);
+  --bank-red-dark: var(--palette-primary-dark, #710d14);
+  --bank-gold: var(--palette-accent, #f1bf00);
+  --bank-ink: #171717;
+  --bank-ivory: var(--palette-surface, #FFFDF4);
+}
+
+/*
+ * Palette bridge for legacy Tailwind arbitrary-value utilities.
+ *
+ * The original public site predates the palette setting and embeds the Heritage
+ * colours in components, hover states and gradients. Targeting these utilities
+ * from the root means a palette switch changes every route and nested component,
+ * rather than only the containers that happened to define local CSS variables.
+ */
+:root[data-site-palette] {
+  --theme-primary: var(--palette-primary, #AA151B);
+  --theme-dark: var(--palette-primary-dark, #710D14);
+  --theme-accent: var(--palette-accent, #F1BF00);
+  --theme-surface: var(--palette-surface, #FFFDF4);
+  --theme-primary-soft: color-mix(in srgb, var(--theme-primary) 9%, transparent);
+  --theme-primary-border: color-mix(in srgb, var(--theme-primary) 17%, transparent);
+}
+
+/* Solid Heritage primary and deep-red utilities. */
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="text-[#AA151B]"], [class~="text-[#aa151b]"]) { color: var(--theme-primary) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="text-[#6B0F14]"], [class~="text-[#6b0f14]"], [class~="text-[#710D14]"], [class~="text-[#710d14]"], [class~="text-[#4A0A0E]"], [class~="text-[#4a0a0e]"], [class~="text-[#8C1118]"], [class~="text-[#8c1118]"], [class~="text-[#790E14]"], [class~="text-[#790e14]"]) { color: var(--theme-dark) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="bg-[#AA151B]"], [class~="bg-[#aa151b]"]) { background-color: var(--theme-primary) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="bg-[#6B0F14]"], [class~="bg-[#6b0f14]"], [class~="bg-[#710D14]"], [class~="bg-[#710d14]"], [class~="bg-[#4A0A0E]"], [class~="bg-[#4a0a0e]"], [class~="bg-[#8C1118]"], [class~="bg-[#8c1118]"], [class~="bg-[#790E14]"], [class~="bg-[#790e14]"]) { background-color: var(--theme-dark) !important; }
+
+/* Gold, ivory and all primary-derived translucent utilities. */
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="text-[#F1BF00]"], [class~="text-[#f1bf00]"], [class~="text-[#D58E00]"], [class~="text-[#d58e00]"]) { color: var(--theme-accent) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="bg-[#F1BF00]"], [class~="bg-[#f1bf00]"], [class~="bg-[#D58E00]"], [class~="bg-[#d58e00]"]) { background-color: var(--theme-accent) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="bg-[#FFFDF4]"], [class~="bg-[#fffdf4]"], [class~="bg-[#FFFDF7]"], [class~="bg-[#fffdf7]"], [class~="bg-[#FFF8DC]"], [class~="bg-[#fff8dc]"], [class~="bg-[#F4F1E8]"], [class~="bg-[#f4f1e8]"]) { background-color: var(--theme-surface) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="bg-[#F6E6AF]"], [class~="bg-[#f6e6af]"]) { background-color: color-mix(in srgb, var(--theme-accent) 28%, white) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class^="text-[#AA151B]/"], [class*=" text-[#AA151B]/"], [class^="text-[#aa151b]/"], [class*=" text-[#aa151b]/"], [class^="text-[#6B0F14]/"], [class*=" text-[#6B0F14]/"], [class^="text-[#6b0f14]/"], [class*=" text-[#6b0f14]/"]) { color: color-mix(in srgb, var(--theme-primary) 76%, transparent) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class^="bg-[#AA151B]/"], [class*=" bg-[#AA151B]/"], [class^="bg-[#aa151b]/"], [class*=" bg-[#aa151b]/"], [class^="bg-[#6B0F14]/"], [class*=" bg-[#6B0F14]/"], [class^="bg-[#6b0f14]/"], [class*=" bg-[#6b0f14]/"]) { background-color: var(--theme-primary-soft) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class^="bg-[#710D14]/"], [class*=" bg-[#710D14]/"], [class^="bg-[#710d14]/"], [class*=" bg-[#710d14]/"], [class^="bg-[#4A0A0E]/"], [class*=" bg-[#4A0A0E]/"], [class^="bg-[#4a0a0e]/"], [class*=" bg-[#4a0a0e]/"], [class^="bg-[#8C1118]/"], [class*=" bg-[#8C1118]/"], [class^="bg-[#8c1118]/"], [class*=" bg-[#8c1118]/"], [class^="bg-[#790E14]/"], [class*=" bg-[#790E14]/"], [class^="bg-[#790e14]/"], [class*=" bg-[#790e14]/"]) { background-color: color-mix(in srgb, var(--theme-dark) 95%, transparent) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class^="border-[#AA151B]"], [class*=" border-[#AA151B]"], [class^="border-[#aa151b]"], [class*=" border-[#aa151b]"], [class^="border-[#6B0F14]"], [class*=" border-[#6B0F14]"], [class^="border-[#6b0f14]"], [class*=" border-[#6b0f14]"]) { border-color: var(--theme-primary-border) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class^="ring-[#AA151B]"], [class*=" ring-[#AA151B]"], [class^="ring-[#aa151b]"], [class*=" ring-[#aa151b]"], [class^="ring-[#6B0F14]"], [class*=" ring-[#6B0F14]"], [class^="ring-[#6b0f14]"], [class*=" ring-[#6b0f14]"]) { --tw-ring-color: color-mix(in srgb, var(--theme-primary) 25%, transparent) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="border-t-[#AA151B]"], [class*="border-t-[#aa151b]"]) { border-top-color: var(--theme-primary) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="divide-[#AA151B]"], [class*="divide-[#aa151b]"]) > :not([hidden]) { border-color: var(--theme-primary-border) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="accent-[#AA151B]"], [class*="accent-[#aa151b]"], [class*="accent-[#6B0F14]"], [class*="accent-[#6b0f14]"]) { accent-color: var(--theme-primary) !important; }
+
+/* Gradient stops are CSS variables, so decorative panels update at once. */
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="from-[#AA151B]"], [class*="from-[#aa151b]"]) { --tw-gradient-from: var(--theme-primary) var(--tw-gradient-from-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="via-[#AA151B]"], [class*="via-[#aa151b]"]) { --tw-gradient-via: var(--theme-primary) var(--tw-gradient-via-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="to-[#AA151B]"], [class*="to-[#aa151b]"]) { --tw-gradient-to: var(--theme-primary) var(--tw-gradient-to-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="from-[#6B0F14]"], [class*="from-[#6b0f14]"], [class*="from-[#710D14]"], [class*="from-[#710d14]"], [class*="from-[#4A0A0E]"], [class*="from-[#4a0a0e]"]) { --tw-gradient-from: var(--theme-dark) var(--tw-gradient-from-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="via-[#6B0F14]"], [class*="via-[#6b0f14]"], [class*="via-[#710D14]"], [class*="via-[#710d14]"]) { --tw-gradient-via: var(--theme-dark) var(--tw-gradient-via-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="to-[#6B0F14]"], [class*="to-[#6b0f14]"], [class*="to-[#710D14]"], [class*="to-[#710d14]"], [class*="to-[#4A0A0E]"], [class*="to-[#4a0a0e]"]) { --tw-gradient-to: var(--theme-dark) var(--tw-gradient-to-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="from-[#F1BF00]"], [class*="from-[#f1bf00]"]) { --tw-gradient-from: var(--theme-accent) var(--tw-gradient-from-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="via-[#F1BF00]"], [class*="via-[#f1bf00]"]) { --tw-gradient-via: var(--theme-accent) var(--tw-gradient-via-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="to-[#F1BF00]"], [class*="to-[#f1bf00]"]) { --tw-gradient-to: var(--theme-accent) var(--tw-gradient-to-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="from-[#FFFDF4]"], [class*="from-[#fffdf4]"], [class*="from-[#FFFDF7]"], [class*="from-[#fffdf7]"]) { --tw-gradient-from: var(--theme-surface) var(--tw-gradient-from-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="via-[#FFFDF4]"], [class*="via-[#fffdf4]"], [class*="via-[#FFFDF7]"], [class*="via-[#fffdf7]"]) { --tw-gradient-via: color-mix(in srgb, var(--theme-surface) 90%, transparent) var(--tw-gradient-via-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="to-[#FFFDF4]"], [class*="to-[#fffdf4]"], [class*="to-[#FFFDF7]"], [class*="to-[#fffdf7]"]) { --tw-gradient-to: color-mix(in srgb, var(--theme-surface) 5%, transparent) var(--tw-gradient-to-position) !important; }
+
+/* Variant utilities need their state preserved; do not apply hover colours at rest. */
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="hover:bg-[#AA151B]"], [class*="hover:bg-[#aa151b]"]):hover { background-color: var(--theme-primary) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="hover:bg-[#6B0F14]"], [class*="hover:bg-[#6b0f14]"], [class*="hover:bg-[#710D14]"], [class*="hover:bg-[#710d14]"], [class*="hover:bg-[#4A0A0E]"], [class*="hover:bg-[#4a0a0e]"], [class*="hover:bg-[#8C1118]"], [class*="hover:bg-[#8c1118]"], [class*="hover:bg-[#790E14]"], [class*="hover:bg-[#790e14]"]):hover { background-color: var(--theme-dark) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="hover:text-[#AA151B]"], [class*="hover:text-[#aa151b]"]):hover { color: var(--theme-primary) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="hover:text-[#6B0F14]"], [class*="hover:text-[#6b0f14]"], [class*="hover:text-[#710D14]"], [class*="hover:text-[#710d14]"]):hover { color: var(--theme-dark) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="hover:border-[#AA151B]"], [class*="hover:border-[#aa151b]"]):hover { border-color: var(--theme-primary) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="hover:bg-[#FFF8DC]"], [class*="hover:bg-[#fff8dc]"], [class*="hover:bg-[#FFFDF4]"], [class*="hover:bg-[#fffdf4]"]):hover { background-color: var(--theme-surface) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="hover:bg-[#AA151B]/"], [class*="hover:bg-[#aa151b]/"], [class*="hover:bg-[#6B0F14]/"], [class*="hover:bg-[#6b0f14]/"]):hover { background-color: var(--theme-primary-soft) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="hover:text-[#AA151B]/"], [class*="hover:text-[#aa151b]/"], [class*="hover:text-[#6B0F14]/"], [class*="hover:text-[#6b0f14]/"]):hover { color: color-mix(in srgb, var(--theme-primary) 76%, transparent) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="focus:border-[#AA151B]"], [class*="focus:border-[#aa151b]"], [class*="focus:border-[#6B0F14]"], [class*="focus:border-[#6b0f14]"]):focus { border-color: var(--theme-primary) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="focus:ring-[#AA151B]"], [class*="focus:ring-[#aa151b]"], [class*="focus:ring-[#6B0F14]"], [class*="focus:ring-[#6b0f14]"]):focus { --tw-ring-color: color-mix(in srgb, var(--theme-primary) 25%, transparent) !important; }
+
+/* Named brand utilities and shared visual treatments. */
+:root[data-site-palette] :where(.public-site, .dashboard-shell) [class*="text-brand-"] { color: var(--theme-primary) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) [class*="border-brand-"] { border-color: var(--theme-primary-border) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) [class*="from-brand-"] { --tw-gradient-from: var(--theme-primary) var(--tw-gradient-from-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) [class*="to-brand-"] { --tw-gradient-to: var(--theme-dark) var(--tw-gradient-to-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) [class*="ring-brand-"] { --tw-ring-color: var(--theme-primary) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="bg-brand-500"], [class~="bg-brand-600"], [class~="bg-brand-700"], [class~="bg-brand-800"], [class~="bg-brand-900"], [class~="bg-brand-950"]) { background-color: var(--theme-primary) !important; }
+
+.public-site { background-color: var(--palette-surface, #FFFDF4); }
+
+.dashboard-shell,
+.dashboard-shell :is(button, input, select, textarea) {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.dashboard-shell :is(.font-serif, .font-display) {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  letter-spacing: -0.015em;
+}
+
+.dashboard-content [class*="rounded-3xl"],
+.dashboard-content [class*="rounded-2xl"],
+.dashboard-content [class*="rounded-xl"] {
+  border-radius: 0.5rem;
+}
+
+.dashboard-content > div > div:first-child h1 {
+  letter-spacing: -0.02em;
+}
+
+.dashboard-content [class*="shadow-["] {
+  box-shadow: 0 20px 52px -38px color-mix(in srgb, var(--palette-primary, #AA151B) 24%, transparent);
+}
+
+.dashboard-content {
+  background:
+    linear-gradient(color-mix(in srgb, var(--palette-accent, #F1BF00) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--palette-accent, #F1BF00) 3%, transparent) 1px, transparent 1px),
+    color-mix(in srgb, var(--palette-surface, #FFFDF4) 78%, #f7f7f5);
+  background-size: 32px 32px;
+}
+
+.dashboard-content [class~="bg-white"][class~="border"] {
+  border-color: color-mix(in srgb, var(--palette-primary, #AA151B) 13%, transparent);
+}
+
+:where(.public-site, .dashboard-shell) :is(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--palette-accent, #f1bf00);
+  outline-offset: 3px;
+}
+
+.public-site main :is(
+  img[src*="pexels.com"],
+  img[src*="lpc.com"],
+  img[src*="globalimebank.com"],
+  img[src*="barings.com"],
+  img[src*="linkedin.com"],
+  img[src="/bank3.jpg"]
+) {
+  border-radius: 0.75rem;
+  box-shadow: 0 28px 70px -42px color-mix(in srgb, var(--palette-primary, #AA151B) 48%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--palette-accent, #F1BF00) 30%, transparent);
+  outline-offset: -1px;
+}
+
+/* One corner system across the public site and client portal. */
+:where(.public-site, .dashboard-shell)
+  :is(button, input, select, textarea, a[class], [role="button"], [role="dialog"], [class~="border"], [class~="border-2"]):not([class*="rounded-full"]):not([class*="rounded-t-"]):not([class*="rounded-r-"]):not([class*="rounded-b-"]):not([class*="rounded-l-"]) {
+  border-radius: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,162 @@
+import { useState } from 'react';
+import { Copy, Check, ChevronDown } from 'lucide-react';
+import { CryptoWallet } from '../../hooks/useCryptoWallets';
+import { useLanguage } from '../../contexts/LanguageContext';
+import CryptoWalletQRCode from '../ui/CryptoWalletQRCode';
+
+const TOKEN_BADGE_STYLE = {
+  backgroundColor: 'rgba(0, 100, 70, 0.12)',
+  color: '#AA151B',
+};
+
+interface CryptoPaymentPanelProps {
+  wallets: CryptoWallet[];
+  walletsLoading: boolean;
+  selectedWallet: CryptoWallet | null;
+  onSelectWallet: (wallet: CryptoWallet) => void;
+}
+
+export default function CryptoPaymentPanel({
+  wallets,
+  walletsLoading,
+  selectedWallet,
+  onSelectWallet,
+}: CryptoPaymentPanelProps) {
+  const { t } = useLanguage();
+  const [copied, setCopied] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const handleCopy = async (address: string) => {
+    await navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (walletsLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="h-6 w-6 rounded-full border-2 border-[#AA151B]/20 border-t-[#AA151B] animate-spin" />
+      </div>
+    );
+  }
+
+  if (wallets.length === 0) {
+    return (
+      <div className="rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] py-8 text-center text-sm text-[#AA151B]">
+        {t('dashboardBillPay.crypto.noWallets')}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-neutral-800">
+          {t('dashboardBillPay.crypto.select')}
+        </label>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm transition-all focus:outline-none focus:ring-0 ${
+              dropdownOpen
+                ? 'border-[#AA151B] bg-[#AA151B]/[0.05] shadow-[0_18px_40px_-32px_rgba(170,21,27,0.55)]'
+                : 'border-[#AA151B]/14 bg-[#AA151B]/[0.03] hover:border-[#AA151B]/25'
+            }`}
+          >
+            {selectedWallet ? (
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold"
+                  style={TOKEN_BADGE_STYLE}
+                >
+                  {selectedWallet.symbol.slice(0, 2)}
+                </span>
+                <div className="text-left">
+                  <p className="font-medium text-neutral-900">{selectedWallet.name}</p>
+                  <p className="text-xs text-[#AA151B]/70">
+                    {t('dashboardBillPay.crypto.network')} {selectedWallet.network}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <span className="text-[#AA151B]/70">{t('dashboardBillPay.crypto.chooseWallet')}</span>
+            )}
+            <ChevronDown className={`h-4 w-4 text-[#AA151B] transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {dropdownOpen && (
+            <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-2xl border border-[#AA151B]/18 bg-white shadow-[0_24px_60px_-36px_rgba(170,21,27,0.38)]">
+              {wallets.map((w) => {
+                return (
+                  <button
+                    key={w.id}
+                    type="button"
+                    onClick={() => { onSelectWallet(w); setDropdownOpen(false); setCopied(false); }}
+                    className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#AA151B]/[0.05] ${
+                      selectedWallet?.id === w.id ? 'bg-[#AA151B]/10' : ''
+                    }`}
+                  >
+                    <span
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold"
+                      style={TOKEN_BADGE_STYLE}
+                    >
+                      {w.symbol.slice(0, 2)}
+                    </span>
+                    <div>
+                      <p className="text-sm font-medium text-neutral-900">{w.name} ({w.symbol})</p>
+                      <p className="text-xs text-[#AA151B]/70">{w.network}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {selectedWallet && (
+        <div className="space-y-4 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] p-5">
+          <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+            <div className="flex-shrink-0 rounded-2xl border border-[#AA151B]/14 bg-white p-2 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
+              <CryptoWalletQRCode wallet={selectedWallet} size={160} />
+            </div>
+            <div className="flex-1 min-w-0 space-y-3 text-center sm:text-left">
+              <div>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wider text-[#AA151B]">
+                  {t('dashboardBillPay.crypto.walletAddress')} — {selectedWallet.name}
+                </p>
+                <p className="text-sm font-mono text-neutral-800 break-all leading-relaxed">
+                  {selectedWallet.wallet_address}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy(selectedWallet.wallet_address)}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                  copied
+                    ? 'border border-[#AA151B]/20 bg-[#AA151B] text-white'
+                    : 'border border-[#AA151B]/14 bg-white text-[#AA151B] hover:bg-[#AA151B]/[0.04]'
+                }`}
+              >
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied
+                  ? t('dashboardBillPay.crypto.copied')
+                  : t('dashboardBillPay.crypto.copyAddress')}
+              </button>
+              <div className="flex items-center gap-2 text-xs text-[#AA151B]/70">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#AA151B]" />
+                {t('dashboardBillPay.crypto.network')} {selectedWallet.network}
+              </div>
+            </div>
+          </div>
+          <p className="border-t border-[#AA151B]/10 pt-3 text-xs leading-relaxed text-neutral-600">
+            {t('dashboardBillPay.crypto.sendOnly')} {selectedWallet.symbol}{' '}
+            {t('dashboardBillPay.crypto.toAddress')}{' '}
+            {t('dashboardBillPay.crypto.assetWarning')}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

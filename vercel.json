@@ -1,0 +1,17 @@
+{
+  "routes": [
+    {
+      "src": "/betashares-preview-20261013.png",
+      "headers": {
+        "Cache-Control": "public, max-age=3600, s-maxage=86400, immutable",
+        "Access-Control-Allow-Origin": "*"
+      },
+      "continue": true
+    },
+    { "handle": "filesystem" },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
+  ]
+}
