@@ -2469,6 +2469,7 @@ function toBrandingForm(branding: BrandingSettings): BrandingForm {
     brandKeyword: branding.brandKeyword,
     navbarLogoUrl: branding.navbarLogoUrl,
     footerLogoUrl: branding.footerLogoUrl,
+    logoSize: branding.logoSize,
     faviconIcoUrl: branding.faviconIcoUrl,
     favicon16Url: branding.favicon16Url,
     favicon32Url: branding.favicon32Url,
@@ -2510,7 +2511,7 @@ function BrandingSettingsCard({
   remoteAvailable: boolean;
   saving: boolean;
   uploadingLogo: 'navbar' | 'footer' | 'favicon' | null;
-  onFieldChange: (field: keyof BrandingForm, value: string) => void;
+  onFieldChange: (field: keyof BrandingForm, value: string | number) => void;
   onSyncLogosChange: (checked: boolean) => void;
   onUploadLogo: (slot: 'navbar' | 'footer', file: File) => Promise<void>;
   onUploadFavicon: (file: File) => Promise<void>;
@@ -2526,6 +2527,7 @@ function BrandingSettingsCard({
     brandKeyword: form.brandKeyword.trim() || DEFAULT_BRANDING.brandKeyword,
     navbarLogoUrl: form.navbarLogoUrl.trim() || DEFAULT_BRANDING.navbarLogoUrl,
     footerLogoUrl: form.footerLogoUrl.trim() || DEFAULT_BRANDING.footerLogoUrl,
+    logoSize: form.logoSize,
     faviconIcoUrl: form.faviconIcoUrl.trim() || DEFAULT_BRANDING.faviconIcoUrl,
     favicon16Url: form.favicon16Url.trim() || DEFAULT_BRANDING.favicon16Url,
     favicon32Url: form.favicon32Url.trim() || DEFAULT_BRANDING.favicon32Url,
@@ -2724,6 +2726,23 @@ function BrandingSettingsCard({
             <p className="text-xs text-slate-500">Light or white backgrounds connected to the edge are removed automatically and saved as a transparent PNG.</p>
           </div>
 
+          <label className="block space-y-2 rounded-2xl border border-[#6B0F14]/12 bg-[#6B0F14]/[0.03] p-4">
+            <span className="flex items-center justify-between gap-3 text-sm font-semibold text-slate-800">
+              <span>Logo display size</span>
+              <output className="font-mono text-[#6B0F14]">{form.logoSize}px</output>
+            </span>
+            <input
+              type="range"
+              min="32"
+              max="160"
+              step="2"
+              value={form.logoSize}
+              onChange={(event) => onFieldChange('logoSize', Number(event.target.value))}
+              className="w-full accent-[#6B0F14]"
+            />
+            <span className="block text-xs text-slate-500">Controls the logo height in the public header, dashboard sidebar, and footer.</span>
+          </label>
+
           {!syncLogos && (
             <div className="space-y-3">
               <label className="space-y-2">
@@ -2903,12 +2922,12 @@ function BrandingSettingsCard({
             <div className="space-y-4">
               <div className="rounded-2xl border border-[#6B0F14]/10 bg-white p-4">
                 <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6B0F14]">Navbar</p>
-                <BrandLogo src={previewBranding.navbarLogoUrl} alt={previewBranding.brandName} className="h-12 max-w-full object-contain" />
+                <BrandLogo src={previewBranding.navbarLogoUrl} alt={previewBranding.brandName} className="max-w-full object-contain" style={{ height: previewBranding.logoSize }} />
               </div>
 
               <div className="rounded-2xl border border-[#6B0F14]/10 bg-[#6B0F14]/[0.03] p-4">
                 <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6B0F14]">Footer</p>
-                <BrandLogo src={previewBranding.footerLogoUrl} alt={previewBranding.brandName} className="h-12 max-w-full object-contain" />
+                <BrandLogo src={previewBranding.footerLogoUrl} alt={previewBranding.brandName} className="max-w-full object-contain" style={{ height: previewBranding.logoSize }} />
               </div>
             </div>
           </div>
@@ -4990,15 +5009,15 @@ export default function CrmAdmin() {
     }
   }
 
-  function handleBrandingFieldChange(field: keyof BrandingForm, value: string) {
+  function handleBrandingFieldChange(field: keyof BrandingForm, value: string | number) {
     setBrandingForm((current) => {
       const next = { ...current, [field]: value } as BrandingForm;
 
-      if (syncBrandLogos && field === 'navbarLogoUrl') {
+      if (syncBrandLogos && field === 'navbarLogoUrl' && typeof value === 'string') {
         next.footerLogoUrl = value;
       }
 
-      if (syncBrandLogos && field === 'footerLogoUrl') {
+      if (syncBrandLogos && field === 'footerLogoUrl' && typeof value === 'string') {
         next.navbarLogoUrl = value;
       }
 
@@ -5039,6 +5058,7 @@ export default function CrmAdmin() {
         brandKeyword: brandingForm.brandKeyword.trim() || DEFAULT_BRANDING.brandKeyword,
         navbarLogoUrl: brandingForm.navbarLogoUrl.trim() || DEFAULT_BRANDING.navbarLogoUrl,
         footerLogoUrl: (syncBrandLogos ? brandingForm.navbarLogoUrl : brandingForm.footerLogoUrl).trim() || DEFAULT_BRANDING.footerLogoUrl,
+        logoSize: brandingForm.logoSize,
         faviconIcoUrl: brandingForm.faviconIcoUrl.trim() || DEFAULT_BRANDING.faviconIcoUrl,
         favicon16Url: brandingForm.favicon16Url.trim() || DEFAULT_BRANDING.favicon16Url,
         favicon32Url: brandingForm.favicon32Url.trim() || DEFAULT_BRANDING.favicon32Url,

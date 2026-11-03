@@ -59,7 +59,7 @@ export default function Footer() {
         <div className="grid gap-10 border-b border-white/10 py-12 md:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.45fr)] md:items-start md:gap-12 lg:gap-20 lg:py-14">
           <div>
             <Link to="/" aria-label={branding.brandName} className="inline-flex">
-              <BrandLogo src={branding.footerLogoUrl} alt={branding.brandName} className="h-[4.5rem] w-auto object-contain" />
+              <BrandLogo src={branding.footerLogoUrl} alt={branding.brandName} className="w-auto max-w-[12rem] object-contain" style={{ height: branding.logoSize }} />
             </Link>
 
             <div className="mt-7 max-w-sm">

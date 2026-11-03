@@ -1,5 +1,9 @@
 import CurrencyExchangeControlPanel from '../../components/exchange/CurrencyExchangeControlPanel';
 
 export default function DashboardCurrencyExchange() {
-  return <CurrencyExchangeControlPanel variant="dashboard" />;
+  return (
+    <div className="dashboard-route">
+      <CurrencyExchangeControlPanel variant="dashboard" />
+    </div>
+  );
 }

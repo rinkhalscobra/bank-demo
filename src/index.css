@@ -248,6 +248,112 @@
   border-color: color-mix(in srgb, var(--palette-primary, #AA151B) 13%, transparent);
 }
 
+/* Dashboard information architecture. These rules only control composition,
+   density and responsive behavior; palette values remain owned by CRM. */
+.dashboard-shell {
+  display: grid !important;
+  grid-template-columns: minmax(248px, 282px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.dashboard-sidebar {
+  width: auto !important;
+  min-width: 0;
+}
+
+.dashboard-sidebar__brand {
+  min-height: 6.25rem;
+  padding-inline: 1.5rem;
+}
+
+.dashboard-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding: 1.5rem 1rem;
+}
+
+.dashboard-navigation__section {
+  margin: 0 !important;
+}
+
+.dashboard-navigation__section > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.dashboard-navigation__link {
+  min-height: 2.75rem;
+  border-left-width: 0 !important;
+  border-radius: 0.65rem;
+}
+
+.dashboard-sidebar__footer {
+  padding: 1rem;
+}
+
+.dashboard-workspace {
+  min-width: 0;
+  min-height: 0;
+}
+
+.dashboard-header {
+  min-height: 5.25rem;
+  padding-inline: clamp(1rem, 3vw, 2.5rem);
+}
+
+.dashboard-content {
+  padding: clamp(1rem, 3vw, 2.5rem) !important;
+}
+
+.dashboard-page-frame,
+.crm-workspace__frame {
+  width: min(100%, 96rem);
+  margin-inline: auto;
+}
+
+.dashboard-page-frame {
+  min-width: 0;
+}
+
+.dashboard-route {
+  display: grid;
+  min-width: 0;
+  gap: 1.75rem;
+}
+
+.dashboard-route > :is(.grid, [class*="grid"]) {
+  min-width: 0;
+  align-items: start;
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.dashboard-route :is(section, form, [role="dialog"]) {
+  min-width: 0;
+}
+
+.dashboard-route :is(input, select, textarea) {
+  min-height: 2.75rem;
+}
+
+.dashboard-mobile-nav {
+  border-radius: 0.9rem;
+}
+
+.crm-workspace__content {
+  padding: clamp(1rem, 3vw, 2.5rem) !important;
+}
+
+@media (max-width: 1023px) {
+  .dashboard-shell {
+    display: flex !important;
+  }
+
+  .dashboard-content {
+    padding-bottom: 6.75rem !important;
+  }
+}
+
 :where(.public-site, .dashboard-shell) :is(button, a, input, select, textarea):focus-visible {
   outline: 2px solid var(--palette-accent, #f1bf00);
   outline-offset: 3px;

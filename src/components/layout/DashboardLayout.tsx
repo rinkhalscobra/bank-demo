@@ -101,29 +101,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (isCrmAdmin) {
     return (
-      <div className="h-dvh overflow-hidden bg-[#FFFDF7]">
-        <main className="h-full overflow-y-auto overscroll-contain p-4 sm:p-6">{children}</main>
+      <div className="crm-workspace h-dvh overflow-hidden bg-[#FFFDF7]">
+        <main className="crm-workspace__content h-full overflow-y-auto overscroll-contain p-4 sm:p-6">
+          <div className="crm-workspace__frame">{children}</div>
+        </main>
       </div>
     );
   }
 
   return (
     <div className="dashboard-shell fixed inset-0 flex min-h-0 overflow-hidden bg-[#f7f7f5] text-[#171717]">
-      <aside className="relative hidden w-[276px] shrink-0 flex-col border-r border-[#F1BF00]/30 bg-[#6B0F14] text-white lg:flex">
+      <aside className="dashboard-sidebar relative hidden w-[276px] shrink-0 flex-col border-r border-[#F1BF00]/30 bg-[#6B0F14] text-white lg:flex">
         <div className="absolute inset-x-0 top-0 h-1 bg-[#F1BF00]" aria-hidden="true" />
-        <Link to="/dashboard" className="flex h-24 items-center border-b border-white/10 px-6 pt-1">
-          <BrandLogo src={branding.navbarLogoUrl} alt={branding.brandName} className="h-14 w-auto object-contain" />
+        <Link to="/dashboard" className="dashboard-sidebar__brand flex h-24 items-center justify-center border-b border-white/10 px-6 pt-1">
+          <BrandLogo src={branding.navbarLogoUrl} alt={branding.brandName} className="w-auto max-w-full object-contain" style={{ height: branding.logoSize }} />
         </Link>
 
-        <nav className="scrollbar-hide flex-1 overflow-y-auto px-4 py-6">
+        <nav className="dashboard-navigation scrollbar-hide flex-1 overflow-y-auto px-4 py-6">
           {navSections.map((section) => (
-            <div key={section.label} className="mb-7">
+            <div key={section.label} className="dashboard-navigation__section mb-7">
               <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F1BF00]/70">{section.label}</p>
               <div className="space-y-1">
                 {section.items.map((item) => {
                   const active = isActive(item.path);
                   return (
-                    <Link key={item.path} to={item.path} className={`flex items-center gap-3 border-l-2 px-3 py-3 text-sm font-semibold transition-colors ${active ? 'border-[#F1BF00] bg-[#F1BF00] text-[#6B0F14]' : 'border-transparent text-white/70 hover:bg-white/[0.08] hover:text-white'}`}>
+                    <Link key={item.path} to={item.path} className={`dashboard-navigation__link flex items-center gap-3 border-l-2 px-3 py-3 text-sm font-semibold transition-colors ${active ? 'border-[#F1BF00] bg-[#F1BF00] text-[#6B0F14]' : 'border-transparent text-white/70 hover:bg-white/[0.08] hover:text-white'}`}>
                       <item.icon className="h-[18px] w-[18px]" />
                       <span className="truncate">{item.label}</span>
                     </Link>
@@ -134,7 +136,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           ))}
         </nav>
 
-        <div className="border-t border-white/10 p-4">
+        <div className="dashboard-sidebar__footer border-t border-white/10 p-4">
           {adminItem && (
             <Link
               to={adminItem.path}
@@ -153,8 +155,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="relative flex h-20 shrink-0 items-center border-b border-[#AA151B]/15 bg-white px-4 sm:px-6 lg:h-24 lg:px-8">
+      <div className="dashboard-workspace flex min-w-0 flex-1 flex-col">
+        <header className="dashboard-header relative flex h-20 shrink-0 items-center border-b border-[#AA151B]/15 bg-white px-4 sm:px-6 lg:h-24 lg:px-8">
           <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-[#AA151B] via-[#F1BF00] to-transparent" aria-hidden="true" />
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center border border-[#F1BF00]/60 bg-[#F1BF00]/15 text-[#AA151B] lg:h-11 lg:w-11"><currentItem.icon className="h-5 w-5" /></div>
@@ -189,11 +191,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         <main className="dashboard-content min-h-0 flex-1 overflow-y-auto p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8 lg:pb-8">
-          <div className="mx-auto max-w-[1480px]">{children}</div>
+          <div className="dashboard-page-frame mx-auto max-w-[1480px]">{children}</div>
         </main>
       </div>
 
-      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 border border-[#6B0F14]/10 bg-white p-1 shadow-[0_18px_50px_rgba(77,15,19,.2)] lg:hidden">
+      <nav className="dashboard-mobile-nav fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 border border-[#6B0F14]/10 bg-white p-1 shadow-[0_18px_50px_rgba(77,15,19,.2)] lg:hidden">
         {allItems.slice(0, 4).map((item) => (
           <Link key={item.path} to={item.path} className={`flex min-h-14 flex-col items-center justify-center gap-1 border-b-2 px-1 text-[10px] font-semibold ${isActive(item.path) ? 'border-[#AA151B] bg-[#F1BF00]/20 text-[#AA151B]' : 'border-transparent text-[#626262]'}`}>
             <item.icon className="h-5 w-5" /><span className="max-w-full truncate">{item.label}</span>

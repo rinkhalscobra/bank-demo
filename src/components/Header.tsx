@@ -54,7 +54,7 @@ export default function Header() {
       <div className="absolute inset-x-0 top-0 h-1 bg-[#F1BF00]" aria-hidden="true" />
       <div className="mx-auto flex h-20 max-w-[1500px] items-center px-4 pt-1 sm:px-6 lg:px-8">
         <Link to="/" className="mr-2 flex shrink-0 items-center border-r border-[#AA151B]/20 pr-2 sm:mr-8 sm:pr-8">
-          <BrandLogo src={branding.navbarLogoUrl} alt={branding.brandName} className="h-[4.25rem] w-auto object-contain sm:h-[4.5rem]" />
+          <BrandLogo src={branding.navbarLogoUrl} alt={branding.brandName} className="w-auto max-w-[12rem] object-contain" style={{ height: branding.logoSize }} />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">

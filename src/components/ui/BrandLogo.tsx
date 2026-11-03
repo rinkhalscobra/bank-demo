@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { DEFAULT_BRANDING } from '../../contexts/BrandingContext';
 
 type BrandLogoProps = {
   src: string;
   alt: string;
   className?: string;
+  style?: CSSProperties;
 };
 
 function getPublicAssetUrl(path: string) {
@@ -21,12 +22,12 @@ function normalizeLogoSrc(value: string) {
   return getPublicAssetUrl(src);
 }
 
-export default function BrandLogo({ src, alt, className }: BrandLogoProps) {
+export default function BrandLogo({ src, alt, className, style }: BrandLogoProps) {
   const preferredSrc = useMemo(() => normalizeLogoSrc(src), [src]);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
   if (failedSrc === preferredSrc) {
-    return <span className={className}>{alt}</span>;
+    return <span className={className} style={style}>{alt}</span>;
   }
 
   return (
@@ -34,6 +35,7 @@ export default function BrandLogo({ src, alt, className }: BrandLogoProps) {
       src={preferredSrc}
       alt={alt}
       className={className}
+      style={style}
       onError={() => setFailedSrc(preferredSrc)}
     />
   );

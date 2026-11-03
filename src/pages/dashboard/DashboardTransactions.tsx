@@ -497,7 +497,7 @@ export default function DashboardTransactions() {
   })();
 
   return (
-    <div className="space-y-6">
+    <div className="dashboard-route space-y-7">
       <div>
         <h1 className="text-2xl font-serif font-bold text-neutral-900">
           {t('dashboardTransactions.title')}

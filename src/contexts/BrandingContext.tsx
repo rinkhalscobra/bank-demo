@@ -34,6 +34,7 @@ export type BrandingSettings = {
   brandKeyword: string;
   navbarLogoUrl: string;
   footerLogoUrl: string;
+  logoSize: number;
   faviconIcoUrl: string;
   favicon16Url: string;
   favicon32Url: string;
@@ -57,6 +58,7 @@ type BrandingRow = {
   brand_keyword?: string | null;
   navbar_logo_url?: string | null;
   footer_logo_url?: string | null;
+  logo_size?: number | null;
   favicon_ico_url?: string | null;
   favicon_16_url?: string | null;
   favicon_32_url?: string | null;
@@ -81,6 +83,7 @@ export type BrandingUpdate = Pick<
   | 'brandKeyword'
   | 'navbarLogoUrl'
   | 'footerLogoUrl'
+  | 'logoSize'
   | 'faviconIcoUrl'
   | 'favicon16Url'
   | 'favicon32Url'
@@ -122,6 +125,7 @@ export const DEFAULT_BRANDING: BrandingSettings = {
   brandKeyword: LEGACY_BRAND_WORD,
   navbarLogoUrl: '/logo.png',
   footerLogoUrl: '/logo.png',
+  logoSize: 64,
   faviconIcoUrl: '/favicon.ico',
   favicon16Url: '/favicon-16x16.png',
   favicon32Url: '/favicon-32x32.png',
@@ -150,6 +154,11 @@ function cleanOptionalText(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function cleanLogoSize(value: unknown, fallback: number) {
+  const size = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(size) ? Math.round(Math.min(160, Math.max(32, size))) : fallback;
+}
+
 function normalizePalette(value: unknown): SitePaletteId {
   return SITE_PALETTES.find((palette) => palette.id === value)?.id || DEFAULT_BRANDING.palette;
 }
@@ -171,6 +180,7 @@ function normalizeBranding(value: Partial<BrandingSettings> | BrandingRow | null
     brandKeyword: cleanText('brandKeyword' in (value || {}) ? (value as Partial<BrandingSettings>).brandKeyword : (value as BrandingRow | null | undefined)?.brand_keyword, DEFAULT_BRANDING.brandKeyword),
     navbarLogoUrl: cleanText('navbarLogoUrl' in (value || {}) ? (value as Partial<BrandingSettings>).navbarLogoUrl : (value as BrandingRow | null | undefined)?.navbar_logo_url, DEFAULT_BRANDING.navbarLogoUrl),
     footerLogoUrl: cleanText('footerLogoUrl' in (value || {}) ? (value as Partial<BrandingSettings>).footerLogoUrl : (value as BrandingRow | null | undefined)?.footer_logo_url, DEFAULT_BRANDING.footerLogoUrl),
+    logoSize: cleanLogoSize('logoSize' in (value || {}) ? (value as Partial<BrandingSettings>).logoSize : (value as BrandingRow | null | undefined)?.logo_size, DEFAULT_BRANDING.logoSize),
     faviconIcoUrl: cleanText('faviconIcoUrl' in (value || {}) ? (value as Partial<BrandingSettings>).faviconIcoUrl : (value as BrandingRow | null | undefined)?.favicon_ico_url, DEFAULT_BRANDING.faviconIcoUrl),
     favicon16Url: cleanText('favicon16Url' in (value || {}) ? (value as Partial<BrandingSettings>).favicon16Url : (value as BrandingRow | null | undefined)?.favicon_16_url, DEFAULT_BRANDING.favicon16Url),
     favicon32Url: cleanText('favicon32Url' in (value || {}) ? (value as Partial<BrandingSettings>).favicon32Url : (value as BrandingRow | null | undefined)?.favicon_32_url, DEFAULT_BRANDING.favicon32Url),
@@ -317,6 +327,7 @@ function toRowPayload(branding: BrandingSettings) {
     brand_keyword: branding.brandKeyword,
     navbar_logo_url: branding.navbarLogoUrl,
     footer_logo_url: branding.footerLogoUrl,
+    logo_size: branding.logoSize,
     favicon_ico_url: branding.faviconIcoUrl,
     favicon_16_url: branding.favicon16Url,
     favicon_32_url: branding.favicon32Url,
@@ -638,7 +649,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('site_branding')
-        .select('brand_name, brand_keyword, navbar_logo_url, footer_logo_url, favicon_ico_url, favicon_16_url, favicon_32_url, apple_touch_icon_url, favicon_192_url, favicon_512_url, regulatory_region, license, institutional_title, institutional_description, depositor_protection_title, depositor_protection_description, depositor_protection_url, legal_contact_email, palette, updated_at')
+        .select('brand_name, brand_keyword, navbar_logo_url, footer_logo_url, logo_size, favicon_ico_url, favicon_16_url, favicon_32_url, apple_touch_icon_url, favicon_192_url, favicon_512_url, regulatory_region, license, institutional_title, institutional_description, depositor_protection_title, depositor_protection_description, depositor_protection_url, legal_contact_email, palette, updated_at')
         .eq('id', BRANDING_ROW_ID)
         .maybeSingle();
 
@@ -685,7 +696,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase
       .from('site_branding')
       .upsert(toRowPayload(nextBranding), { onConflict: 'id' })
-      .select('brand_name, brand_keyword, navbar_logo_url, footer_logo_url, favicon_ico_url, favicon_16_url, favicon_32_url, apple_touch_icon_url, favicon_192_url, favicon_512_url, regulatory_region, license, institutional_title, institutional_description, depositor_protection_title, depositor_protection_description, depositor_protection_url, legal_contact_email, palette, updated_at')
+      .select('brand_name, brand_keyword, navbar_logo_url, footer_logo_url, logo_size, favicon_ico_url, favicon_16_url, favicon_32_url, apple_touch_icon_url, favicon_192_url, favicon_512_url, regulatory_region, license, institutional_title, institutional_description, depositor_protection_title, depositor_protection_description, depositor_protection_url, legal_contact_email, palette, updated_at')
       .single();
 
     if (error) {

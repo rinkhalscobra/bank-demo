@@ -49,7 +49,7 @@ export default function DashboardTaxes() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="dashboard-route space-y-7">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-serif font-bold text-neutral-900">

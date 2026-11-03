@@ -179,7 +179,7 @@ export default function DashboardLoans() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="dashboard-route space-y-7">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-neutral-900">
