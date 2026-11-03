@@ -197,6 +197,19 @@
 :root[data-site-palette] :where(.public-site, .dashboard-shell) [class*="ring-brand-"] { --tw-ring-color: var(--theme-primary) !important; }
 :root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class~="bg-brand-500"], [class~="bg-brand-600"], [class~="bg-brand-700"], [class~="bg-brand-800"], [class~="bg-brand-900"], [class~="bg-brand-950"]) { background-color: var(--theme-primary) !important; }
 
+/* Preserve the intended translucency of legacy gradient stops. The generic
+   palette bridge above maps the hue; these rules restore the stop strength. */
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="from-[#AA151B]/[0.03]"], [class*="from-[#AA151B]/[0.04]"], [class*="from-[#AA151B]/[0.05]"], [class*="from-[#AA151B]/[0.08]"], [class*="from-[#aa151b]/[0.03]"], [class*="from-[#aa151b]/[0.04]"], [class*="from-[#aa151b]/[0.05]"], [class*="from-[#aa151b]/[0.08]"]) { --tw-gradient-from: color-mix(in srgb, var(--theme-primary) 5%, transparent) var(--tw-gradient-from-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="via-[#AA151B]/[0.03]"], [class*="via-[#AA151B]/[0.04]"], [class*="via-[#AA151B]/[0.05]"], [class*="via-[#aa151b]/[0.03]"], [class*="via-[#aa151b]/[0.04]"], [class*="via-[#aa151b]/[0.05]"]) { --tw-gradient-via: color-mix(in srgb, var(--theme-primary) 5%, transparent) var(--tw-gradient-via-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="to-[#AA151B]/[0.03]"], [class*="to-[#AA151B]/[0.04]"], [class*="to-[#AA151B]/[0.05]"], [class*="to-[#aa151b]/[0.03]"], [class*="to-[#aa151b]/[0.04]"], [class*="to-[#aa151b]/[0.05]"]) { --tw-gradient-to: color-mix(in srgb, var(--theme-primary) 5%, transparent) var(--tw-gradient-to-position) !important; }
+
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="from-[#AA151B]/45"], [class*="from-[#AA151B]/55"], [class*="from-[#AA151B]/60"], [class*="from-[#aa151b]/45"], [class*="from-[#aa151b]/55"], [class*="from-[#aa151b]/60"]) { --tw-gradient-from: color-mix(in srgb, var(--theme-primary) 55%, transparent) var(--tw-gradient-from-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="via-[#AA151B]/80"], [class*="via-[#aa151b]/80"]) { --tw-gradient-via: color-mix(in srgb, var(--theme-primary) 80%, transparent) var(--tw-gradient-via-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="to-[#AA151B]/45"], [class*="to-[#AA151B]/50"], [class*="to-[#aa151b]/45"], [class*="to-[#aa151b]/50"]) { --tw-gradient-to: color-mix(in srgb, var(--theme-primary) 48%, transparent) var(--tw-gradient-to-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="from-[#AA151B]/90"], [class*="from-[#AA151B]/95"], [class*="from-[#aa151b]/90"], [class*="from-[#aa151b]/95"]) { --tw-gradient-from: color-mix(in srgb, var(--theme-primary) 93%, transparent) var(--tw-gradient-from-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="via-[#AA151B]/[0.03]"], [class*="via-[#AA151B]/[0.04]"], [class*="via-[#6B0F14]/[0.04]"], [class*="via-[#6b0f14]/[0.04]"]) { --tw-gradient-via: color-mix(in srgb, var(--theme-primary) 5%, transparent) var(--tw-gradient-via-position) !important; }
+:root[data-site-palette] :where(.public-site, .dashboard-shell) :is([class*="from-[#6B0F14]/[0.1]"], [class*="from-[#6B0F14]/[0.12]"], [class*="from-[#6b0f14]/[0.1]"], [class*="from-[#6b0f14]/[0.12]"]) { --tw-gradient-from: color-mix(in srgb, var(--theme-dark) 11%, transparent) var(--tw-gradient-from-position) !important; }
+
 .public-site { background-color: var(--palette-surface, #FFFDF4); }
 
 .dashboard-shell,

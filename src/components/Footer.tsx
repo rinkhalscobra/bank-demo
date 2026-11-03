@@ -58,7 +58,7 @@ export default function Footer() {
       <div className="mx-auto max-w-[1400px] px-6 sm:px-8 lg:px-12">
         <div className="grid gap-10 border-b border-white/10 py-12 md:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.45fr)] md:items-start md:gap-12 lg:gap-20 lg:py-14">
           <div>
-            <Link to="/" aria-label={branding.brandName} className="inline-flex bg-white px-4 py-3">
+            <Link to="/" aria-label={branding.brandName} className="inline-flex">
               <BrandLogo src={branding.footerLogoUrl} alt={branding.brandName} className="h-[4.5rem] w-auto object-contain" />
             </Link>
 

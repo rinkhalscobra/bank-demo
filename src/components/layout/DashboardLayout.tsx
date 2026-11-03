@@ -112,7 +112,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className="relative hidden w-[276px] shrink-0 flex-col border-r border-[#F1BF00]/30 bg-[#6B0F14] text-white lg:flex">
         <div className="absolute inset-x-0 top-0 h-1 bg-[#F1BF00]" aria-hidden="true" />
         <Link to="/dashboard" className="flex h-24 items-center border-b border-white/10 px-6 pt-1">
-          <span className="inline-flex bg-white px-3 py-2"><BrandLogo src={branding.navbarLogoUrl} alt={branding.brandName} className="h-14 w-auto object-contain" /></span>
+          <BrandLogo src={branding.navbarLogoUrl} alt={branding.brandName} className="h-14 w-auto object-contain" />
         </Link>
 
         <nav className="scrollbar-hide flex-1 overflow-y-auto px-4 py-6">

@@ -356,6 +356,93 @@ function fileToDataUrl(file: File) {
   });
 }
 
+function isLightNeutralPixel(pixels: Uint8ClampedArray, offset: number) {
+  const red = pixels[offset];
+  const green = pixels[offset + 1];
+  const blue = pixels[offset + 2];
+  const alpha = pixels[offset + 3];
+
+  return alpha > 0 && Math.min(red, green, blue) >= 232 && Math.max(red, green, blue) - Math.min(red, green, blue) <= 18;
+}
+
+/**
+ * Removes only a light, neutral background connected to the outside edge of a
+ * logo. White details enclosed by the artwork (for example, an eye highlight)
+ * are retained. This also makes JPEG logo uploads usable on dark site areas.
+ */
+async function prepareLogoUploadAsset(file: File): Promise<{ blob: Blob; fileName: string }> {
+  const objectUrl = URL.createObjectURL(file);
+
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('Could not prepare the uploaded logo.'));
+      img.src = objectUrl;
+    });
+    const sourceWidth = image.naturalWidth || image.width;
+    const sourceHeight = image.naturalHeight || image.height;
+    if (!sourceWidth || !sourceHeight) return { blob: file, fileName: safeFileName(file.name) };
+
+    const scale = Math.min(1, FALLBACK_LOGO_MAX_WIDTH / sourceWidth, FALLBACK_LOGO_MAX_HEIGHT / sourceHeight);
+    const width = Math.max(1, Math.round(sourceWidth * scale));
+    const height = Math.max(1, Math.round(sourceHeight * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) return { blob: file, fileName: safeFileName(file.name) };
+
+    context.clearRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+    const imageData = context.getImageData(0, 0, width, height);
+    const { data } = imageData;
+    const totalPixels = width * height;
+    const visited = new Uint8Array(totalPixels);
+    const queue = new Int32Array(totalPixels);
+    let head = 0;
+    let tail = 0;
+
+    const enqueue = (index: number) => {
+      if (visited[index] || !isLightNeutralPixel(data, index * 4)) return;
+      visited[index] = 1;
+      queue[tail++] = index;
+    };
+
+    for (let x = 0; x < width; x += 1) {
+      enqueue(x);
+      enqueue(((height - 1) * width) + x);
+    }
+    for (let y = 1; y < height - 1; y += 1) {
+      enqueue(y * width);
+      enqueue((y * width) + width - 1);
+    }
+
+    while (head < tail) {
+      const index = queue[head++];
+      const x = index % width;
+      const y = Math.floor(index / width);
+      if (x > 0) enqueue(index - 1);
+      if (x < width - 1) enqueue(index + 1);
+      if (y > 0) enqueue(index - width);
+      if (y < height - 1) enqueue(index + width);
+    }
+
+    if (tail === 0) return { blob: file, fileName: safeFileName(file.name) };
+
+    for (let position = 0; position < tail; position += 1) {
+      data[(queue[position] * 4) + 3] = 0;
+    }
+    context.putImageData(imageData, 0, 0);
+    const stem = safeFileName(file.name).replace(/\.[^.]+$/, '') || 'logo';
+    return { blob: await canvasToPngBlob(canvas), fileName: `${stem}-transparent.png` };
+  } catch {
+    return { blob: file, fileName: safeFileName(file.name) };
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
 async function imageFileToOptimizedDataUrl(file: File) {
   const objectUrl = URL.createObjectURL(file);
 
@@ -628,18 +715,21 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
       throw new Error('Please upload an image file.');
     }
 
-    const path = `logos/${slot}-${Date.now()}-${safeFileName(file.name)}`;
-    const { error } = await supabase.storage.from('site-branding').upload(path, file, {
+    const uploadAsset = await prepareLogoUploadAsset(file);
+    const path = `logos/${slot}-${Date.now()}-${uploadAsset.fileName}`;
+    const { error } = await supabase.storage.from('site-branding').upload(path, uploadAsset.blob, {
       cacheControl: '3600',
-      contentType: file.type,
+      contentType: uploadAsset.blob.type || file.type,
       upsert: false,
     });
 
     if (error) {
       setRemoteBrandingDisabled(true);
       setRemoteAvailable(false);
-      console.warn('Could not upload logo to Supabase Storage; embedding an optimized logo in branding settings:', error.message);
-      return imageFileToOptimizedDataUrl(file);
+      console.warn('Could not upload logo to Supabase Storage; embedding the prepared logo in branding settings:', error.message);
+      return uploadAsset.blob.type === 'image/png'
+        ? blobToDataUrl(uploadAsset.blob)
+        : imageFileToOptimizedDataUrl(file);
     }
 
     setRemoteBrandingDisabled(false);

@@ -2721,6 +2721,7 @@ function BrandingSettingsCard({
               />
             </label>
             {uploadButton('navbar', syncLogos ? 'Upload shared logo' : 'Upload navbar logo')}
+            <p className="text-xs text-slate-500">Light or white backgrounds connected to the edge are removed automatically and saved as a transparent PNG.</p>
           </div>
 
           {!syncLogos && (
