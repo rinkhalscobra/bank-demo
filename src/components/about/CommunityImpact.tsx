@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { TreePine, GraduationCap, Home, Heart } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -38,9 +39,8 @@ export default function CommunityImpact() {
             </div>
           </div>
           <div className="relative">
-            <img
-              src="https://images.pexels.com/photos/6646918/pexels-photo-6646918.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt={t('about.community.imageAlt')}
+            <SitePhoto
+              photo="community"
               className="w-full h-[560px] object-cover rounded-2xl shadow-soft"
             />
             <div className="absolute -bottom-6 -left-6 bg-[#AA151B] text-white p-6 rounded-2xl shadow-soft-lg max-w-[220px]">

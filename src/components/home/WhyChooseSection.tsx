@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { Link } from 'react-router-dom';
 import { CheckCircle } from 'lucide-react';
 import { useBranding } from '../../contexts/BrandingContext';
@@ -40,9 +41,8 @@ export default function WhyChooseSection() {
 
           <div className="lg:col-span-7">
             <div className="relative">
-              <img
-                src="/images/editorial/digital-security.jpg"
-                alt={t('home.why.imageAlt')}
+              <SitePhoto
+                photo="digital"
                 loading="lazy"
                 className="mb-10 h-[340px] w-full object-cover object-center"
               />

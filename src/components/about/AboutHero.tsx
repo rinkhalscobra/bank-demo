@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { useBranding } from '../../contexts/BrandingContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -33,7 +34,7 @@ export default function AboutHero() {
         </div>
 
         <div className="relative min-h-[470px] overflow-hidden lg:min-h-full">
-          <img src="/images/editorial/about-atrium.jpg" alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-[68%_center]" />
+          <SitePhoto photo="lounge" alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-[68%_center]" />
           <div className="absolute inset-x-0 bottom-0 h-1 bg-[#F1BF00]" aria-hidden="true" />
           <div className="absolute bottom-10 left-0 bg-[#710D14] px-8 py-6 text-white">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/55">Institutional banking</p>

@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { CheckCircle } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -38,9 +39,8 @@ export default function InvestmentPhilosophy() {
           </div>
           <div className="relative">
             <div className="relative overflow-hidden rounded-2xl shadow-soft-lg">
-              <img
-                src="https://images.pexels.com/photos/7567443/pexels-photo-7567443.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt={t('inv.philosophy.imageAlt')}
+              <SitePhoto
+                photo="advisory"
                 className="w-full h-[520px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#AA151B]/55 to-transparent"></div>

@@ -7,6 +7,11 @@ const languages = ['en', 'fr', 'de', 'es', 'it', 'el', 'pl', 'lt'];
 
 const groups = [
   {
+    name: 'website image descriptions',
+    main: 'src/i18n/site-photos/translations.ts',
+    external: {},
+  },
+  {
     name: 'dashboard workspace',
     main: 'src/i18n/dashboard-workspace/translations.ts',
     external: {},

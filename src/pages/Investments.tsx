@@ -1,3 +1,4 @@
+import SitePhoto from '../components/ui/SitePhoto';
 import { Shield, Target, CheckCircle, Wallet } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import '../i18n/investments';
@@ -14,13 +15,7 @@ export default function Investments() {
   return (
     <>
       <section className="relative text-white min-h-[700px] flex items-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage:
-              "url('https://images.pexels.com/photos/210600/pexels-photo-210600.jpeg?auto=compress&cs=tinysrgb&w=1600')"
-          }}
-        ></div>
+        <SitePhoto photo="growth" alt="" sizes="100vw" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#AA151B]/95 via-[#AA151B]/80 to-[#AA151B]/50"></div>
         <div className="absolute inset-0 bg-[linear-gradient(135deg,_rgba(255,255,255,0.08),_transparent_45%,_rgba(0,0,0,0.18))]" />
@@ -209,9 +204,8 @@ export default function Investments() {
               </div>
             </div>
             <div className="relative">
-              <img
-                src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt={t('inv.why.imageAlt')}
+              <SitePhoto
+                photo="advisory"
                 className="w-full h-[400px] object-cover rounded-2xl shadow-2xl"
               />
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[#AA151B]/60 to-transparent"></div>

@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useBranding } from '../../contexts/BrandingContext';
@@ -10,8 +11,8 @@ export default function HeroSection() {
   return (
     <section className="bg-[#F4F1E8] pt-20 text-[#171717]">
       <div className="relative mx-auto min-h-[690px] max-w-[1600px] overflow-hidden border-x border-[#6B0F14]/10 lg:min-h-[760px]">
-        <img
-          src="/images/editorial/urbo-headquarters.jpg"
+        <SitePhoto sizes="100vw"
+          photo="hero"
           alt=""
           fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover object-[62%_center]"

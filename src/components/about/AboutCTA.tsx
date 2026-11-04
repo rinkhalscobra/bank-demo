@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -6,13 +7,7 @@ export default function AboutCTA() {
 
   return (
     <section className="relative min-h-[480px] flex items-end">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage:
-            "url('https://images.pexels.com/photos/3184416/pexels-photo-3184416.jpeg?auto=compress&cs=tinysrgb&w=1600')",
-        }}
-      />
+      <SitePhoto photo="community" alt="" sizes="100vw" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#AA151B]/95 via-[#AA151B]/80 to-[#AA151B]/45" />
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-white/10 rounded-full blur-3xl" />

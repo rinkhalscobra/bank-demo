@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { CheckCircle } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -10,9 +11,8 @@ export default function TravelSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid gap-0 overflow-hidden rounded-2xl border border-[#AA151B]/12 lg:grid-cols-2">
           <div className="relative min-h-[400px] lg:min-h-[520px]">
-            <img
-              src="https://www.popphoto.com/uploads/2022/04/02/fly-with-film-02-scaled.jpg?auto=webp&width=1440&height=960.1875"
-              alt={t('cards.travel.imageAlt')}
+            <SitePhoto
+              photo="travel"
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
           </div>

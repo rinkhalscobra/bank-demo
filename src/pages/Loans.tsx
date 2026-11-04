@@ -1,4 +1,6 @@
+import SitePhoto from '../components/ui/SitePhoto';
 import { useLanguage } from '../contexts/LanguageContext';
+import type { SitePhotoName } from '../data/sitePhotos';
 import '../i18n/loans';
 import LoanCard from '../components/loans/LoanCard';
 import LoanHowItWorks from '../components/loans/LoanHowItWorks';
@@ -7,25 +9,25 @@ import LoanRefinancing from '../components/loans/LoanRefinancing';
 import LoanTestimonials from '../components/loans/LoanTestimonials';
 import LoanFAQ from '../components/loans/LoanFAQ';
 
-const loanTypes = [
+const loanTypes: { key: string; image: SitePhotoName; featured: boolean }[] = [
   {
     key: 'home',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiSmgsrTkS0kxJFwvtv58FRssPRrxUeT_GWA&s',
+    image: 'home',
     featured: false
   },
   {
     key: 'auto',
-    image: 'https://media.istockphoto.com/id/1138560072/photo/salesman-giving-new-car-keys-to-customer.jpg?s=612x612&w=0&k=20&c=Mp-ZV3uPdHx89kqIzjimzfUQ9qyzoFxFOwHuozDKlVA=',
+    image: 'car',
     featured: false
   },
   {
     key: 'student',
-    image: 'https://readlion.com/wp-content/uploads/2024/05/student-loan.jpeg',
+    image: 'student',
     featured: false
   },
   {
     key: 'personal',
-    image: 'https://wetrust.co.uk/wp-content/uploads/2020/07/AdobeStock_287067334-scaled.jpeg',
+    image: 'digital',
     featured: true
   }
 ];
@@ -36,13 +38,7 @@ export default function Loans() {
   return (
     <>
       <section className="relative text-white min-h-[700px] flex items-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage:
-              "url('https://www.globalimebank.com/blog/wp-content/uploads/2025/06/home-loan-img.jpg')"
-          }}
-        />
+        <SitePhoto photo="home" alt="" sizes="100vw" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#AA151B]/95 via-[#AA151B]/80 to-[#AA151B]/45" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,_rgba(255,255,255,0.08),_transparent_45%,_rgba(0,0,0,0.18))]" />

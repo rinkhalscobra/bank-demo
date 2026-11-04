@@ -1,20 +1,18 @@
+import InitialsAvatar from '../ui/InitialsAvatar';
 import { Star, Quote } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 const testimonialKeys = [
   {
     key: 't1',
-    image: 'https://images.pexels.com/photos/5257526/pexels-photo-5257526.jpeg?auto=compress&cs=tinysrgb&w=200',
     rating: 5,
   },
   {
     key: 't2',
-    image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200',
     rating: 5,
   },
   {
     key: 't3',
-    image: 'https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=200',
     rating: 5,
   },
 ] as const;
@@ -58,11 +56,7 @@ export default function InvestmentTestimonials() {
                 "{t(`inv.testimonials.${item.key}.text`)}"
               </p>
               <div className="flex items-center mt-auto">
-                <img
-                  src={item.image}
-                  alt={t(`inv.testimonials.${item.key}.name`)}
-                  className="h-12 w-12 rounded-full object-cover ring-2 ring-white/20"
-                />
+                <InitialsAvatar name={t(`inv.testimonials.${item.key}.name`)} inverse className="h-12 w-12" />
                 <div className="ml-4">
                   <div className="font-semibold text-white text-sm">{t(`inv.testimonials.${item.key}.name`)}</div>
                   <div className="text-xs text-white/60">{t(`inv.testimonials.${item.key}.role`)}</div>

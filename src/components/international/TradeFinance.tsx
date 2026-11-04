@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { CheckCircle } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
@@ -44,9 +45,8 @@ export default function TradeFinance() {
 
           <div className="space-y-6">
             <div className="relative overflow-hidden rounded-2xl shadow-soft-lg">
-              <img
-                src="https://images.pexels.com/photos/1427107/pexels-photo-1427107.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt={t('intl.trade.imageAlt')}
+              <SitePhoto
+                photo="trade"
                 className="w-full h-80 object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#AA151B]/55 to-transparent" />

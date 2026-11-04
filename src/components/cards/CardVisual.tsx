@@ -22,10 +22,10 @@ export default function CardVisual({ variant, label }: { variant: 'platinum' | '
   const s = styles[variant];
 
   return (
-    <div className="p-4">
-      <div className={`relative w-[320px] aspect-[1.586/1] bg-gradient-to-br ${s.bg} rounded-2xl p-6 overflow-hidden hover:scale-[1.02] transition-transform duration-500`}>
-        <div className="absolute top-0 right-0 w-48 h-48 bg-white/[0.06] rounded-full -tranneutral-y-1/2 tranneutral-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-36 h-36 bg-white/[0.04] rounded-full tranneutral-y-1/2 -tranneutral-x-1/3" />
+    <div className="w-full">
+      <div className={`relative w-full aspect-[1.586/1] bg-gradient-to-br ${s.bg} rounded-2xl p-5 sm:p-6 overflow-hidden hover:scale-[1.02] transition-transform duration-500`}>
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/[0.06] rounded-full -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-36 h-36 bg-white/[0.04] rounded-full translate-y-1/2 -translate-x-1/3" />
         <div className="relative h-full flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <Landmark className="w-8 h-8 text-white/90" />

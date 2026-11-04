@@ -1,3 +1,4 @@
+import SitePhoto from '../components/ui/SitePhoto';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Building2, Eye, EyeOff, ArrowLeft, KeyRound } from 'lucide-react';
@@ -197,11 +198,9 @@ export default function OnlineBanking() {
     return (
       <div
         className="relative flex min-h-screen items-center justify-center bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://www.barings.com/globalassets/2-assets/strategies/real-estate/brea---properties/metropol/metropol-hero.jpg?t=20250721074040')"
-        }}
       >
+        <SitePhoto photo="lounge" alt="" sizes="100vw" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-black/65" aria-hidden="true" />
         <div className="relative z-10 flex w-full items-center justify-center px-4 pb-10 pt-24 sm:px-6 lg:px-8">
           <div className="w-full max-w-md">
             <div className="rounded-[2rem] border border-white/65 bg-white/12 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)] backdrop-blur-xl sm:p-8">
@@ -297,11 +296,9 @@ export default function OnlineBanking() {
   return (
     <div
       className="relative flex min-h-screen items-center justify-center bg-cover bg-center"
-      style={{
-        backgroundImage:
-          "url('https://www.barings.com/globalassets/2-assets/strategies/real-estate/brea---properties/metropol/metropol-hero.jpg?t=20250721074040')"
-      }}
     >
+      <SitePhoto photo="lounge" alt="" sizes="100vw" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-0 bg-black/65" aria-hidden="true" />
       <div className="relative z-10 flex w-full items-center justify-center px-4 pb-10 pt-24 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
           <div className="rounded-[2rem] border border-white/65 bg-white/12 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)] backdrop-blur-xl sm:p-8">

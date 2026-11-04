@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { Smartphone, Bell, Lock, BarChart3, Wallet, Eye } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -33,9 +34,8 @@ export default function CardDigitalManagement() {
             </p>
           </div>
           <div className="relative overflow-hidden rounded-2xl border border-[#AA151B]/12">
-            <img
-              src="https://images.pexels.com/photos/6347720/pexels-photo-6347720.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt={t('cards.digital.imageAlt')}
+            <SitePhoto
+              photo="digital"
               className="w-full object-cover aspect-[4/3]"
             />
           </div>

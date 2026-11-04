@@ -1,6 +1,8 @@
 import { CheckCircle } from 'lucide-react';
+import SitePhoto from '../ui/SitePhoto';
+import type { SitePhotoName } from '../../data/sitePhotos';
 
-export default function LoanCard({ t, loanKey, image, featured }: { t: (k: string) => string; loanKey: string; image: string; featured: boolean }) {
+export default function LoanCard({ t, loanKey, image, featured }: { t: (k: string) => string; loanKey: string; image: SitePhotoName; featured: boolean }) {
   const benefits = [1, 2, 3, 4].map(i => t(`loans.${loanKey}.benefit${i}`));
 
   if (featured) {
@@ -9,11 +11,11 @@ export default function LoanCard({ t, loanKey, image, featured }: { t: (k: strin
         <div className="absolute -top-4 left-1/2 -tranneutral-x-1/2 rounded-full bg-[#AA151B] px-5 py-1.5 text-sm font-semibold text-white">
           {t(`loans.${loanKey}.badge`)}
         </div>
-        <div className="w-46 h-28 rounded-xl flex items-center justify-center mb-6">
-          <img
-            src={image}
-            alt={t(`loans.${loanKey}.name`)}
-            className="w-46 h-36 object-contain rounded-xl"
+        <div className="aspect-[3/2] w-full overflow-hidden rounded-xl mb-6">
+          <SitePhoto
+            photo={image}
+            sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 25vw"
+            className="h-full w-full object-cover"
           />
         </div>
         <h3 className="text-2xl font-display font-bold text-black mb-4">{t(`loans.${loanKey}.name`)}</h3>
@@ -35,11 +37,11 @@ export default function LoanCard({ t, loanKey, image, featured }: { t: (k: strin
 
   return (
     <div className="rounded-2xl border border-[#AA151B]/18 bg-white p-8 shadow-soft transition-all duration-300 hover:border-[#AA151B]/35 hover:shadow-soft-lg">
-      <div className="w-46 h-28 rounded-xl flex items-center justify-center mb-6">
-        <img
-          src={image}
-          alt={t(`loans.${loanKey}.name`)}
-          className="w-46 h-36 object-contain rounded-xl"
+      <div className="aspect-[3/2] w-full overflow-hidden rounded-xl mb-6">
+        <SitePhoto
+          photo={image}
+          sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 25vw"
+          className="h-full w-full object-cover"
         />
       </div>
       <h3 className="text-2xl font-display font-bold text-black mb-4">{t(`loans.${loanKey}.name`)}</h3>

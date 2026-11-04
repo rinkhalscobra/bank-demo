@@ -1,19 +1,5 @@
 import { CheckCircle } from 'lucide-react';
-
-const cardImages = {
-  platinum: {
-    src: 'https://caribbean.mastercard.com/content/dam/public/mastercardcom/lac/en-region-car/personal/find-a-card/platinum-credit-card/platinum-credit-card-1280x720.jpg',
-    className: 'object-cover scale-[1.35]',
-  },
-  gold: {
-    src: 'https://gallery.yopriceville.com/var/resizes/Free-Clipart-Pictures/Money.PNG/Gold_Bank_Card_PNG_Clipart.png?m=1629832502',
-    className: 'object-contain',
-  },
-  business: {
-    src: 'https://media.chase.com/content/dam/chase/media-center/pr/ink-biz-prem-card-vsb.png',
-    className: 'object-contain',
-  },
-};
+import CardVisual from './CardVisual';
 
 export default function CreditCardItem({
   t,
@@ -27,7 +13,6 @@ export default function CreditCardItem({
   const benefits = [1, 2, 3, 4].map(i => t(`cards.${variant}.benefit${i}`));
 
   const checkColor = 'text-[#AA151B]';
-  const image = cardImages[variant];
 
   return (
     <div
@@ -47,11 +32,7 @@ export default function CreditCardItem({
         }`}
       >
         <div className="mx-auto flex aspect-[1.586/1] w-full max-w-[420px] items-center justify-center overflow-hidden rounded-2xl">
-          <img
-            src={image.src}
-            alt={t(`cards.${variant}.name`)}
-            className={`h-full w-full ${image.className}`}
-          />
+          <CardVisual variant={variant} label={t(`cards.${variant}.name`)} />
         </div>
       </div>
 

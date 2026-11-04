@@ -8,6 +8,7 @@
     "build": "vite build",
     "check:i18n": "node scripts/check-dashboard-i18n.mjs",
     "check:palettes": "node scripts/check-site-palettes.mjs",
+    "check:images": "node scripts/check-site-images.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"

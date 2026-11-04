@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { CheckCircle } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
@@ -13,17 +14,15 @@ export default function GlobalMobility() {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="order-2 lg:order-1 space-y-6">
             <div className="relative overflow-hidden rounded-2xl shadow-soft-lg">
-              <img
-                src="https://images.pexels.com/photos/2033343/pexels-photo-2033343.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt={t('intl.mobility.imageAlt1')}
+              <SitePhoto
+                photo="travel"
                 className="w-full h-80 object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#AA151B]/55 to-transparent" />
             </div>
             <div className="relative overflow-hidden rounded-2xl shadow-soft-lg">
-              <img
-                src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt={t('intl.mobility.imageAlt2')}
+              <SitePhoto
+                photo="business"
                 className="w-full h-56 object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#AA151B]/45 to-transparent" />

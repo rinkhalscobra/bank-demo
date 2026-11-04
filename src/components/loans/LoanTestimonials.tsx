@@ -1,3 +1,4 @@
+import InitialsAvatar from '../ui/InitialsAvatar';
 import { Star, Quote } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -6,7 +7,6 @@ const testimonialMeta = [
     key: 't1',
     name: 'Sarah & David Mitchell',
     location: 'Portland, OR',
-    image: 'https://images.pexels.com/photos/7578878/pexels-photo-7578878.jpeg?auto=compress&cs=tinysrgb&w=400',
     rating: 5,
     amount: '$425,000',
   },
@@ -14,7 +14,6 @@ const testimonialMeta = [
     key: 't2',
     name: 'Michael Torres',
     location: 'Austin, TX',
-    image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400',
     rating: 5,
     amount: '$38,500',
   },
@@ -22,7 +21,6 @@ const testimonialMeta = [
     key: 't3',
     name: 'Jennifer Okafor',
     location: 'Chicago, IL',
-    image: 'https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=400',
     rating: 5,
     amount: '$28,000',
   },
@@ -64,11 +62,7 @@ export default function LoanTestimonials() {
                 {t(`loans.test.${tm.key}.quote`)}
               </p>
               <div className="flex items-center gap-4 border-t border-[#AA151B]/12 pt-5">
-                <img
-                  src={tm.image}
-                  alt={tm.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
+                <InitialsAvatar name={tm.name} className="h-12 w-12" />
                 <div>
                   <p className="font-semibold text-black text-sm">{tm.name}</p>
                   <p className="text-black text-xs">{tm.location}</p>

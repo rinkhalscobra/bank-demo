@@ -1,3 +1,4 @@
+import InitialsAvatar from '../ui/InitialsAvatar';
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -5,8 +6,6 @@ import { useLanguage } from '../../contexts/LanguageContext';
 const testimonials = [
   {
     key: '1',
-    avatar: 'https://i.pravatar.cc/160?img=32',
-    avatarAlt: 'Portrait of Sophie de Vries',
     review: 'https://home.online-mgcb.com/trustpilot.png',
     reviewAlt: 'Trustpilot',
     reviewH: 'h-5',
@@ -14,8 +13,6 @@ const testimonials = [
   },
   {
     key: '2',
-    avatar: 'https://i.pravatar.cc/160?img=12',
-    avatarAlt: 'Portrait of James Chen',
     review: 'https://home.online-mgcb.com/google.png',
     reviewAlt: 'Google Reviews',
     reviewH: 'h-6',
@@ -23,8 +20,6 @@ const testimonials = [
   },
   {
     key: '3',
-    avatar: 'https://i.pravatar.cc/160?img=47',
-    avatarAlt: 'Portrait of Emily Rodriguez',
     review: 'https://home.online-mgcb.com/reviews.png',
     reviewAlt: 'Reviews',
     reviewH: 'h-6',
@@ -32,8 +27,6 @@ const testimonials = [
   },
   {
     key: '4',
-    avatar: 'https://i.pravatar.cc/160?img=14',
-    avatarAlt: 'Portrait of Oliver Thompson',
     review: 'https://home.online-mgcb.com/trustpilot.png',
     reviewAlt: 'Trustpilot',
     reviewH: 'h-5',
@@ -41,8 +34,6 @@ const testimonials = [
   },
   {
     key: '5',
-    avatar: 'https://i.pravatar.cc/160?img=18',
-    avatarAlt: 'Portrait of Klaus Schmidt',
     review: 'https://home.online-mgcb.com/google.png',
     reviewAlt: 'Google Reviews',
     reviewH: 'h-6',
@@ -50,8 +41,6 @@ const testimonials = [
   },
   {
     key: '6',
-    avatar: 'https://i.pravatar.cc/160?img=28',
-    avatarAlt: 'Portrait of Marie Dubois',
     review: 'https://home.online-mgcb.com/reviews.png',
     reviewAlt: 'Reviews',
     reviewH: 'h-6',
@@ -59,8 +48,6 @@ const testimonials = [
   },
   {
     key: '7',
-    avatar: 'https://i.pravatar.cc/160?img=60',
-    avatarAlt: 'Portrait of Yuki Tanaka',
     review: 'https://home.online-mgcb.com/trustpilot.png',
     reviewAlt: 'Trustpilot',
     reviewH: 'h-5',
@@ -68,8 +55,6 @@ const testimonials = [
   },
   {
     key: '8',
-    avatar: 'https://i.pravatar.cc/160?img=49',
-    avatarAlt: 'Portrait of Sophie Anderson',
     review: 'https://home.online-mgcb.com/google.png',
     reviewAlt: 'Google Reviews',
     reviewH: 'h-6',
@@ -158,7 +143,7 @@ export default function TestimonialsSection() {
 
               <div className="flex items-center gap-4 pt-6 border-t border-surface-100">
                 <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-surface-200">
-                  <img src={item.avatar} alt={`${t('home.testimonials.portrait')} ${t(`home.testimonials.${item.key}.name`)}`} className="w-full h-full object-cover" />
+                  <InitialsAvatar name={t(`home.testimonials.${item.key}.name`)} className="h-full w-full" />
                 </div>
                 <div>
                   <div className="font-semibold text-surface-900 text-sm">{t(`home.testimonials.${item.key}.name`)}</div>

@@ -1,3 +1,4 @@
+import SitePhoto from '../components/ui/SitePhoto';
 import { useLanguage } from '../contexts/LanguageContext';
 import '../i18n/cards';
 import CreditCardItem from '../components/cards/CreditCardItem';
@@ -19,9 +20,8 @@ export default function Cards() {
 
         {/* Background Image */}
         <div className="absolute inset-0">
-          <img
-            src="https://www.forbes.com/advisor/wp-content/uploads/2022/07/credit_cards.jpeg-1-1.jpg"
-            alt={t('cards.hero.imageAlt')}
+          <SitePhoto sizes="100vw" fetchPriority="high"
+            photo="cards"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#AA151B]/95 via-[#AA151B]/80 to-[#AA151B]/50" />

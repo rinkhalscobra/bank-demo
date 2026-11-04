@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function BusinessHero() {
@@ -29,7 +30,7 @@ export default function BusinessHero() {
         </div>
 
         <div className="relative min-h-[480px] lg:min-h-full">
-          <img src="/images/editorial/private-advisory.jpg" alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-center" />
+          <SitePhoto photo="business" alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-center" />
           <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#710D14] to-transparent" />
           <div className="absolute bottom-0 right-0 h-2 w-40 bg-[#AA151B]" aria-hidden="true" />
         </div>

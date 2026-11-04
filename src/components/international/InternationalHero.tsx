@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -6,8 +7,8 @@ export default function InternationalHero() {
 
   return (
     <section className="relative min-h-[760px] overflow-hidden bg-[#171717] pt-20 text-white">
-      <img
-        src="/images/editorial/international-banking.jpg"
+      <SitePhoto sizes="100vw"
+        photo="city"
         alt=""
         fetchPriority="high"
         className="absolute inset-0 h-full w-full object-cover object-center"

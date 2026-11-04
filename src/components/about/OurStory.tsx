@@ -1,8 +1,7 @@
-import { useBranding } from '../../contexts/BrandingContext';
+import SitePhoto from '../ui/SitePhoto';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function OurStory() {
-  const { applyBranding } = useBranding();
   const { t } = useLanguage();
 
   return (
@@ -10,9 +9,8 @@ export default function OurStory() {
       <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-12">
         <div className="relative lg:col-span-7">
           <div className="absolute -left-4 -top-4 h-28 w-28 bg-[#F1BF00]" aria-hidden="true" />
-          <img
-            src="/images/editorial/heritage-ledger.jpg"
-            alt={applyBranding(t('about.story.imageAlt'))}
+          <SitePhoto
+            photo="advisory"
             loading="lazy"
             className="relative h-[520px] w-full object-cover object-center"
           />

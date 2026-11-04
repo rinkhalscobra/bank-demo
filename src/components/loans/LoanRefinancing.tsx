@@ -1,3 +1,4 @@
+import SitePhoto from '../ui/SitePhoto';
 import { ArrowDownRight, Shield, Clock, PiggyBank, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -26,9 +27,8 @@ export default function LoanRefinancing() {
             </p>
           </div>
           <div className="relative">
-            <img
-              src="https://www.packsend.co.uk/wp-content/uploads/2025/04/Taking-Out-A-Bank-Loan-For-A-First-Time-Business-Franchise.jpg"
-              alt={t('loans.refi.primaryImageAlt')}
+            <SitePhoto
+              photo="home"
               className="w-full h-[520px] object-cover rounded-2xl shadow-soft-lg"
             />
             <div className="absolute -bottom-6 -left-6 bg-gradient-to-br from-[#AA151B] to-[#8C1118] text-white p-6 rounded-2xl shadow-xl hidden lg:block">
@@ -83,9 +83,8 @@ export default function LoanRefinancing() {
               </ul>
             </div>
             <div>
-              <img
-                src="https://images.pexels.com/photos/8293778/pexels-photo-8293778.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt={t('loans.refi.advisorImageAlt')}
+              <SitePhoto
+                photo="advisory"
                 className="w-full h-[320px] object-cover rounded-2xl shadow-soft-lg"
               />
             </div>
