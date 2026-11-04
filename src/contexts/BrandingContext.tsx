@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
+import { updateSiteMetadata } from '../lib/siteMetadata';
 
 const BRANDING_ROW_ID = 'default';
 const BRANDING_CACHE_KEY = 'site-branding:settings';
@@ -130,8 +131,8 @@ type BrandingContextType = {
 };
 
 export const DEFAULT_BRANDING: BrandingSettings = {
-  brandName: 'BetaShares',
-  brandKeyword: LEGACY_BRAND_WORD,
+  brandName: 'Banking',
+  brandKeyword: 'Banking',
   navbarLogoUrl: '/logo.png',
   footerLogoUrl: '/logo.png',
   logoSize: 64,
@@ -163,6 +164,11 @@ function cleanOptionalText(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function cleanBrandText(value: unknown, fallback: string) {
+  const text = cleanText(value, fallback);
+  return text.toLowerCase() === LEGACY_BRAND_WORD.toLowerCase() ? fallback : text;
+}
+
 function cleanLogoSize(value: unknown, fallback: number) {
   const size = typeof value === 'number' ? value : Number(value);
   return Number.isFinite(size) ? Math.round(Math.min(160, Math.max(32, size))) : fallback;
@@ -185,8 +191,8 @@ function cleanHttpUrl(value: unknown, fallback: string) {
 
 function normalizeBranding(value: Partial<BrandingSettings> | BrandingRow | null | undefined): BrandingSettings {
   return {
-    brandName: cleanText('brandName' in (value || {}) ? (value as Partial<BrandingSettings>).brandName : (value as BrandingRow | null | undefined)?.brand_name, DEFAULT_BRANDING.brandName),
-    brandKeyword: cleanText('brandKeyword' in (value || {}) ? (value as Partial<BrandingSettings>).brandKeyword : (value as BrandingRow | null | undefined)?.brand_keyword, DEFAULT_BRANDING.brandKeyword),
+    brandName: cleanBrandText('brandName' in (value || {}) ? (value as Partial<BrandingSettings>).brandName : (value as BrandingRow | null | undefined)?.brand_name, DEFAULT_BRANDING.brandName),
+    brandKeyword: cleanBrandText('brandKeyword' in (value || {}) ? (value as Partial<BrandingSettings>).brandKeyword : (value as BrandingRow | null | undefined)?.brand_keyword, DEFAULT_BRANDING.brandKeyword),
     navbarLogoUrl: cleanText('navbarLogoUrl' in (value || {}) ? (value as Partial<BrandingSettings>).navbarLogoUrl : (value as BrandingRow | null | undefined)?.navbar_logo_url, DEFAULT_BRANDING.navbarLogoUrl),
     footerLogoUrl: cleanText('footerLogoUrl' in (value || {}) ? (value as Partial<BrandingSettings>).footerLogoUrl : (value as BrandingRow | null | undefined)?.footer_logo_url, DEFAULT_BRANDING.footerLogoUrl),
     logoSize: cleanLogoSize('logoSize' in (value || {}) ? (value as Partial<BrandingSettings>).logoSize : (value as BrandingRow | null | undefined)?.logo_size, DEFAULT_BRANDING.logoSize),
@@ -277,7 +283,7 @@ export function getBrandFileSlug(branding: BrandingSettings) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-  return clean || 'betashares-bank';
+  return clean || 'banking-site';
 }
 
 function svgToDataUrl(svg: string) {
@@ -826,10 +832,8 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     // that are not wrapped in the public-site or dashboard-shell containers.
     document.documentElement.dataset.sitePalette = palette.id;
 
-    document.title = branding.brandName;
+    updateSiteMetadata(branding.brandName);
     document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content', palette.primary);
-    document.head.querySelector<HTMLMetaElement>('meta[name="application-name"]')?.setAttribute('content', branding.brandName);
-    document.head.querySelector<HTMLMetaElement>('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', branding.brandName);
     updateHeadLink('icon', 'any', branding.faviconIcoUrl, 'image/x-icon');
     updateHeadLink('icon', '16x16', branding.favicon16Url, 'image/png');
     updateHeadLink('icon', '32x32', branding.favicon32Url, 'image/png');

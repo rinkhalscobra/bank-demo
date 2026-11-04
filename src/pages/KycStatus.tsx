@@ -1,9 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { Clock, Shield, CheckCircle, XCircle, LogOut, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import BrandLogo from '../components/ui/BrandLogo';
+import { useBranding } from '../contexts/BrandingContext';
 
 export default function KycStatus() {
   const { kycStatus, signOut, refreshKycStatus, user } = useAuth();
+  const { branding } = useBranding();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -59,9 +62,9 @@ export default function KycStatus() {
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex flex-col items-start">
             <span className="inline-flex bg-white px-3 py-2">
-              <img
-                src="/logo.png"
-                alt="BetaShares"
+              <BrandLogo
+                src={branding.navbarLogoUrl}
+                alt={branding.brandName}
                 className="h-16 w-auto max-w-[280px] flex-shrink-0 object-contain"
               />
             </span>

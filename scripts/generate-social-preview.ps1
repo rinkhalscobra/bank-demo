@@ -1,5 +1,5 @@
 param(
-  [string]$OutputPath = (Join-Path $PSScriptRoot '..\public\betashares-preview-20261013.png')
+  [string]$OutputPath = (Join-Path $PSScriptRoot '..\public\site-preview.png')
 )
 
 $ErrorActionPreference = 'Stop'
