@@ -19,6 +19,13 @@ export const SITE_PALETTES = [
   { id: 'forest', name: 'Forest', primary: '#28734B', dark: '#174A30', accent: '#C4A64A', surface: '#F7FAF4', description: 'Evergreen and soft gold' },
   { id: 'royal', name: 'Royal', primary: '#5543A5', dark: '#392D78', accent: '#D9B95B', surface: '#F8F7FC', description: 'Indigo and champagne' },
   { id: 'slate', name: 'Slate', primary: '#3D596D', dark: '#273D4C', accent: '#D08B54', surface: '#F7F9FA', description: 'Blue gray and copper' },
+  { id: 'cobalt', name: 'Cobalt', primary: '#2457A7', dark: '#142D54', accent: '#B8D7FA', surface: '#F4F8FE', description: 'Crisp blue and soft sky' },
+  { id: 'lagoon', name: 'Lagoon', primary: '#126C63', dark: '#0B3935', accent: '#A3DDCE', surface: '#F3FAF8', description: 'Deep teal and fresh mint' },
+  { id: 'plum', name: 'Plum', primary: '#75406D', dark: '#3B2038', accent: '#D9B6E2', surface: '#FBF7FC', description: 'Rich plum and soft lilac' },
+  { id: 'graphite', name: 'Graphite', primary: '#3F4652', dark: '#20252D', accent: '#C5CBD4', surface: '#F5F6F8', description: 'Charcoal and brushed silver' },
+  { id: 'terracotta', name: 'Terracotta', primary: '#934A32', dark: '#4E281E', accent: '#EFC0A4', surface: '#FCF7F3', description: 'Warm clay and pale apricot' },
+  { id: 'espresso', name: 'Espresso', primary: '#654B3E', dark: '#30251F', accent: '#D5C0A5', surface: '#FAF7F2', description: 'Coffee brown and soft linen' },
+  { id: 'rosewood', name: 'Rosewood', primary: '#963F5B', dark: '#4C2031', accent: '#EDBED0', surface: '#FCF6F8', description: 'Deep berry and blush pink' },
 ] as const;
 export type SitePaletteId = typeof SITE_PALETTES[number]['id'];
 
