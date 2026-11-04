@@ -7,6 +7,16 @@ const languages = ['en', 'fr', 'de', 'es', 'it', 'el', 'pl', 'lt'];
 
 const groups = [
   {
+    name: 'dashboard workspace',
+    main: 'src/i18n/dashboard-workspace/translations.ts',
+    external: {},
+  },
+  {
+    name: 'dashboard overview layout',
+    main: 'src/i18n/dashboardOverview/layoutTranslations.ts',
+    external: {},
+  },
+  {
     name: 'dashboard overview',
     main: 'src/i18n/dashboardOverview/translations.ts',
     external: { lt: 'src/i18n/dashboardOverview/lt.ts' },

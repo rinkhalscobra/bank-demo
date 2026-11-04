@@ -16,6 +16,8 @@ import {
   Clock,
   CheckCircle,
   Check,
+  ArrowRight,
+  Landmark,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTransactions } from '../../hooks/useBankingData';
@@ -29,18 +31,18 @@ import BalanceAnalysisChart from '../../components/dashboard/BalanceAnalysisChar
 import { useTaxSummary } from '../../hooks/useTaxSummary';
 import { useLanguage } from '../../contexts/LanguageContext';
 import {
-  getBalanceStatusClasses,
   isBalanceAvailable,
-  normalizeBalanceStatus,
 } from '../../lib/balanceStatus';
 import {
-  getLocalizedBalanceCardEyebrow,
-  getLocalizedBalanceCardTitle,
   getLocalizedBalanceStatusLabel,
   getLocalizedRestrictedBalanceCountMessage,
 } from '../../lib/balanceStatusI18n';
 import '../../i18n/dashboardOverview/translations';
 import { formatTaxCurrency } from '../../lib/taxCurrency';
+import OverviewAssetLedger, { type OverviewAsset } from '../../components/dashboard/overview/OverviewAssetLedger';
+import OverviewAccountSelector from '../../components/dashboard/overview/OverviewAccountSelector';
+import '../../i18n/dashboardOverview/layoutTranslations';
+import '../../components/dashboard/overview/overview.css';
 
 const CURRENCY_CONFIG: Record<string, { symbol: string; locale: string }> = {
   USD: { symbol: 'USD', locale: 'en-US' },
@@ -124,44 +126,6 @@ function bankingStatusClasses(status: string) {
   return 'border-neutral-200 bg-neutral-50 text-neutral-600';
 }
 
-function RestrictedBalanceState({
-  status,
-  amount,
-  t,
-}: {
-  status: unknown;
-  amount: string;
-  t: (key: string) => string;
-}) {
-  const normalizedStatus = normalizeBalanceStatus(status);
-  const isPending = normalizedStatus === 'pending';
-  const Icon = isPending ? Clock : PauseCircle;
-  const panelClasses = isPending
-    ? 'border-amber-200/80 bg-amber-50/60'
-    : 'border-neutral-200 bg-neutral-100/80';
-  const iconWrapClasses = isPending
-    ? 'bg-amber-100 text-amber-700'
-    : 'bg-neutral-200 text-neutral-700';
-  const eyebrowClasses = isPending ? 'text-amber-700' : 'text-neutral-600';
-
-  return (
-    <div className={`mt-4 rounded-2xl border p-4 ${panelClasses}`}>
-      <div className="flex items-start gap-3">
-        <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${iconWrapClasses}`}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className="min-w-0">
-          <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${eyebrowClasses}`}>
-            {getLocalizedBalanceCardEyebrow(t, status)}
-          </p>
-          <p className="mt-1 text-sm font-semibold text-neutral-700">{getLocalizedBalanceCardTitle(t, status)}</p>
-          <p className="mt-0.5 text-2xl font-bold tracking-tight text-neutral-900">{amount}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function DashboardOverview() {
   const { user, profile } = useAuth();
   const { fiatBalances, loading: fiatLoading } = useFiatBalances();
@@ -174,6 +138,7 @@ export default function DashboardOverview() {
   const { t, language } = useLanguage();
   const [showBalances, setShowBalances] = useState(true);
   const [ibanCopied, setIbanCopied] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState('');
   const localeMap: Record<string, string> = {
     en: 'en-US',
     fr: 'fr-FR',
@@ -332,381 +297,148 @@ export default function DashboardOverview() {
     );
   }
 
+  const selectedAccount = fiatBalances.find((account) => account.id === selectedAccountId)
+    || availableFiatBalances[0]
+    || fiatBalances[0];
+  const assets: OverviewAsset[] = [
+    ...fiatBalances.map((balance) => ({
+      id: `fiat:${balance.id}`, kind: 'fiat' as const, code: balance.currency,
+      name: getFiatAssetName(balance.currency, balance.name),
+      amount: formatCurrency(balance.balance, balance.currency, currentLocale),
+      status: balance.status, icon: CURRENCY_ICONS[balance.currency] || DollarSign,
+    })),
+    ...[...cryptoBalances]
+      .sort((a, b) => (CRYPTO_SORT_ORDER[a.symbol] ?? 99) - (CRYPTO_SORT_ORDER[b.symbol] ?? 99))
+      .map((balance) => ({
+        id: `crypto:${balance.id}`, kind: 'crypto' as const, code: balance.symbol, name: balance.name,
+        amount: balance.balance.toLocaleString(currentLocale, { minimumFractionDigits: 2, maximumFractionDigits: 4 }),
+        status: balance.status, logo: CRYPTO_LOGOS[balance.symbol],
+      })),
+  ];
+  const actions = [
+    { to: '/dashboard/transfers', icon: Send, key: 'transferMoney' },
+    { to: '/dashboard/transactions', icon: Receipt, key: 'transactionHistory' },
+    { to: '/dashboard/cards', icon: CreditCard, key: 'manageCards' },
+    { to: '/dashboard/bill-pay', icon: Zap, key: 'payBills' },
+  ];
+  const taxItems = [
+    { key: 'pending', amount: taxSummary.totals.pending, icon: Clock },
+    { key: 'onHold', amount: taxSummary.totals.on_hold, icon: PauseCircle },
+    { key: 'paid', amount: taxSummary.totals.paid, icon: CheckCircle },
+  ];
+
   return (
-    <div className="dashboard-route space-y-7">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex-1">
-          <h1 className="text-2xl font-serif font-bold text-neutral-900">
-            {greeting()}, {user?.user_metadata?.full_name?.split(' ')[0] || t('dashboardOverview.greeting.fallbackName')}
-          </h1>
-          <div className="mt-3 w-full max-w-5xl border border-[#AA151B]/14 bg-white px-5 py-4 shadow-[0_20px_50px_-42px_rgba(170,21,27,0.4)] sm:px-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#AA151B]">
-                  {t('dashboardOverview.account.iban')}
-                </p>
-                <p className="mt-2 break-all font-mono text-lg font-semibold text-neutral-800 sm:text-2xl">
-                  {profile?.account_iban || t('dashboardOverview.account.notAssigned')}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => void handleCopyIban()}
-                disabled={!profile?.account_iban}
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 border border-[#AA151B]/14 bg-[#AA151B]/[0.04] px-4 text-sm font-semibold text-[#AA151B] transition-colors hover:bg-[#AA151B]/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {ibanCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {ibanCopied
-                  ? t('dashboardOverview.account.copied')
-                  : t('dashboardOverview.account.copy')}
-              </button>
-            </div>
-          </div>
+    <div className="dashboard-route overview-workspace">
+      <header className="overview-welcome">
+        <div>
+          <p className="overview-eyebrow">{t('dashboardLayout.nav.overview')}</p>
+          <h1>{greeting()}, {user?.user_metadata?.full_name?.split(' ')[0] || t('dashboardOverview.greeting.fallbackName')}</h1>
+          <p className="overview-muted">{t('dashboardOverview.summary')}</p>
         </div>
-        <button
-          onClick={() => setShowBalances(!showBalances)}
-          className="flex items-center gap-2 self-start text-sm text-[#AA151B] transition-colors hover:text-[#710D14] sm:self-start"
-        >
-          {showBalances ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+        <button type="button" className="overview-button overview-visibility" onClick={() => setShowBalances((visible) => !visible)} aria-pressed={!showBalances}>
+          {showBalances ? <EyeOff size={16} /> : <Eye size={16} />}
           {showBalances ? t('dashboardOverview.actions.hide') : t('dashboardOverview.actions.show')} {t('dashboardOverview.actions.balances')}
         </button>
-      </div>
+      </header>
 
-      <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#AA151B]">
-          {t('dashboardOverview.sections.fiatCurrencies')}
-        </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {fiatBalances.map((fb) => {
-            const CurrIcon = CURRENCY_ICONS[fb.currency] || DollarSign;
-            const canShowAmount = showBalances && isBalanceAvailable(fb.status);
-            const showRestrictedState = showBalances && !isBalanceAvailable(fb.status);
-
-            return (
-              <div
-                key={fb.id}
-                className={`border p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)] transition-all duration-200 hover:shadow-[0_24px_70px_-44px_rgba(170,21,27,0.55)] ${
-                  isBalanceAvailable(fb.status)
-                    ? 'border-[#AA151B]/14 bg-white hover:border-[#AA151B]/30'
-                    : 'border-neutral-200 bg-white hover:border-neutral-300'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#AA151B]/10">
-                      <CurrIcon className="w-4 h-4 text-[#AA151B]" />
-                    </div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-[#AA151B]">
-                      {fb.currency}
-                    </span>
-                  </div>
-                  <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${getBalanceStatusClasses(fb.status)}`}>
-                    {getLocalizedBalanceStatusLabel(t, fb.status)}
-                  </span>
-                </div>
-                <p className="text-sm font-medium text-neutral-700 mb-1">
-                  {getFiatAssetName(fb.currency, fb.name)}
-                </p>
-                {showRestrictedState ? (
-                  <RestrictedBalanceState
-                    status={fb.status}
-                    amount={formatCurrency(fb.balance, fb.currency, currentLocale)}
-                    t={t}
-                  />
-                ) : (
-                  <p className={`text-2xl font-bold ${canShowAmount ? 'text-neutral-900' : 'text-neutral-500'}`}>
-                    {canShowAmount ? formatCurrency(fb.balance, fb.currency, currentLocale) : '****'}
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {cryptoBalances.length > 0 && (
-        <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#AA151B]">
-          {t('dashboardOverview.sections.cryptoAssets')}
-        </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {[...cryptoBalances]
-              .sort((a, b) => (CRYPTO_SORT_ORDER[a.symbol] ?? 99) - (CRYPTO_SORT_ORDER[b.symbol] ?? 99))
-              .map((crypto) => {
-                const canShowAmount = showBalances && isBalanceAvailable(crypto.status);
-                const showRestrictedState = showBalances && !isBalanceAvailable(crypto.status);
-
-                return (
-                  <div
-                    key={crypto.id}
-                    className={`border p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)] transition-all duration-200 hover:shadow-[0_24px_70px_-44px_rgba(170,21,27,0.55)] ${
-                      isBalanceAvailable(crypto.status)
-                        ? 'border-[#AA151B]/14 bg-white hover:border-[#AA151B]/30'
-                        : 'border-neutral-200 bg-white hover:border-neutral-300'
-                    }`}
-                  >
-                    <div className="mb-3 flex items-center justify-between gap-2.5">
-                      <div className="flex items-center gap-2.5">
-                        {CRYPTO_LOGOS[crypto.symbol] ? (
-                          <img
-                            src={CRYPTO_LOGOS[crypto.symbol]}
-                            alt={crypto.name}
-                            className="w-7 h-7 rounded-full"
-                          />
-                        ) : (
-                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#AA151B]/10">
-                            <span className="text-[10px] font-bold text-[#AA151B]">{crypto.symbol.slice(0, 2)}</span>
-                          </div>
-                        )}
-                        <span className="text-xs font-semibold uppercase tracking-wider text-[#AA151B]">
-                          {crypto.symbol}
-                        </span>
-                      </div>
-                      <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${getBalanceStatusClasses(crypto.status)}`}>
-                        {getLocalizedBalanceStatusLabel(t, crypto.status)}
-                      </span>
-                    </div>
-                    <p className="text-sm font-medium text-neutral-700 mb-1">{crypto.name}</p>
-                    {showRestrictedState ? (
-                      <RestrictedBalanceState
-                        status={crypto.status}
-                        amount={crypto.balance.toLocaleString(currentLocale, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 4,
-                        })}
-                        t={t}
-                      />
-                    ) : (
-                      <p className={`text-2xl font-bold ${canShowAmount ? 'text-neutral-900' : 'text-neutral-500'}`}>
-                        {canShowAmount
-                          ? crypto.balance.toLocaleString(currentLocale, {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 4,
-                            })
-                          : '****'}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-      )}
-
-      {restrictedBalanceCount > 0 ? (
-        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
-          {getLocalizedRestrictedBalanceCountMessage(t, 'overview', restrictedBalanceCount)}
-        </div>
-      ) : null}
-
-      <BalanceAnalysisChart
-        fiatBalances={availableFiatBalances}
-        cryptoBalances={availableCryptoBalances}
-        showBalances={showBalances}
-      />
-
-      <div className="border border-[#AA151B]/14 bg-white p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)] transition-all duration-200 hover:shadow-[0_24px_70px_-44px_rgba(170,21,27,0.55)]">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#AA151B]/10">
-              <FileText className="w-5 h-5 text-[#AA151B]" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-neutral-900">{t('dashboardOverview.tax.title')}</h2>
-              <p className="text-xs text-[#AA151B]">{t('dashboardOverview.tax.subtitle')}</p>
-            </div>
-          </div>
-          <Link
-            to="/dashboard/taxes"
-            className="text-sm font-medium text-[#AA151B] hover:text-[#710D14]"
-          >
-            {t('dashboardOverview.tax.payTaxes')}
-          </Link>
-        </div>
-
-        <div className="grid sm:grid-cols-3 gap-4">
-          <div className="rounded-2xl border border-[#AA151B]/10 bg-[#AA151B]/[0.03] p-4">
-            <div className="flex items-center gap-1.5 mb-1">
-              {taxSummary.totals.pending > 0 && <Clock className="w-3.5 h-3.5 text-[#AA151B]" />}
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#AA151B]">
-                {t('dashboardOverview.tax.pending')}
-              </p>
-            </div>
-            <p className="text-xl font-bold text-neutral-900">
-              {showBalances ? formatTaxCurrency(taxSummary.totals.pending, taxCurrency, currentLocale) : '****'}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[#AA151B]/10 bg-[#AA151B]/[0.03] p-4">
-            <div className="flex items-center gap-1.5 mb-1">
-              {taxSummary.totals.on_hold > 0 && <PauseCircle className="w-3.5 h-3.5 text-[#AA151B]" />}
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#AA151B]">
-                {t('dashboardOverview.tax.onHold')}
-              </p>
-            </div>
-            <p className="text-xl font-bold text-neutral-900">
-              {showBalances ? formatTaxCurrency(taxSummary.totals.on_hold, taxCurrency, currentLocale) : '****'}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[#AA151B]/10 bg-[#AA151B]/[0.03] p-4">
-            <div className="flex items-center gap-1.5 mb-1">
-              {taxSummary.totals.paid > 0 && <CheckCircle className="w-3.5 h-3.5 text-[#AA151B]" />}
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#AA151B]">
-                {t('dashboardOverview.tax.paid')}
-              </p>
-            </div>
-            <p className="text-xl font-bold text-neutral-900">
-              {showBalances ? formatTaxCurrency(taxSummary.totals.paid, taxCurrency, currentLocale) : '****'}
-            </p>
-          </div>
-        </div>
-
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <div className="flex flex-col gap-3 border-b border-[#AA151B]/10 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="font-semibold text-neutral-900">{t('dashboardOverview.activity.title')}</h2>
-            <div className="flex flex-wrap items-center gap-3 text-sm font-medium">
-              <Link to="/dashboard/transactions" className="text-[#AA151B] hover:text-[#710D14]">
-                {t('dashboardOverview.activity.viewTransactions')}
-              </Link>
-              <span className="text-neutral-300" aria-hidden="true">|</span>
-              <Link to="/dashboard/transfers" className="text-[#AA151B] hover:text-[#710D14]">
-                {t('dashboardOverview.activity.viewTransfers')}
-              </Link>
-            </div>
-          </div>
-
-          <div className="divide-y divide-[#AA151B]/10">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-[#AA151B]/[0.03]">
-                <div className={`w-10 h-10 flex items-center justify-center flex-shrink-0 ${activity.inflow ? 'bg-[#AA151B]/10 text-[#AA151B]' : 'bg-neutral-100 text-neutral-600'}`}>
-                  {activity.inflow ? (
-                    <ArrowDownLeft className="w-5 h-5" />
-                  ) : (
-                    <ArrowUpRight className="w-5 h-5" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-neutral-900 truncate">
-                    {activity.description}
-                  </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-2">
-                    <p className="text-xs text-neutral-400">{formatDate(activity.createdAt)}</p>
-                    <span className="max-w-full truncate rounded-full border border-[#AA151B]/12 bg-[#AA151B]/[0.03] px-2 py-0.5 text-[11px] font-medium text-[#AA151B] sm:max-w-[420px]">
-                      {activity.reference}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-2 text-right flex-shrink-0">
-                  <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${bankingStatusClasses(activity.status)}`}>
-                    {getLocalizedTransactionStatus(t, activity.status)}
-                  </span>
-                  <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-600">
-                    {activity.typeLabel}
-                  </span>
-                </div>
-              </div>
-            ))}
-
-            {recentActivity.length === 0 && (
-              <div className="px-6 py-12 text-center text-neutral-400">
-                {t('dashboardOverview.activity.empty')}
-              </div>
+      <div className="overview-top">
+        <section className="overview-account" aria-labelledby="overview-account-title">
+          <div className="overview-account-top">
+            <span className="overview-account-label"><Landmark size={18} aria-hidden="true" /><span id="overview-account-title">{t('dashboardOverview.layout.accountBalance')}</span></span>
+            {fiatBalances.length > 0 && (
+              <OverviewAccountSelector
+                label={t('dashboardOverview.layout.selectAccount')}
+                value={selectedAccount?.id || ''}
+                options={fiatBalances.map((account) => ({ id: account.id, currency: account.currency, name: getFiatAssetName(account.currency, account.name) }))}
+                onChange={setSelectedAccountId}
+              />
             )}
           </div>
-        </div>
-
-        <div className="border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <div className="border-b border-[#AA151B]/10 px-6 py-4">
-            <h2 className="font-semibold text-neutral-900">{t('dashboardOverview.quickActions.title')}</h2>
+          <div className="overview-account-value">
+            <strong>{!showBalances ? '••••' : selectedAccount ? formatCurrency(selectedAccount.balance, selectedAccount.currency, currentLocale) : '—'}</strong>
+            {selectedAccount && <span className="overview-account-state">{isBalanceAvailable(selectedAccount.status) ? <CheckCircle size={14} /> : <PauseCircle size={14} />}{getLocalizedBalanceStatusLabel(t, selectedAccount.status)}</span>}
           </div>
-
-          <div className="p-4 space-y-2">
-            <Link
-              to="/dashboard/transfers"
-              className="group flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors hover:bg-[#AA151B]/[0.03]"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#AA151B]/10">
-                <Send className="w-5 h-5 text-[#AA151B]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-neutral-900">{t('dashboardOverview.quickActions.transferMoney')}</p>
-                <p className="text-xs text-[#AA151B]">{t('dashboardOverview.quickActions.transferMoneyDesc')}</p>
-              </div>
-            </Link>
-
-            <Link
-              to="/dashboard/transactions"
-              className="group flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors hover:bg-[#AA151B]/[0.03]"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#AA151B]/10">
-                <Receipt className="w-5 h-5 text-[#AA151B]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-neutral-900">{t('dashboardOverview.quickActions.transactionHistory')}</p>
-                <p className="text-xs text-[#AA151B]">{t('dashboardOverview.quickActions.transactionHistoryDesc')}</p>
-              </div>
-            </Link>
-
-            <Link
-              to="/dashboard/cards"
-              className="group flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors hover:bg-[#AA151B]/[0.03]"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#AA151B]/10">
-                <CreditCard className="w-5 h-5 text-[#AA151B]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-neutral-900">{t('dashboardOverview.quickActions.manageCards')}</p>
-                <p className="text-xs text-[#AA151B]">{t('dashboardOverview.quickActions.manageCardsDesc')}</p>
-              </div>
-            </Link>
-
-            <Link
-              to="/dashboard/bill-pay"
-              className="group flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors hover:bg-[#AA151B]/[0.03]"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#AA151B]/10">
-                <Zap className="w-5 h-5 text-[#AA151B]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-neutral-900">{t('dashboardOverview.quickActions.payBills')}</p>
-                <p className="text-xs text-[#AA151B]">{t('dashboardOverview.quickActions.payBillsDesc')}</p>
-              </div>
-            </Link>
+          <div className="overview-account-details">
+            <div><p>{t('dashboardOverview.account.iban')}</p><span className="overview-iban">{profile?.account_iban || t('dashboardOverview.account.notAssigned')}</span></div>
+            <button type="button" onClick={() => void handleCopyIban()} disabled={!profile?.account_iban} className="overview-copy">
+              {ibanCopied ? <Check size={15} /> : <Copy size={15} />}
+              <span aria-live="polite">{t(ibanCopied ? 'dashboardOverview.account.copied' : 'dashboardOverview.account.copy')}</span>
+            </button>
           </div>
+        </section>
 
-          <div className="border-t border-[#AA151B]/10 px-6 py-4">
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#AA151B]">
-              {t('dashboardOverview.monthlySummary.title')}
-            </h3>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-[#AA151B]" />
-                  <span className="text-sm text-neutral-600">
-                    {t('dashboardOverview.monthlySummary.completed')}
-                  </span>
-                </div>
-                <span className="text-sm font-semibold text-[#AA151B]">{completedTransactions}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#AA151B]" />
-                  <span className="text-sm text-neutral-600">
-                    {t('dashboardOverview.monthlySummary.pending')}
-                  </span>
-                </div>
-                <span className="text-sm font-semibold text-[#AA151B]">{pendingTransactions}</span>
-              </div>
-            </div>
+        <section className="overview-actions" aria-labelledby="overview-actions-title">
+          <h2 id="overview-actions-title">{t('dashboardOverview.quickActions.title')}</h2>
+          <div className="overview-actions-grid">
+            {actions.map((action) => (
+              <Link key={action.key} to={action.to} className="overview-action">
+                <span className="overview-action-icon"><action.icon size={21} aria-hidden="true" /></span>
+                <span><strong>{t(`dashboardOverview.quickActions.${action.key}`)}</strong><small>{t(`dashboardOverview.quickActions.${action.key}Desc`)}</small></span>
+                <ArrowUpRight className="overview-action-arrow" size={15} aria-hidden="true" />
+              </Link>
+            ))}
           </div>
-        </div>
+        </section>
       </div>
+
+      <div className="overview-body">
+        <div className="overview-assets-column">
+          <OverviewAssetLedger assets={assets} showBalances={showBalances} />
+          {restrictedBalanceCount > 0 && <div className="overview-notice" role="status"><PauseCircle size={17} aria-hidden="true" /><p>{getLocalizedRestrictedBalanceCountMessage(t, 'overview', restrictedBalanceCount)}</p></div>}
+        </div>
+        <aside className="overview-insights">
+          <section className="overview-panel overview-tax" aria-labelledby="overview-tax-title">
+            <header className="overview-panel-heading">
+              <div className="overview-heading-title"><span className="overview-icon"><FileText size={19} aria-hidden="true" /></span><h2 id="overview-tax-title">{t('dashboardOverview.tax.title')}</h2></div>
+            </header>
+            <p className="overview-tax-subtitle overview-muted">{t('dashboardOverview.tax.subtitle')}</p>
+            <dl className="overview-tax-list">
+              {taxItems.map((item) => (
+                <div key={item.key}>
+                  <dt><item.icon size={16} aria-hidden="true" />{t(`dashboardOverview.tax.${item.key}`)}</dt>
+                  <dd>{showBalances ? formatTaxCurrency(item.amount, taxCurrency, currentLocale) : '••••'}</dd>
+                </div>
+              ))}
+            </dl>
+            <Link className="overview-button overview-tax-action" to="/dashboard/taxes">{t('dashboardOverview.tax.payTaxes')}<ArrowRight size={16} aria-hidden="true" /></Link>
+          </section>
+          <div className="overview-analysis">
+            <BalanceAnalysisChart fiatBalances={availableFiatBalances} cryptoBalances={availableCryptoBalances} showBalances={showBalances} />
+          </div>
+        </aside>
+      </div>
+
+      <section className="overview-panel overview-activity" aria-labelledby="overview-activity-title">
+        <header className="overview-panel-heading">
+          <div className="overview-heading-title"><span className="overview-icon"><Receipt size={19} aria-hidden="true" /></span><h2 id="overview-activity-title">{t('dashboardOverview.activity.title')}</h2></div>
+          <Link className="overview-text-link" to="/dashboard/transactions">{t('dashboardOverview.activity.viewTransactions')}<ArrowUpRight size={15} aria-hidden="true" /></Link>
+        </header>
+        <div className="overview-activity-layout">
+          <div className="overview-activity-list">
+            {recentActivity.length ? recentActivity.map((activity) => (
+              <article key={activity.id} className="overview-activity-row">
+                <span className={`overview-movement overview-movement--${activity.inflow ? 'in' : 'out'}`}>{activity.inflow ? <ArrowDownLeft size={18} aria-hidden="true" /> : <ArrowUpRight size={18} aria-hidden="true" />}</span>
+                <div className="overview-activity-description">
+                  <h3>{activity.description}</h3>
+                  <p><time dateTime={activity.createdAt}>{formatDate(activity.createdAt)}</time><span>{activity.typeLabel}</span></p>
+                  <small>{showBalances ? activity.reference : '••••'}</small>
+                </div>
+                <span className={`overview-status ${bankingStatusClasses(activity.status)}`}>{getLocalizedTransactionStatus(t, activity.status)}</span>
+              </article>
+            )) : (
+              <div className="overview-empty"><Receipt size={30} aria-hidden="true" /><p>{t('dashboardOverview.activity.empty')}</p><Link to="/dashboard/transfers" className="overview-text-link">{t('dashboardOverview.quickActions.transferMoney')}<ArrowRight size={15} aria-hidden="true" /></Link></div>
+            )}
+          </div>
+          <aside className="overview-activity-summary">
+            <p className="overview-eyebrow">{t('dashboardOverview.layout.activitySummary')}</p>
+            <dl>
+              <div><dt><CheckCircle size={16} aria-hidden="true" />{t('dashboardOverview.monthlySummary.completed')}</dt><dd>{completedTransactions}</dd></div>
+              <div><dt><Clock size={16} aria-hidden="true" />{t('dashboardOverview.monthlySummary.pending')}</dt><dd>{pendingTransactions}</dd></div>
+            </dl>
+            <Link className="overview-text-link" to="/dashboard/transfers">{t('dashboardOverview.activity.viewTransfers')}<ArrowRight size={15} aria-hidden="true" /></Link>
+          </aside>
+        </div>
+      </section>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import type {
   ReceiveCryptoTransferPayload,
 } from '../../hooks/useCryptoWallets';
 import type { CryptoBalance } from '../../hooks/useCryptoBalances';
-import Dropdown from '../ui/Dropdown';
+import Dropdown from '../dashboard/workspace/WorkspaceDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { isBalanceAvailable } from '../../lib/balanceStatus';
 import { getLocalizedTransferError } from '../../lib/transferErrorI18n';

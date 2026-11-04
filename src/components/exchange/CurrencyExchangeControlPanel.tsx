@@ -1,3 +1,6 @@
+import WorkspaceDropdown from '../dashboard/workspace/WorkspaceDropdown';
+import { WorkspacePage, WorkspaceHeader, WorkspacePanel, WorkspaceTabs, WorkspaceEmpty } from '../dashboard/workspace/Workspace';
+import '../../i18n/dashboardcards/translations';
 import { useEffect, useState } from 'react';
 import {
   AlertCircle,
@@ -129,7 +132,7 @@ export default function CurrencyExchangeControlPanel({
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   }).format(amount);
-  const { loading, executeExchange, executeCryptoSwap, executeCrossAssetExchange } = useCurrencyExchange(userId);
+  const { exchanges, loading, executeExchange, executeCryptoSwap, executeCrossAssetExchange } = useCurrencyExchange(userId);
   const { fiatBalances, loading: fiatLoading, refetch: refetchFiat } = useFiatBalances(userId);
   const { cryptoBalances, loading: cryptoLoading, refetch: refetchCrypto } = useCryptoBalances(userId);
   const fiatRateCurrencies = fiatBalances.map((balance) => balance.currency);
@@ -154,6 +157,7 @@ export default function CurrencyExchangeControlPanel({
   const restrictedFiatCount = fiatBalances.length - availableFiatBalances.length;
   const restrictedCryptoCount = cryptoBalances.length - availableCryptoBalances.length;
 
+  const [exchangeMode, setExchangeMode] = useState<'fiat' | 'crypto' | 'cross'>('fiat');
   const [fromCurrency, setFromCurrency] = useState('');
   const [toCurrency, setToCurrency] = useState('');
   const [fiatAmount, setFiatAmount] = useState('');
@@ -452,6 +456,470 @@ export default function CurrencyExchangeControlPanel({
       <div className="flex h-64 items-center justify-center border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#AA151B]/20 border-t-[#AA151B]" />
       </div>
+    );
+  }
+
+  // Only the client dashboard uses the new workspace. CRM keeps its existing view.
+  if (!isCrmVariant) {
+    return (
+      <WorkspacePage className="workspace-fx">
+        <WorkspaceHeader title={t('dashboardCurrencyExchange.title')} description={t('dashboardCurrencyExchange.subtitle')} icon={ArrowRightLeft} actions={<div className="flex items-center gap-3">{fetchedAt && <span className="text-xs text-slate-500">{t('dashboardCurrencyExchange.updated')} {timeAgo(fetchedAt)}</span>}<button type="button" className="workspace-button" onClick={refetchRates} disabled={ratesLoading}><RefreshCw size={16} className={ratesLoading ? 'animate-spin' : ''} />{t('dashboardCurrencyExchange.actions.refresh')}</button></div>} />
+        {ratesError && (
+        <div className="flex items-center gap-2 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] px-4 py-3 text-sm text-[#AA151B]">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          {t('dashboardCurrencyExchange.messages.ratesError')}
+        </div>
+      )}
+        {(unsupportedConfiguredFiat.length > 0 || unsupportedConfiguredCrypto.length > 0) && (
+        <div className="flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{interpolate(t('dashboardCurrencyExchange.messages.quotesUnavailable'), {
+            assets: [...unsupportedConfiguredFiat, ...unsupportedConfiguredCrypto].join(', '),
+          })}</span>
+        </div>
+      )}
+        <RestrictedBalanceReference t={t} fiatBalances={fiatBalances} cryptoBalances={cryptoBalances} />
+        <WorkspaceTabs value={exchangeMode} onChange={setExchangeMode} label={t('dashboardCurrencyExchange.title')} items={[{value:'fiat',label:t('dashboardCurrencyExchange.fiat.title'),icon:DollarSign},{value:'crypto',label:t('dashboardCurrencyExchange.crypto.title'),icon:Bitcoin},{value:'cross',label:t('dashboardCurrencyExchange.cross.title'),icon:ArrowRightLeft}]} />
+        <div className="workspace-fx-main">
+          <div className="workspace-fx-converters">
+            {exchangeMode === 'fiat' && <WorkspacePanel title={t('dashboardCurrencyExchange.fiat.title')} description={t('dashboardCurrencyExchange.fiat.liveRatesSource')} icon={DollarSign}>
+              {fiatResult && (
+            <div className="flex items-center gap-2 border-b border-[#AA151B]/10 bg-[#AA151B]/[0.04] px-4 py-2.5 text-sm text-[#AA151B]">
+              {fiatResult.success ? <CheckCircle className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+              <span className="truncate">{fiatResult.message}</span>
+            </div>
+          )}
+              {restrictedFiatCount > 0 && (
+              <div className="mb-4 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
+                {getLocalizedRestrictedBalanceCountMessage(t, 'exchangeFiat', restrictedFiatCount)}
+              </div>
+            )}
+              <form onSubmit={handleFiatExchange} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+                  {t('dashboardCurrencyExchange.fields.from')}
+                </label>
+                <WorkspaceDropdown accent="spain"
+                  value={fromCurrency}
+                  onChange={setFromCurrency}
+                  options={fiatOptions}
+                  placeholder={t('dashboardCurrencyExchange.placeholders.selectCurrency')}
+                  className="w-full"
+                  searchable={fiatOptions.length > 6}
+                  searchPlaceholder={t('dashboardCurrencyExchange.placeholders.searchCurrencies')}
+                  emptyMessage={t('dashboardCurrencyExchange.placeholders.noOptions')}
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+                  {t('dashboardCurrencyExchange.fields.amount')}
+                </label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 flex w-12 -tranneutral-y-1/2 items-center text-sm font-semibold text-[#AA151B]">
+                    {getCurrencySymbol(fromCurrency)}
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={fiatAmount}
+                    onChange={(event) => setFiatAmount(event.target.value)}
+                    placeholder={t('dashboardCurrencyExchange.placeholders.amount')}
+                    className="w-full rounded-xl border border-[#AA151B]/14 bg-[#AA151B]/[0.03] py-2.5 pl-20 pr-3 text-sm text-neutral-900 transition-shadow focus:outline-none focus:ring-2 focus:ring-[#AA151B]/20"
+                    required
+                  />
+                </div>
+                {fiatFromBal && (
+                  <p className={`mt-1 text-[11px] ${fiatInsufficient ? 'font-medium text-[#AA151B]' : 'text-[#AA151B]/70'}`}>
+                    {t('dashboardCurrencyExchange.balance')}: {formatFiat(fiatFromBal.balance, fromCurrency)}
+                    {fiatInsufficient && ` -- ${t('dashboardCurrencyExchange.insufficient')}`}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex justify-center -my-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#AA151B]/10">
+                  <ArrowRightLeft className="h-4 w-4 text-[#AA151B]" />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+                  {t('dashboardCurrencyExchange.fields.to')}
+                </label>
+                <WorkspaceDropdown accent="spain"
+                  value={toCurrency}
+                  onChange={setToCurrency}
+                  options={fiatOptions.filter((option) => option.value !== fromCurrency)}
+                  placeholder={t('dashboardCurrencyExchange.placeholders.selectCurrency')}
+                  className="w-full"
+                  searchable={fiatOptions.length > 6}
+                  searchPlaceholder={t('dashboardCurrencyExchange.placeholders.searchCurrencies')}
+                  emptyMessage={t('dashboardCurrencyExchange.placeholders.noOptions')}
+                />
+              </div>
+
+              {fiatRate > 0 && fiatNum > 0 && (
+                <div className="space-y-1.5 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] p-3.5 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-[#AA151B]/70">{t('dashboardCurrencyExchange.summary.youSend')}</span>
+                    <span className="font-medium text-neutral-900">{formatFiat(fiatNum, fromCurrency)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#AA151B]/70">{t('dashboardCurrencyExchange.summary.rate')}</span>
+                    <span className="font-medium text-neutral-900">1 {fromCurrency} = {formatNumber(fiatRate, 4)} {toCurrency}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-[#AA151B]/10 pt-1.5">
+                    <span className="font-medium text-neutral-800">{t('dashboardCurrencyExchange.summary.youReceive')}</span>
+                    <span className="font-bold text-[#AA151B]">{formatFiat(fiatConverted, toCurrency)}</span>
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={fiatSubmitting || fiatNum <= 0 || fiatRate <= 0 || fromCurrency === toCurrency || fiatInsufficient || exchangeableFiatBalances.length < 2}
+                className="w-full rounded-xl bg-[#AA151B] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#710D14] disabled:bg-neutral-200 disabled:text-neutral-400"
+              >
+                {fiatSubmitting ? t('dashboardCurrencyExchange.actions.processing') : t('dashboardCurrencyExchange.actions.exchange')}
+              </button>
+
+              {exchangeableFiatBalances.length < 2 ? (
+                <p className="text-xs text-neutral-400">
+                  {getLocalizedBalanceRestrictionMessage(t, 'needTwoFiat')}
+                </p>
+              ) : null}
+            </form>
+            </WorkspacePanel>}
+            {exchangeMode === 'crypto' && <WorkspacePanel title={t('dashboardCurrencyExchange.crypto.title')} description={t('dashboardCurrencyExchange.crypto.livePricesSource')} icon={Bitcoin}>
+              {cryptoResult && (
+            <div className="flex items-center gap-2 border-b border-[#AA151B]/10 bg-[#AA151B]/[0.04] px-4 py-2.5 text-sm text-[#AA151B]">
+              {cryptoResult.success ? <CheckCircle className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+              <span className="truncate">{cryptoResult.message}</span>
+            </div>
+          )}
+              {restrictedCryptoCount > 0 && (
+              <div className="mb-4 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
+                {getLocalizedRestrictedBalanceCountMessage(t, 'exchangeCrypto', restrictedCryptoCount)}
+              </div>
+            )}
+              <form onSubmit={handleCryptoSwap} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+                  {t('dashboardCurrencyExchange.fields.from')}
+                </label>
+                <WorkspaceDropdown accent="spain"
+                  value={fromCrypto}
+                  onChange={setFromCrypto}
+                  options={cryptoOptions}
+                  placeholder={t('dashboardCurrencyExchange.placeholders.selectToken')}
+                  className="w-full"
+                  searchable={cryptoOptions.length > 6}
+                  searchPlaceholder={t('dashboardCurrencyExchange.placeholders.searchTokens')}
+                  emptyMessage={t('dashboardCurrencyExchange.placeholders.noOptions')}
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+                  {t('dashboardCurrencyExchange.fields.amount')}
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={cryptoAmount}
+                  onChange={(event) => setCryptoAmount(event.target.value)}
+                  placeholder={t('dashboardCurrencyExchange.placeholders.amount')}
+                  className="w-full rounded-xl border border-[#AA151B]/14 bg-[#AA151B]/[0.03] px-3 py-2.5 text-sm text-neutral-900 transition-shadow focus:outline-none focus:ring-2 focus:ring-[#AA151B]/20"
+                  required
+                />
+                {cryptoFromBal && (
+                  <div className="mt-1 flex items-center justify-between">
+                    <p className={`text-[11px] ${cryptoInsufficient ? 'font-medium text-[#AA151B]' : 'text-[#AA151B]/70'}`}>
+                      {t('dashboardCurrencyExchange.balance')}: {formatCryptoAmount(cryptoFromBal.balance)} {fromCrypto}
+                      {cryptoInsufficient && ` -- ${t('dashboardCurrencyExchange.insufficient')}`}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setCryptoAmount(String(cryptoFromBal.balance))}
+                      className="text-[11px] font-semibold text-[#AA151B] hover:text-[#710D14]"
+                    >
+                      {t('dashboardCurrencyExchange.actions.max')}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-center -my-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextFromCrypto = toCrypto;
+                    setToCrypto(fromCrypto);
+                    setFromCrypto(nextFromCrypto);
+                    setCryptoAmount('');
+                  }}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-[#AA151B]/10 transition-colors hover:bg-[#AA151B]/15"
+                >
+                  <ArrowRightLeft className="h-4 w-4 text-[#AA151B]" />
+                </button>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+                  {t('dashboardCurrencyExchange.fields.to')}
+                </label>
+                <WorkspaceDropdown accent="spain"
+                  value={toCrypto}
+                  onChange={setToCrypto}
+                  options={cryptoOptions.filter((option) => option.value !== fromCrypto)}
+                  placeholder={t('dashboardCurrencyExchange.placeholders.selectToken')}
+                  className="w-full"
+                  searchable={cryptoOptions.length > 6}
+                  searchPlaceholder={t('dashboardCurrencyExchange.placeholders.searchTokens')}
+                  emptyMessage={t('dashboardCurrencyExchange.placeholders.noOptions')}
+                />
+              </div>
+
+              {fromCrypto && toCrypto && fromPrice > 0 && toPrice > 0 && cryptoNum > 0 && (
+                <div className="space-y-1.5 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] p-3.5 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-[#AA151B]/70">{t('dashboardCurrencyExchange.summary.youSend')}</span>
+                    <span className="font-medium text-neutral-900">{formatCryptoAmount(cryptoNum)} {fromCrypto}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#AA151B]/70">{fromCrypto} {t('dashboardCurrencyExchange.summary.price')}</span>
+                    <span className="text-neutral-900">{formatUsd(fromPrice)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#AA151B]/70">{toCrypto} {t('dashboardCurrencyExchange.summary.price')}</span>
+                    <span className="text-neutral-900">{formatUsd(toPrice)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#AA151B]/70">{t('dashboardCurrencyExchange.summary.rate')}</span>
+                    <span className="font-medium text-neutral-900">1 {fromCrypto} = {formatCryptoAmount(fromPrice / toPrice)} {toCrypto}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-[#AA151B]/10 pt-1.5">
+                    <span className="font-medium text-neutral-800">{t('dashboardCurrencyExchange.summary.youReceive')}</span>
+                    <span className="font-bold text-[#AA151B]">{formatCryptoAmount(cryptoConvertedAmount)} {toCrypto}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[11px] text-[#AA151B]/70">{t('dashboardCurrencyExchange.summary.value')}</span>
+                    <span className="text-[11px] text-[#AA151B]/70">{formatUsd(cryptoValueUsd)}</span>
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={cryptoSubmitting || cryptoNum <= 0 || !fromCrypto || !toCrypto || fromCrypto === toCrypto || cryptoInsufficient || toPrice <= 0 || exchangeableCryptoBalances.length < 2}
+                className="w-full rounded-xl bg-[#AA151B] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#710D14] disabled:bg-neutral-200 disabled:text-neutral-400"
+              >
+                {cryptoSubmitting ? t('dashboardCurrencyExchange.actions.processing') : t('dashboardCurrencyExchange.actions.swap')}
+              </button>
+
+              {exchangeableCryptoBalances.length < 2 ? (
+                <p className="text-xs text-neutral-400">
+                  {t('dashboardCurrencyExchange.messages.needTwoCrypto')}
+                </p>
+              ) : null}
+            </form>
+            </WorkspacePanel>}
+            {exchangeMode === 'cross' && <WorkspacePanel title={t('dashboardCurrencyExchange.cross.title')} description={t('dashboardCurrencyExchange.cross.liveRatesSource')} icon={ArrowRightLeft}>
+              {crossResult && (
+          <div className="flex items-center gap-2 border-b border-[#AA151B]/10 bg-[#AA151B]/[0.04] px-4 py-2.5 text-sm text-[#AA151B]">
+            {crossResult.success ? <CheckCircle className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+            <span>{crossResult.message}</span>
+          </div>
+        )}
+              <form onSubmit={handleCrossAssetExchange} className="space-y-5">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+              {t('dashboardCurrencyExchange.cross.direction')}
+            </label>
+            <WorkspaceDropdown accent="spain"
+              value={crossDirection}
+              onChange={(value) => {
+                setCrossDirection(value as CrossAssetDirection);
+                setCrossFromAsset('');
+                setCrossToAsset('');
+                setCrossAmount('');
+                setCrossResult(null);
+              }}
+              options={[
+                { value: 'fiat_to_crypto', label: t('dashboardCurrencyExchange.cross.fiatToCrypto') },
+                { value: 'crypto_to_fiat', label: t('dashboardCurrencyExchange.cross.cryptoToFiat') },
+              ]}
+            />
+          </div>
+
+          <div className="workspace-cross-fields">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+                {t('dashboardCurrencyExchange.fields.from')}
+              </label>
+              <WorkspaceDropdown accent="spain"
+                value={crossFromAsset}
+                onChange={(value) => {
+                  setCrossFromAsset(value);
+                  setCrossAmount('');
+                  setCrossResult(null);
+                }}
+                options={(crossSourceIsFiat ? fiatOptions : cryptoOptions).filter((option) =>
+                  crossSourceIsFiat
+                    ? exchangeableFiatBalances.some((balance) => balance.currency === option.value)
+                    : exchangeableCryptoBalances.some((balance) => balance.symbol === option.value)
+                )}
+                placeholder={crossSourceIsFiat
+                  ? t('dashboardCurrencyExchange.placeholders.selectCurrency')
+                  : t('dashboardCurrencyExchange.placeholders.selectToken')}
+                searchable={(crossSourceIsFiat ? fiatOptions : cryptoOptions).length > 6}
+                searchPlaceholder={crossSourceIsFiat
+                  ? t('dashboardCurrencyExchange.placeholders.searchCurrencies')
+                  : t('dashboardCurrencyExchange.placeholders.searchTokens')}
+                emptyMessage={t('dashboardCurrencyExchange.placeholders.noOptions')}
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+                {t('dashboardCurrencyExchange.fields.amount')}
+              </label>
+              <input
+                type="number"
+                step="any"
+                min="0"
+                value={crossAmount}
+                onChange={(event) => setCrossAmount(event.target.value)}
+                placeholder={t('dashboardCurrencyExchange.placeholders.amount')}
+                className="w-full rounded-xl border border-[#AA151B]/14 bg-[#AA151B]/[0.03] px-3 py-2.5 text-sm text-neutral-900 transition-shadow focus:outline-none focus:ring-2 focus:ring-[#AA151B]/20"
+                required
+              />
+              {crossFromBalance && (
+                <div className="mt-1 flex items-center justify-between gap-3">
+                  <p className={`text-[11px] ${crossInsufficient ? 'font-medium text-[#AA151B]' : 'text-[#AA151B]/70'}`}>
+                    {t('dashboardCurrencyExchange.balance')}: {crossSourceIsFiat
+                      ? formatFiat(crossFromBalance.balance, crossFromAsset)
+                      : `${formatCryptoAmount(crossFromBalance.balance)} ${crossFromAsset}`}
+                    {crossInsufficient && ` -- ${t('dashboardCurrencyExchange.insufficient')}`}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setCrossAmount(String(crossFromBalance.balance))}
+                    className="text-[11px] font-semibold text-[#AA151B] hover:text-[#710D14]"
+                  >
+                    {t('dashboardCurrencyExchange.actions.max')}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setCrossDirection(crossSourceIsFiat ? 'crypto_to_fiat' : 'fiat_to_crypto');
+                setCrossFromAsset(crossToAsset);
+                setCrossToAsset(crossFromAsset);
+                setCrossAmount('');
+                setCrossResult(null);
+              }}
+              title={t('dashboardCurrencyExchange.cross.reverse')}
+              aria-label={t('dashboardCurrencyExchange.cross.reverse')}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#AA151B]/10 transition-colors hover:bg-[#AA151B]/15"
+            >
+              <ArrowRightLeft className="h-4 w-4 text-[#AA151B]" />
+            </button>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-[#AA151B]/70">
+                {t('dashboardCurrencyExchange.fields.to')}
+              </label>
+              <WorkspaceDropdown accent="spain"
+                value={crossToAsset}
+                onChange={(value) => {
+                  setCrossToAsset(value);
+                  setCrossResult(null);
+                }}
+                options={(crossSourceIsFiat ? cryptoOptions : fiatOptions).filter((option) =>
+                  crossSourceIsFiat
+                    ? exchangeableCryptoBalances.some((balance) => balance.symbol === option.value)
+                    : exchangeableFiatBalances.some((balance) => balance.currency === option.value)
+                )}
+                placeholder={crossSourceIsFiat
+                  ? t('dashboardCurrencyExchange.placeholders.selectToken')
+                  : t('dashboardCurrencyExchange.placeholders.selectCurrency')}
+                searchable={(crossSourceIsFiat ? cryptoOptions : fiatOptions).length > 6}
+                searchPlaceholder={crossSourceIsFiat
+                  ? t('dashboardCurrencyExchange.placeholders.searchTokens')
+                  : t('dashboardCurrencyExchange.placeholders.searchCurrencies')}
+                emptyMessage={t('dashboardCurrencyExchange.placeholders.noOptions')}
+              />
+            </div>
+          </div>
+
+          {crossFromAsset && crossToAsset && crossNum > 0 && crossRate > 0 && (
+            <div className="grid gap-2 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] p-4 text-sm sm:grid-cols-3">
+              <div>
+                <p className="text-[11px] text-[#AA151B]/70">{t('dashboardCurrencyExchange.summary.rate')}</p>
+                <p className="mt-1 font-medium text-neutral-900">
+                  1 {crossFromAsset} = {crossSourceIsFiat ? formatCryptoAmount(crossRate) : formatNumber(crossRate, 2)} {crossToAsset}
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] text-[#AA151B]/70">{t('dashboardCurrencyExchange.summary.value')}</p>
+                <p className="mt-1 font-medium text-neutral-900">{formatUsd(crossValueUsd)}</p>
+              </div>
+              <div>
+                <p className="text-[11px] text-[#AA151B]/70">{t('dashboardCurrencyExchange.summary.youReceive')}</p>
+                <p className="mt-1 font-bold text-[#AA151B]">
+                  {crossSourceIsFiat
+                    ? `${formatCryptoAmount(crossConvertedAmount)} ${crossToAsset}`
+                    : formatFiat(crossConvertedAmount, crossToAsset)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={
+              crossSubmitting ||
+              ratesLoading ||
+              !crossFromAsset ||
+              !crossToAsset ||
+              crossNum <= 0 ||
+              crossRate <= 0 ||
+              crossInsufficient ||
+              exchangeableFiatBalances.length === 0 ||
+              exchangeableCryptoBalances.length === 0
+            }
+            className="w-full rounded-xl bg-[#AA151B] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#710D14] disabled:bg-neutral-200 disabled:text-neutral-400"
+          >
+            {crossSubmitting
+              ? t('dashboardCurrencyExchange.actions.processing')
+              : t('dashboardCurrencyExchange.cross.convert')}
+          </button>
+        </form>
+            </WorkspacePanel>}
+          </div>
+          <aside className="workspace-stack">
+            <WorkspacePanel title={t(exchangeMode === 'fiat' ? 'dashboardCurrencyExchange.fiat.liveRates' : 'dashboardCurrencyExchange.crypto.livePrices')}>
+              <dl className="workspace-definition">{exchangeMode === 'fiat' ? liveFiatPairs.map((pair) => <div key={`${pair.from}-${pair.to}`}><dt>{pair.from}/{pair.to}</dt><dd>{formatNumber(pair.rate,4)}</dd></div>) : cryptoSymbols.map((symbol) => <div key={symbol}><dt>{symbol}</dt><dd>{formatUsd(cryptoPrices[symbol].usd)}<small className="ml-2 text-xs text-slate-500">{formatNumber(cryptoPrices[symbol].usd_24h_change,1)}%</small></dd></div>)}</dl>
+            </WorkspacePanel>
+            <WorkspacePanel title={t('dashboardWorkspace.availableAssets')}>
+              <dl className="workspace-definition">
+                {availableFiatBalances.map((balance) => <div key={balance.id}><dt>{balance.currency}</dt><dd>{formatFiat(balance.balance,balance.currency)}</dd></div>)}
+                {availableCryptoBalances.map((balance) => <div key={balance.id}><dt>{balance.symbol}</dt><dd>{formatCryptoAmount(balance.balance)} {balance.symbol}</dd></div>)}
+              </dl>
+            </WorkspacePanel>
+          </aside>
+          <WorkspacePanel className="workspace-fx-history" title={t('dashboardWorkspace.activity')} bodyClassName="workspace-panel-body--flush" action={<span className="workspace-badge">{exchanges.length}</span>}>
+            {exchanges.length ? <div className="workspace-scroll"><table className="workspace-table"><thead><tr><th>{t('dashboardWorkspace.date')}</th><th>{t('dashboardCurrencyExchange.fields.from')}</th><th>{t('dashboardCurrencyExchange.fields.to')}</th><th>{t('dashboardCurrencyExchange.summary.rate')}</th></tr></thead><tbody>{exchanges.map((exchange) => <tr key={exchange.id}><td>{new Date(exchange.created_at).toLocaleString(locale)}</td><td><strong>{formatNumber(exchange.from_amount,8)} {exchange.from_currency}</strong></td><td><strong>{formatNumber(exchange.to_amount,8)} {exchange.to_currency}</strong></td><td>{formatNumber(exchange.exchange_rate,6)}</td></tr>)}</tbody></table></div> : <WorkspaceEmpty icon={ArrowRightLeft} title={t('dashboard.transfers.noExchangesYet')} />}
+          </WorkspacePanel>
+        </div>
+      </WorkspacePage>
     );
   }
 

@@ -2,8 +2,6 @@ import CurrencyExchangeControlPanel from '../../components/exchange/CurrencyExch
 
 export default function DashboardCurrencyExchange() {
   return (
-    <div className="dashboard-route">
-      <CurrencyExchangeControlPanel variant="dashboard" />
-    </div>
+    <CurrencyExchangeControlPanel variant="dashboard" />
   );
 }

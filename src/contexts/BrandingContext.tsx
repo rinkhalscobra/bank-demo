@@ -12,7 +12,9 @@ const MAX_FAVICON_SOURCE_BYTES = 10 * 1024 * 1024;
 const FAVICON_PNG_SIZES = [16, 32, 48, 180, 192, 512] as const;
 
 export const SITE_PALETTES = [
-  { id: 'classic', name: 'Heritage', primary: '#AA151B', dark: '#710D14', accent: '#F1BF00', surface: '#FFFDF4', description: 'Warm red and gold' },
+  // Retain the persisted key so existing database rows and cached selections
+  // adopt Midnight without a schema migration or a failed branding save.
+  { id: 'classic', name: 'Midnight', primary: '#244A73', dark: '#12263F', accent: '#A5CDE8', surface: '#F5F8FC', description: 'Deep navy and ice blue' },
   { id: 'ocean', name: 'Ocean', primary: '#176B87', dark: '#10465A', accent: '#47B5A5', surface: '#F2FAFC', description: 'Deep blue and sea glass' },
   { id: 'forest', name: 'Forest', primary: '#28734B', dark: '#174A30', accent: '#C4A64A', surface: '#F7FAF4', description: 'Evergreen and soft gold' },
   { id: 'royal', name: 'Royal', primary: '#5543A5', dark: '#392D78', accent: '#D9B95B', surface: '#F8F7FC', description: 'Indigo and champagne' },
@@ -818,6 +820,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     document.documentElement.dataset.sitePalette = palette.id;
 
     document.title = branding.brandName;
+    document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content', palette.primary);
     document.head.querySelector<HTMLMetaElement>('meta[name="application-name"]')?.setAttribute('content', branding.brandName);
     document.head.querySelector<HTMLMetaElement>('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', branding.brandName);
     updateHeadLink('icon', 'any', branding.faviconIcoUrl, 'image/x-icon');

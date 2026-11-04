@@ -2651,7 +2651,7 @@ function BrandingSettingsCard({
               <input
                 value={form.brandName}
                 onChange={(event) => onFieldChange('brandName', event.target.value)}
-                placeholder="Heritage Bank"
+                placeholder={DEFAULT_BRANDING.brandName}
                 className="w-full rounded-2xl border border-[#6B0F14]/14 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all focus:border-[#6B0F14]/35 focus:ring-2 focus:ring-[#6B0F14]/15"
               />
             </label>
@@ -2661,7 +2661,7 @@ function BrandingSettingsCard({
               <input
                 value={form.brandKeyword}
                 onChange={(event) => onFieldChange('brandKeyword', event.target.value)}
-                placeholder="Heritage"
+                placeholder={DEFAULT_BRANDING.brandKeyword}
                 className="w-full rounded-2xl border border-[#6B0F14]/14 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all focus:border-[#6B0F14]/35 focus:ring-2 focus:ring-[#6B0F14]/15"
               />
             </label>

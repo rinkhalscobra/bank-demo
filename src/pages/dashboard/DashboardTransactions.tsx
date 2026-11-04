@@ -1,3 +1,4 @@
+import { WorkspacePage, WorkspaceHeader, WorkspacePanel, WorkspaceMetrics, WorkspaceStat, WorkspaceTabs, WorkspaceEmpty } from '../../components/dashboard/workspace/Workspace';
 import { useState, type ReactNode } from 'react';
 import {
   ArrowUpRight,
@@ -16,10 +17,11 @@ import {
   Coins,
   Wallet,
   X,
+  Receipt,
 } from 'lucide-react';
 import { useTransactions, type Transaction } from '../../hooks/useBankingData';
 import { useCryptoTransactions, type CryptoTransaction } from '../../hooks/useCryptoTransactions';
-import Dropdown from '../../components/ui/Dropdown';
+import Dropdown from '../../components/dashboard/workspace/WorkspaceDropdown';
 import {
   getBrandFileSlug,
   type BrandingSettings,
@@ -376,20 +378,6 @@ function CryptoTypeIcon({ type }: { type: CryptoTransaction['type'] }) {
   }
 }
 
-function cryptoTypeColor(type: CryptoTransaction['type']) {
-  switch (type) {
-    case 'buy':
-    case 'receive':
-      return 'bg-[#AA151B]/10 text-[#AA151B]';
-    case 'sell':
-    case 'send':
-      return 'bg-[#AA151B]/10 text-[#AA151B]';
-    case 'swap':
-      return 'bg-[#AA151B]/10 text-[#AA151B]';
-    default:
-      return 'bg-[#AA151B]/10 text-[#AA151B]';
-  }
-}
 
 function CoinDot({ symbol }: { symbol: string }) {
   const color = CRYPTO_COLORS[symbol]?.dot || 'bg-[#AA151B]';
@@ -497,35 +485,13 @@ export default function DashboardTransactions() {
   })();
 
   return (
-    <div className="dashboard-route space-y-7">
-      <div>
-        <h1 className="text-2xl font-serif font-bold text-neutral-900">
-          {t('dashboardTransactions.title')}
-        </h1>
-        <p className="mt-1 text-sm text-[#AA151B]">
-          {t('dashboardTransactions.subtitle')}
-        </p>
-      </div>
-
-      <div className="flex w-fit gap-1 rounded-xl bg-[#AA151B]/8 p-1">
-        <button
-          onClick={() => setTab('fiat')}
-          className={`px-5 py-2 text-sm font-medium transition-colors ${
-            tab === 'fiat' ? 'rounded-lg bg-white text-[#AA151B] shadow-sm' : 'rounded-lg text-[#AA151B]/70 hover:text-[#AA151B]'
-          }`}
-        >
-          {t('dashboardTransactions.tabs.banking')}
-        </button>
-        <button
-          onClick={() => setTab('crypto')}
-          className={`px-5 py-2 text-sm font-medium transition-colors ${
-            tab === 'crypto' ? 'rounded-lg bg-white text-[#AA151B] shadow-sm' : 'rounded-lg text-[#AA151B]/70 hover:text-[#AA151B]'
-          }`}
-        >
-          {t('dashboardTransactions.tabs.crypto')}
-        </button>
-      </div>
-
+    <WorkspacePage className="workspace-transactions">
+      <WorkspaceHeader title={t('dashboardTransactions.title')} description={t('dashboardTransactions.subtitle')} icon={Receipt} actions={<WorkspaceTabs value={tab} onChange={setTab} label={t('dashboardTransactions.title')} items={[{value:'fiat',label:t('dashboardTransactions.tabs.banking'),count:fiatTransactions.length},{value:'crypto',label:t('dashboardTransactions.tabs.crypto'),count:cryptoTransactions.length}]} />} />
+      <WorkspaceMetrics>
+        <WorkspaceStat icon={Receipt} label={t('dashboardTransactions.crypto.transactionsCard')} value={tab === 'fiat' ? fiatTransactions.length : cryptoTransactions.length} />
+        <WorkspaceStat icon={CheckCircle2} label={t('dashboardTransactions.statuses.completed')} value={(tab === 'fiat' ? fiatTransactions : cryptoTransactions).filter((transaction) => transaction.status === 'completed').length} />
+        <WorkspaceStat icon={Clock} label={t('dashboardTransactions.statuses.pending')} value={(tab === 'fiat' ? fiatTransactions : cryptoTransactions).filter((transaction) => transaction.status === 'pending').length} />
+      </WorkspaceMetrics>
       {tab === 'fiat' && (
         <FiatTransactionsView
           t={t}
@@ -544,7 +510,6 @@ export default function DashboardTransactions() {
           fiatStatusOptions={fiatStatusOptions}
         />
       )}
-
       {tab === 'crypto' && (
         <CryptoTransactionsView
           t={t}
@@ -565,7 +530,7 @@ export default function DashboardTransactions() {
           cryptoSymbolOptions={cryptoSymbolOptions}
         />
       )}
-    </div>
+    </WorkspacePage>
   );
 }
 
@@ -834,110 +799,29 @@ function FiatTransactionsView({
 
   return (
     <>
-      <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-4 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -tranneutral-y-1/2 w-4 h-4 text-[#AA151B]" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('dashboardTransactions.fiat.searchPlaceholder')}
-              className="w-full rounded-xl border border-[#AA151B]/14 py-2.5 pl-10 pr-4 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#AA151B]/20"
-            />
-          </div>
-          <Dropdown accent="spain"
-            value={selectedType}
-            onChange={setSelectedType}
-            options={fiatTypeOptions}
-            className="sm:w-44"
-          />
-          <Dropdown accent="spain"
-            value={selectedStatus}
-            onChange={setSelectedStatus}
-            options={fiatStatusOptions}
-            className="sm:w-48"
-          />
-        </div>
+      <div className="workspace-filter-layout">
+        <aside>
+          <WorkspacePanel title={t('dashboardWorkspace.filters')} icon={Filter}>
+            <div className="workspace-filters">
+              <label>{t('dashboardTransactions.fiat.searchPlaceholder')}<div className="workspace-search"><Search size={16} /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t('dashboardTransactions.fiat.searchPlaceholder')} /></div></label>
+              <label>{t('dashboardTransactions.details.transactionType')}<Dropdown accent="spain" value={selectedType} onChange={setSelectedType} options={fiatTypeOptions} /></label>
+              <label>{t('dashboardTransactions.details.status')}<Dropdown accent="spain" value={selectedStatus} onChange={setSelectedStatus} options={fiatStatusOptions} /></label>
+            </div>
+          </WorkspacePanel>
+        </aside>
+        <WorkspacePanel title={t('dashboardTransactions.tabs.banking')} action={<span className="workspace-badge">{filtered.length} {formatCount(filtered.length, 'fiat', language, t)}</span>} bodyClassName="workspace-panel-body--flush">
+          {loading ? <div className="flex justify-center py-16"><span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-600" /></div> : filtered.length ? <div className="workspace-result-list">{filtered.map((transaction) => {
+            const title = getFiatTransactionTitle(transaction, t);
+            const amount = getFiatTransactionAmount(transaction, t, language);
+            return <button key={transaction.id} type="button" className="workspace-transaction-row" onClick={() => setSelectedTransaction(transaction)}>
+              <span>{isBankingInflow(transaction.type) ? <ArrowDownLeft size={19} /> : <ArrowUpRight size={19} />}</span>
+              <span><strong>{title || t('dashboardTransactions.common.noDetails')}</strong><small>{formatDate(transaction.created_at)} · {translateValue(t, 'types', transaction.type)}</small><small>{transaction.reference || t('dashboardTransactions.common.empty')}</small>{transaction.notes && transaction.notes !== title && <small>{transaction.notes}</small>}</span>
+              <span><strong>{amount.signed}</strong><span className={`workspace-badge ${bankingStatusClasses(transaction.status)}`}>{translateValue(t, 'statuses', transaction.status || 'completed')}</span></span>
+            </button>;
+          })}</div> : <WorkspaceEmpty icon={Receipt} title={t('dashboardTransactions.fiat.empty')} />}
+        </WorkspacePanel>
       </div>
-
-      <div className="rounded-2xl border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-        <div className="flex items-center justify-between border-b border-[#AA151B]/10 px-6 py-4">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-[#AA151B]" />
-            <span className="text-sm text-[#AA151B]">
-              {filtered.length} {formatCount(filtered.length, 'fiat', language, t)}
-            </span>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 rounded-full border-2 border-[#AA151B]/20 border-t-[#AA151B] animate-spin" />
-          </div>
-        ) : (
-          <div className="divide-y divide-[#AA151B]/10">
-            {filtered.map((tx) => {
-              const title = getFiatTransactionTitle(tx, t);
-              const notesPreview = tx.notes && tx.notes !== title ? tx.notes : '';
-
-              return (
-                <button
-                  key={tx.id}
-                  type="button"
-                  onClick={() => setSelectedTransaction(tx)}
-                  className="flex w-full items-center gap-4 px-6 py-4 text-left transition-colors hover:bg-[#AA151B]/[0.03] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#AA151B]/20"
-                >
-                  <div className={`w-10 h-10 flex items-center justify-center flex-shrink-0 ${
-                    isBankingInflow(tx.type) ? 'bg-[#AA151B]/10 text-[#AA151B]' : 'bg-neutral-100 text-neutral-600'
-                  }`}>
-                    {isBankingInflow(tx.type) ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-neutral-900 truncate">
-                      {title || t('dashboardTransactions.common.noDetails')}
-                    </p>
-                    {notesPreview ? (
-                      <p className="mt-1 truncate text-xs text-neutral-500">{notesPreview}</p>
-                    ) : null}
-                    <div className="mt-1 flex flex-wrap items-center gap-2">
-                      <span className="text-xs text-neutral-400">{formatDate(tx.created_at)}</span>
-                      <span className="rounded-full border border-[#AA151B]/12 bg-[#AA151B]/[0.03] px-2 py-0.5 text-[11px] font-medium text-[#AA151B]">
-                        {t('dashboardTransactions.details.reference')}: {tx.reference || t('dashboardTransactions.common.empty')}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-2 text-right flex-shrink-0">
-                    <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${bankingStatusClasses(tx.status)}`}>
-                      {translateValue(t, 'statuses', tx.status || 'completed')}
-                    </span>
-                    <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-600">
-                      {translateValue(t, 'types', tx.type)}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-
-            {filtered.length === 0 && (
-              <div className="px-6 py-16 text-center text-neutral-400">
-                {t('dashboardTransactions.fiat.empty')}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {selectedTransaction && (
-        <FiatTransactionDetailModal
-          t={t}
-          language={language}
-          branding={branding}
-          formatDate={formatDate}
-          transaction={selectedTransaction}
-          onClose={() => setSelectedTransaction(null)}
-        />
-      )}
+      {selectedTransaction && <FiatTransactionDetailModal t={t} language={language} branding={branding} formatDate={formatDate} transaction={selectedTransaction} onClose={() => setSelectedTransaction(null)} />}
     </>
   );
 }
@@ -981,160 +865,32 @@ function CryptoTransactionsView({
 
   return (
     <>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {balances.slice(0, 3).map((bal) => {
-          const colors = CRYPTO_COLORS[bal.symbol] || { bg: 'bg-neutral-100', text: 'text-neutral-600', dot: 'bg-neutral-400' };
-          return (
-            <div key={bal.symbol} className="rounded-2xl border border-[#AA151B]/14 bg-white p-4 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-              <div className="flex items-center gap-2 mb-2">
-                <span className={`w-6 h-6 rounded-full ${colors.bg} ${colors.text} flex items-center justify-center text-[10px] font-bold`}>
-                  {bal.symbol.charAt(0)}
-                </span>
-            <p className="text-xs font-medium uppercase tracking-wider text-[#AA151B]">{bal.symbol}</p>
-              </div>
-              <p className="text-lg font-bold text-neutral-900">{formatCryptoAmount(bal.totalAmount, bal.symbol)}</p>
+      <div className="workspace-filter-layout">
+        <aside>
+          <WorkspacePanel title={t('dashboardWorkspace.filters')} icon={Filter}>
+            <div className="workspace-filters">
+              <label>{t('dashboardTransactions.crypto.searchPlaceholder')}<div className="workspace-search"><Search size={16} /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t('dashboardTransactions.crypto.searchPlaceholder')} /></div></label>
+              <label>{t('dashboardTransactions.details.transactionType')}<Dropdown accent="spain" value={typeFilter} onChange={setTypeFilter} options={cryptoTypeOptions} /></label>
+              <label>{t('dashboardTransactions.details.asset')}<Dropdown accent="spain" value={symbolFilter} onChange={setSymbolFilter} options={cryptoSymbolOptions} /></label>
             </div>
-          );
-        })}
-
-        <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-4 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#AA151B]/10 text-[#AA151B]">
-              <Wallet className="w-3.5 h-3.5" />
-            </span>
-            <p className="text-xs font-medium uppercase tracking-wider text-[#AA151B]">
-              {t('dashboardTransactions.crypto.transactionsCard')}
-            </p>
-          </div>
-          <p className="text-lg font-bold text-neutral-900">{txCount}</p>
-        </div>
+          </WorkspacePanel>
+          <WorkspacePanel title={t('dashboardWorkspace.summary')} action={<span className="workspace-badge">{txCount}</span>}>
+            <dl className="workspace-definition">{balances.map((balance) => <div key={balance.symbol}><dt><CoinDot symbol={balance.symbol} />{balance.symbol}</dt><dd>{formatCryptoAmount(balance.totalAmount, balance.symbol)}</dd></div>)}</dl>
+          </WorkspacePanel>
+        </aside>
+        <WorkspacePanel title={t('dashboardTransactions.tabs.crypto')} action={<span className="workspace-badge">{filtered.length} {formatCount(filtered.length, 'crypto', language, t)}</span>} bodyClassName="workspace-panel-body--flush">
+          {loading ? <div className="flex justify-center py-16"><span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-600" /></div> : filtered.length ? <div className="workspace-result-list">{filtered.map((transaction) => {
+            const title = getCryptoTransactionTitle(transaction, t);
+            const inflow = transaction.type === 'buy' || transaction.type === 'receive';
+            return <button key={transaction.id} type="button" className="workspace-transaction-row" onClick={() => setSelectedTransaction(transaction)}>
+              <span><CryptoTypeIcon type={transaction.type} /></span>
+              <span><strong>{title}</strong><small>{formatDate(transaction.created_at)} · {translateValue(t, 'types', transaction.type)}</small>{transaction.comment && transaction.comment !== title && <small>{transaction.comment}</small>}</span>
+              <span><strong>{inflow ? '+' : '-'}{formatCryptoAmount(transaction.amount, transaction.symbol)}</strong><small>{formatCurrency(transaction.total_value, language)}</small><StatusBadge status={transaction.status} t={t} /></span>
+            </button>;
+          })}</div> : <WorkspaceEmpty icon={Wallet} title={t('dashboardTransactions.crypto.empty')} />}
+        </WorkspacePanel>
       </div>
-
-      {balances.length > 3 && (
-        <div className="flex flex-wrap gap-3">
-          {balances.slice(3).map((bal) => {
-            const colors = CRYPTO_COLORS[bal.symbol] || { bg: 'bg-neutral-100', text: 'text-neutral-600', dot: 'bg-neutral-400' };
-            return (
-              <div key={bal.symbol} className="flex items-center gap-2.5 rounded-2xl border border-[#AA151B]/14 bg-white px-4 py-2.5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-                <span className={`w-5 h-5 rounded-full ${colors.bg} ${colors.text} flex items-center justify-center text-[9px] font-bold`}>
-                  {bal.symbol.charAt(0)}
-                </span>
-                <span className="text-sm font-semibold text-neutral-900">{formatCryptoAmount(bal.totalAmount, bal.symbol)}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-4 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -tranneutral-y-1/2 w-4 h-4 text-[#AA151B]" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('dashboardTransactions.crypto.searchPlaceholder')}
-              className="w-full rounded-xl border border-[#AA151B]/14 py-2.5 pl-10 pr-4 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#AA151B]/20"
-            />
-          </div>
-          <Dropdown accent="spain"
-            value={typeFilter}
-            onChange={setTypeFilter}
-            options={cryptoTypeOptions}
-            className="sm:w-44"
-          />
-          <Dropdown accent="spain"
-            value={symbolFilter}
-            onChange={setSymbolFilter}
-            options={cryptoSymbolOptions}
-            className="sm:w-48"
-          />
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-        <div className="flex items-center justify-between border-b border-[#AA151B]/10 px-6 py-4">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-[#AA151B]" />
-            <span className="text-sm text-[#AA151B]">
-              {filtered.length} {formatCount(filtered.length, 'crypto', language, t)}
-            </span>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 rounded-full border-2 border-[#AA151B]/20 border-t-[#AA151B] animate-spin" />
-          </div>
-        ) : (
-          <div className="divide-y divide-[#AA151B]/10">
-            {filtered.map((tx) => {
-              const iconStyle = CRYPTO_COLORS[tx.symbol] || { bg: 'bg-neutral-100', text: 'text-neutral-600', dot: 'bg-neutral-400' };
-              const isInflow = tx.type === 'buy' || tx.type === 'receive';
-              const title = getCryptoTransactionTitle(tx, t);
-              const commentPreview = tx.comment && tx.comment !== title ? tx.comment : '';
-
-              return (
-                <button
-                  key={tx.id}
-                  type="button"
-                  onClick={() => setSelectedTransaction(tx)}
-                  className="flex w-full items-center gap-4 px-6 py-4 text-left transition-colors hover:bg-[#AA151B]/[0.03] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#AA151B]/20"
-                >
-                  <div className={`w-10 h-10 flex items-center justify-center flex-shrink-0 ${cryptoTypeColor(tx.type)}`}>
-                    <CryptoTypeIcon type={tx.type} />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-neutral-900 truncate">{title}</p>
-                    </div>
-                    {commentPreview ? (
-                      <p className="mt-1 truncate text-xs text-neutral-500">{commentPreview}</p>
-                    ) : null}
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs text-neutral-400">{formatDate(tx.created_at)}</span>
-                      <StatusBadge status={tx.status} t={t} />
-                    </div>
-                  </div>
-
-                  <div className="text-right flex-shrink-0">
-                    <p className={`text-sm font-semibold ${isInflow ? 'text-[#AA151B]' : 'text-neutral-900'}`}>
-                      {isInflow ? '+' : '-'}{formatCryptoAmount(tx.amount, tx.symbol)}
-                    </p>
-                    <div className="flex items-center gap-1.5 justify-end mt-0.5">
-                      <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-[8px] font-bold ${iconStyle.bg} ${iconStyle.text}`}>
-                        {tx.symbol.charAt(0)}
-                      </span>
-                      <span className="text-xs text-neutral-500 font-medium">
-                        {formatCurrency(tx.total_value, language)}
-                      </span>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-
-            {filtered.length === 0 && (
-              <div className="px-6 py-16 text-center text-neutral-400">
-                {t('dashboardTransactions.crypto.empty')}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {selectedTransaction && (
-        <CryptoTransactionDetailModal
-          t={t}
-          language={language}
-          branding={branding}
-          formatDate={formatDate}
-          transaction={selectedTransaction}
-          onClose={() => setSelectedTransaction(null)}
-        />
-      )}
+      {selectedTransaction && <CryptoTransactionDetailModal t={t} language={language} branding={branding} formatDate={formatDate} transaction={selectedTransaction} onClose={() => setSelectedTransaction(null)} />}
     </>
   );
 }

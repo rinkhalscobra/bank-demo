@@ -1,3 +1,4 @@
+import { WorkspacePage, WorkspaceHeader, WorkspacePanel, WorkspaceMetrics, WorkspaceStat, WorkspaceEmpty } from '../../components/dashboard/workspace/Workspace';
 import { useState } from 'react';
 import {
   Zap,
@@ -167,18 +168,8 @@ export default function DashboardBillPay() {
     : '';
 
   return (
-    <div className="dashboard-route space-y-7">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-serif font-bold text-neutral-900">
-            {t('dashboardBillPay.title')}
-          </h1>
-          <p className="mt-1 text-sm text-[#AA151B]">
-            {t('dashboardBillPay.subtitle')}
-          </p>
-        </div>
-
-        <button
+    <WorkspacePage className="workspace-bill-pay">
+      <WorkspaceHeader title={t('dashboardBillPay.title')} description={t('dashboardBillPay.subtitle')} icon={Zap} actions={<button
           onClick={() => {
             setShowForm(!showForm);
             if (showForm) {
@@ -186,15 +177,18 @@ export default function DashboardBillPay() {
               setResult(null);
             }
           }}
-          className="flex self-start items-center gap-2 rounded-xl bg-[#AA151B] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#710D14]"
+          className="workspace-button workspace-button--primary"
         >
           <Zap className="w-4 h-4" />
           {showForm
             ? t('dashboardBillPay.actions.cancel')
             : t('dashboardBillPay.actions.newRequest')}
-        </button>
-      </div>
-
+        </button>} />
+      <WorkspaceMetrics>
+        <WorkspaceStat icon={Receipt} label={t('dashboardBillPay.history.title')} value={payments.length} />
+        <WorkspaceStat icon={Clock} label={t('dashboardBillPay.status.pending')} value={pendingCount} />
+        <WorkspaceStat icon={CheckCircle} label={t('dashboardBillPay.status.approved')} value={payments.filter((payment) => payment.status === 'completed').length} />
+      </WorkspaceMetrics>
       {pendingCount > 0 && !showForm && (
         <div className="flex items-center gap-3 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] px-4 py-3 text-sm text-[#AA151B]">
           <Clock className="w-5 h-5 flex-shrink-0" />
@@ -202,7 +196,6 @@ export default function DashboardBillPay() {
           {t('dashboardBillPay.pending.awaitingApproval')}
         </div>
       )}
-
       {result && (
         <div className="flex items-start gap-3 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] px-4 py-3 text-sm text-[#AA151B]">
           {result.success ? (
@@ -220,22 +213,9 @@ export default function DashboardBillPay() {
           </div>
         </div>
       )}
-
-      {showForm && (
-        <div className="rounded-2xl border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <div className="flex items-center gap-3 border-b border-[#AA151B]/10 px-6 py-4">
-            <Receipt className="w-5 h-5 text-[#AA151B]" />
-            <div>
-              <h2 className="font-semibold text-neutral-900">
-                {t('dashboardBillPay.form.title')}
-              </h2>
-              <p className="mt-0.5 text-xs text-[#AA151B]">
-                {t('dashboardBillPay.form.subtitle')}
-              </p>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6">
+      <div className="workspace-split">
+        <div className="workspace-stack">
+          {showForm && <WorkspacePanel title={t('dashboardBillPay.form.title')} description={t('dashboardBillPay.form.subtitle')} icon={Receipt}><form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1.5">
@@ -269,59 +249,7 @@ export default function DashboardBillPay() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-3">
-                {t('dashboardBillPay.fields.paymentMethod')} <span className="text-[#AA151B]">*</span>
-              </label>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('crypto')}
-                  className={`flex items-center gap-3 p-4 border-2 transition-all ${
-                    paymentMethod === 'crypto'
-                      ? 'rounded-2xl border-[#AA151B] bg-[#AA151B]/[0.04] shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]'
-                      : 'rounded-2xl border-[#AA151B]/14 bg-white hover:border-[#AA151B]/25'
-                  }`}
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#AA151B]/10 text-[#AA151B]">
-                    <Bitcoin className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <p className={`text-sm font-semibold ${paymentMethod === 'crypto' ? 'text-neutral-900' : 'text-neutral-700'}`}>
-                      {t('dashboardBillPay.methods.crypto.title')}
-                    </p>
-                    <p className="text-xs text-neutral-400">
-                      {t('dashboardBillPay.methods.crypto.subtitle')}
-                    </p>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('bank')}
-                  className={`flex items-center gap-3 p-4 border-2 transition-all ${
-                    paymentMethod === 'bank'
-                      ? 'rounded-2xl border-[#AA151B] bg-[#AA151B]/[0.04] shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]'
-                      : 'rounded-2xl border-[#AA151B]/14 bg-white hover:border-[#AA151B]/25'
-                  }`}
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#AA151B]/10 text-[#AA151B]">
-                    <Landmark className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <p className={`text-sm font-semibold ${paymentMethod === 'bank' ? 'text-neutral-900' : 'text-neutral-700'}`}>
-                      {t('dashboardBillPay.methods.bank.title')}
-                    </p>
-                    <p className="text-xs text-neutral-400">
-                      {t('dashboardBillPay.methods.bank.subtitle')}
-                    </p>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <div className="border-t border-[#AA151B]/10 pt-5">
+<div className="border-t border-[#AA151B]/10 pt-5">
               {paymentMethod === 'crypto' ? (
                 <CryptoPaymentPanel
                   wallets={wallets}
@@ -365,17 +293,31 @@ export default function DashboardBillPay() {
                 {t('dashboardBillPay.actions.cancel')}
               </button>
             </div>
-          </form>
-        </div>
-      )}
-
-      <PaymentHistory
+          </form></WorkspacePanel>}
+          <PaymentHistory
         t={t}
         formatDate={formatDate}
         formatAmount={(value) => formatCurrency(value, language)}
         payments={payments}
       />
-    </div>
+        </div>
+        <aside className="workspace-stack">
+          <WorkspacePanel title={t('dashboardBillPay.fields.paymentMethod')}>
+            <div className="workspace-selector-list">
+              <button type="button" aria-pressed={paymentMethod === 'crypto'} onClick={() => {setPaymentMethod('crypto');setShowForm(true);}}><Bitcoin size={23} /><span><strong>{t('dashboardBillPay.methods.crypto.title')}</strong><small>{t('dashboardBillPay.methods.crypto.subtitle')}</small></span></button>
+              <button type="button" aria-pressed={paymentMethod === 'bank'} onClick={() => {setPaymentMethod('bank');setShowForm(true);}}><Landmark size={23} /><span><strong>{t('dashboardBillPay.methods.bank.title')}</strong><small>{t('dashboardBillPay.methods.bank.subtitle')}</small></span></button>
+            </div>
+          </WorkspacePanel>
+          {showForm && <WorkspacePanel title={t('dashboardWorkspace.summary')}>
+            <dl className="workspace-definition">
+              <div><dt>{t('dashboardBillPay.fields.billerName')}</dt><dd>{billerName || '—'}</dd></div>
+              <div><dt>{t('dashboardBillPay.fields.amountUsd')}</dt><dd>{formatCurrency(Math.max(0,Number(amount) || 0), language)}</dd></div>
+              <div><dt>{t('dashboardBillPay.fields.paymentMethod')}</dt><dd>{t(paymentMethod === 'crypto' ? 'dashboardBillPay.methods.crypto.title' : 'dashboardBillPay.methods.bank.title')}</dd></div>
+            </dl>
+          </WorkspacePanel>}
+        </aside>
+      </div>
+    </WorkspacePage>
   );
 }
 
@@ -432,60 +374,12 @@ function PaymentHistory({
   }[];
 }) {
   return (
-    <div className="rounded-2xl border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-      <div className="border-b border-[#AA151B]/10 px-6 py-4">
-        <h2 className="font-semibold text-neutral-900">
-          {t('dashboardBillPay.history.title')}
-        </h2>
-      </div>
-
-      {payments.length === 0 ? (
-        <div className="px-6 py-16 text-center">
-          <Receipt className="mx-auto mb-3 h-10 w-10 text-[#AA151B]/30" />
-          <p className="text-sm text-[#AA151B]">{t('dashboardBillPay.history.emptyTitle')}</p>
-          <p className="mt-1 text-xs text-[#AA151B]/70">{t('dashboardBillPay.history.emptySubtitle')}</p>
-        </div>
-      ) : (
-        <div className="divide-y divide-[#AA151B]/10">
-          {payments.map((p) => (
-            <div key={p.id} className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-[#AA151B]/[0.03]">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#AA151B]/10 text-[#AA151B]">
-                {p.payment_method === 'crypto' ? (
-                  <Bitcoin className="w-5 h-5" />
-                ) : (
-                  <Landmark className="w-5 h-5" />
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-sm font-medium text-neutral-900 truncate">
-                    {p.biller_name ||
-                      (p.payment_method === 'crypto'
-                        ? t('dashboardBillPay.history.cryptoPayment')
-                        : t('dashboardBillPay.history.bankPayment'))}
-                  </p>
-                  <span
-                    className="rounded-full bg-[#AA151B]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#AA151B]"
-                  >
-                    {p.payment_method === 'crypto' ? p.crypto_symbol : t('dashboardBillPay.methods.bank.short')}
-                  </span>
-                </div>
-                <p className="mt-0.5 text-xs text-[#AA151B]/70">{formatDate(p.created_at)}</p>
-              </div>
-
-              <div className="text-right flex-shrink-0 flex flex-col items-end gap-1.5">
-                {p.amount > 0 && (
-                  <p className="text-sm font-semibold text-neutral-900 tabular-nums">
-                    {formatAmount(p.amount)}
-                  </p>
-                )}
-                <StatusBadge t={t} status={p.status} />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    <WorkspacePanel title={t('dashboardBillPay.history.title')} icon={Receipt} bodyClassName="workspace-panel-body--flush" action={<span className="workspace-badge">{payments.length}</span>}>
+      {payments.length ? <div className="workspace-scroll"><table className="workspace-table"><thead><tr><th>{t('dashboardBillPay.fields.billerName')}</th><th>{t('dashboardBillPay.fields.paymentMethod')}</th><th>{t('dashboardWorkspace.status')}</th><th className="text-right">{t('dashboardBillPay.fields.amountUsd')}</th></tr></thead><tbody>{payments.map((payment) => <tr key={payment.id}>
+        <td><strong>{payment.biller_name || t(payment.payment_method === 'crypto' ? 'dashboardBillPay.history.cryptoPayment' : 'dashboardBillPay.history.bankPayment')}</strong><small>{formatDate(payment.created_at)}</small></td>
+        <td><span className="workspace-badge">{payment.payment_method === 'crypto' ? payment.crypto_symbol : t('dashboardBillPay.methods.bank.short')}</span></td>
+        <td><StatusBadge t={t} status={payment.status} /></td><td className="workspace-money">{payment.amount > 0 ? formatAmount(payment.amount) : '—'}</td>
+      </tr>)}</tbody></table></div> : <WorkspaceEmpty icon={Receipt} title={t('dashboardBillPay.history.emptyTitle')} description={t('dashboardBillPay.history.emptySubtitle')} />}
+    </WorkspacePanel>
   );
 }

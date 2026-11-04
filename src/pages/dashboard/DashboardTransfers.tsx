@@ -1,3 +1,4 @@
+import { WorkspacePage, WorkspaceHeader, WorkspacePanel, WorkspaceTabs, WorkspaceEmpty } from '../../components/dashboard/workspace/Workspace';
 import { useState, type ReactNode } from 'react';
 import {
   ArrowRightLeft,
@@ -6,7 +7,6 @@ import {
   CheckCircle2,
   RefreshCw,
   XCircle,
-  ArrowUpRight,
   Download,
   Send,
   Wallet,
@@ -209,45 +209,8 @@ export default function DashboardTransfers() {
   const formatDate = formatDayMonthYear;
 
   return (
-    <div className="dashboard-route space-y-7">
-      <div>
-        <h1 className="text-2xl font-serif font-bold text-neutral-900">
-          {t('dashboardTransfers.title')}
-        </h1>
-        <p className="mt-1 text-sm text-[#AA151B]">
-          {t('dashboardTransfers.subtitle')}
-        </p>
-      </div>
-
-      <div className="max-w-xl">
-        <div className="grid grid-cols-1 gap-1.5 rounded-xl border border-[#AA151B]/12 bg-white p-1.5 shadow-[0_18px_50px_-42px_rgba(15,23,42,0.55)] sm:grid-cols-2">
-          <button
-            onClick={() => setMainTab('banking')}
-            aria-pressed={mainTab === 'banking'}
-            className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all ${
-              mainTab === 'banking'
-                ? 'bg-[#AA151B] text-white shadow-[0_12px_30px_-20px_rgba(170,21,27,0.9)]'
-                : 'text-neutral-600 hover:bg-[#AA151B]/[0.04] hover:text-[#AA151B]'
-            }`}
-          >
-            <Building2 className="h-4 w-4" />
-            {t('dashboardTransfers.tabs.banking')}
-          </button>
-          <button
-            onClick={() => setMainTab('crypto')}
-            aria-pressed={mainTab === 'crypto'}
-            className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all ${
-              mainTab === 'crypto'
-                ? 'bg-neutral-900 text-white shadow-[0_12px_30px_-20px_rgba(15,23,42,0.85)]'
-                : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950'
-            }`}
-          >
-            <Wallet className="h-4 w-4" />
-            {t('dashboardTransfers.tabs.crypto')}
-          </button>
-        </div>
-      </div>
-
+    <WorkspacePage className="workspace-transfers">
+      <WorkspaceHeader title={t('dashboardTransfers.title')} description={t('dashboardTransfers.subtitle')} icon={ArrowRightLeft} actions={<WorkspaceTabs value={mainTab} onChange={setMainTab} label={t('dashboardTransfers.title')} items={[{value:'banking',label:t('dashboardTransfers.tabs.banking'),icon:Building2},{value:'crypto',label:t('dashboardTransfers.tabs.crypto'),icon:Wallet}]} />} />
       {mainTab === 'banking' && (
         <BankingTransferView
           t={t}
@@ -256,7 +219,6 @@ export default function DashboardTransfers() {
           bankingTab={bankingTab}
         />
       )}
-
       {mainTab === 'crypto' && (
         <CryptoTransferView
           t={t}
@@ -264,7 +226,7 @@ export default function DashboardTransfers() {
           cryptoTab={cryptoTab}
         />
       )}
-    </div>
+    </WorkspacePage>
   );
 }
 
@@ -307,10 +269,10 @@ function BankingTransferView({
   );
 
   return (
-    <div className="space-y-5">
-      <div className="grid lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3">
-          {bankingTab === 'internal' && (
+    <div className="workspace-stack">
+      <FiatBalancesSidebar t={t} balances={fiatBalances} />
+      <div className="workspace-transfer-layout">
+        <div className="workspace-panel workspace-embedded-panel">{bankingTab === 'internal' && (
             <InternalTransferPanel
               fiatBalances={fiatBalances}
               submitting={submitting}
@@ -318,55 +280,27 @@ function BankingTransferView({
               onSuccess={handleSuccess}
             />
           )}
-
-          {bankingTab === 'external' && (
+{bankingTab === 'external' && (
             <ExternalTransferPanel
               fiatBalances={fiatBalances}
               submitting={submitting}
               onSubmit={createExternalTransfer}
               onSuccess={handleSuccess}
             />
-          )}
-        </div>
-
-        <div className="lg:col-span-2 space-y-4">
-          <BankTransferHistory
+          )}</div>
+        <aside className="workspace-transfer-context">
+          <WorkspacePanel title={t(bankingTab === 'internal' ? 'dashboardTransfers.banking.info.internalTitle' : 'dashboardTransfers.banking.info.externalTitle')}>
+            <ol className="workspace-transfer-guide">{[1,2,3].map((step) => <li key={step}><span>{step.toString().padStart(2,'0')}</span><p>{t(`dashboardTransfers.banking.info.${bankingTab === 'internal' ? 'internal' : 'external'}${step}`)}</p></li>)}</ol>
+          </WorkspacePanel>
+        </aside>
+      </div>
+      <BankTransferHistory
             t={t}
             branding={branding}
             formatDate={formatDate}
             transfers={bankingTransfers}
             type={bankingTab}
           />
-
-          <FiatBalancesSidebar t={t} balances={fiatBalances} />
-
-          <div
-            className="rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]"
-          >
-            <h3 className="mb-2 font-semibold text-neutral-900">
-              {bankingTab === 'internal'
-                ? t('dashboardTransfers.banking.info.internalTitle')
-                : t('dashboardTransfers.banking.info.externalTitle')}
-            </h3>
-
-            <ul className="space-y-2 text-sm text-[#AA151B]">
-              {bankingTab === 'internal' ? (
-                <>
-                  <li>- {t('dashboardTransfers.banking.info.internal1')}</li>
-                  <li>- {t('dashboardTransfers.banking.info.internal2')}</li>
-                  <li>- {t('dashboardTransfers.banking.info.internal3')}</li>
-                </>
-              ) : (
-                <>
-                  <li>- {t('dashboardTransfers.banking.info.external1')}</li>
-                  <li>- {t('dashboardTransfers.banking.info.external2')}</li>
-                  <li>- {t('dashboardTransfers.banking.info.external3')}</li>
-                </>
-              )}
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -411,10 +345,10 @@ function CryptoTransferView({
   );
 
   return (
-    <div className="space-y-5">
-      <div className="grid lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3">
-          {cryptoTab === 'internal' && (
+    <div className="workspace-stack">
+      <CryptoBalancesSidebar t={t} wallets={wallets} balances={cryptoBalances} />
+      <div className="workspace-transfer-layout">
+        <div className="workspace-panel workspace-embedded-panel">{cryptoTab === 'internal' && (
             <InternalCryptoTransferPanel
               wallets={wallets}
               balances={cryptoBalances}
@@ -423,8 +357,7 @@ function CryptoTransferView({
               onSuccess={handleSuccess}
             />
           )}
-
-          {cryptoTab === 'external' && (
+{cryptoTab === 'external' && (
             <ExternalCryptoTransferPanel
               wallets={wallets}
               balances={cryptoBalances}
@@ -433,51 +366,20 @@ function CryptoTransferView({
               onReceive={createReceiveCryptoTransfer}
               onSuccess={handleSuccess}
             />
-          )}
-        </div>
-
-        <div className="lg:col-span-2 space-y-4">
-          <CryptoTransferHistory
+          )}</div>
+        <aside className="workspace-transfer-context">
+          <WorkspacePanel title={t(cryptoTab === 'internal' ? 'dashboardTransfers.crypto.info.internalTitle' : 'dashboardTransfers.crypto.info.externalTitle')}>
+            <ol className="workspace-transfer-guide">{[1,2,3].map((step) => <li key={step}><span>{step.toString().padStart(2,'0')}</span><p>{t(`dashboardTransfers.crypto.info.${cryptoTab === 'internal' ? 'internal' : 'external'}${step}`)}</p></li>)}</ol>
+          </WorkspacePanel>
+        </aside>
+      </div>
+      <CryptoTransferHistory
             t={t}
             formatDate={formatDate}
             transfers={filteredTransfers}
             loading={transfersLoading}
             type={cryptoTab}
           />
-
-          <CryptoBalancesSidebar
-            t={t}
-            wallets={wallets}
-            balances={cryptoBalances}
-          />
-
-          <div
-            className="rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]"
-          >
-            <h3 className="mb-2 font-semibold text-neutral-900">
-              {cryptoTab === 'internal'
-                ? t('dashboardTransfers.crypto.info.internalTitle')
-                : t('dashboardTransfers.crypto.info.externalTitle')}
-            </h3>
-
-            <ul className="space-y-2 text-sm text-[#AA151B]">
-              {cryptoTab === 'internal' ? (
-                <>
-                  <li>- {t('dashboardTransfers.crypto.info.internal1')}</li>
-                  <li>- {t('dashboardTransfers.crypto.info.internal2')}</li>
-                  <li>- {t('dashboardTransfers.crypto.info.internal3')}</li>
-                </>
-              ) : (
-                <>
-                  <li>- {t('dashboardTransfers.crypto.info.external1')}</li>
-                  <li>- {t('dashboardTransfers.crypto.info.external2')}</li>
-                  <li>- {t('dashboardTransfers.crypto.info.external3')}</li>
-                </>
-              )}
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -500,67 +402,12 @@ function BankTransferHistory({
 
   return (
     <>
-      <div className="rounded-2xl border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-        <div className="border-b border-[#AA151B]/10 px-5 py-4">
-          <h3 className="font-semibold text-neutral-900">
-            {type === 'internal'
-              ? t('dashboardTransfers.history.internalBanking')
-              : t('dashboardTransfers.history.externalBanking')}
-          </h3>
-        </div>
-
-        <div className="divide-y divide-[#AA151B]/10">
-          {transfers.length === 0 ? (
-            <div className="px-5 py-10 text-center">
-              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#AA151B]/10">
-                <ArrowUpRight className="w-5 h-5 text-[#AA151B]" />
-              </div>
-              <p className="text-sm text-neutral-400">
-                {type === 'internal'
-                  ? t('dashboardTransfers.history.noInternalBanking')
-                  : t('dashboardTransfers.history.noExternalBanking')}
-              </p>
-            </div>
-          ) : (
-            transfers.slice(0, 10).map((tx) => (
-              <button
-                key={tx.id}
-                type="button"
-                onClick={() => setSelectedTransfer(tx)}
-                className="flex w-full items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#AA151B]/[0.03] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#AA151B]/20"
-              >
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center bg-[#AA151B]/10 text-[#AA151B]">
-                  {tx.transfer_type === 'internal' ? (
-                    <ArrowRightLeft className="w-4 h-4" />
-                  ) : (
-                    <Building2 className="w-4 h-4" />
-                  )}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-neutral-900">
-                    {tx.transfer_type === 'internal'
-                      ? `${tx.currency} ${t('dashboardTransfers.common.to')} ${tx.target_currency}`
-                      : tx.recipient_name || t('dashboardTransfers.history.externalTransfer')}
-                  </p>
-                  <p className="text-[11px] text-neutral-400">
-                    {formatDate(tx.created_at)}
-                    {tx.transfer_type === 'external' && tx.bank_name ? ` - ${tx.bank_name}` : ''}
-                  </p>
-                </div>
-
-                <div className="flex-shrink-0 text-right">
-                  <p className="text-sm font-semibold text-neutral-900 tabular-nums">
-                    {formatCurrency(tx.amount, tx.currency, language)}
-                  </p>
-                  <StatusBadge t={t} status={tx.status} />
-                </div>
-              </button>
-            ))
-          )}
-        </div>
-      </div>
-
+      <WorkspacePanel title={t(type === 'internal' ? 'dashboardTransfers.history.internalBanking' : 'dashboardTransfers.history.externalBanking')} action={<span className="workspace-badge">{transfers.length}</span>} bodyClassName="workspace-panel-body--flush">
+        {transfers.length ? <div className="workspace-scroll"><table className="workspace-table"><thead><tr><th>{t('dashboardTransfers.details.description')}</th><th>{t('dashboardTransfers.details.created')}</th><th>{t('dashboardTransfers.details.status')}</th><th className="text-right">{t('dashboardTransfers.details.amount')}</th></tr></thead><tbody>{transfers.slice(0,10).map((transfer) => <tr key={transfer.id}>
+          <td><button type="button" className="workspace-row-button" onClick={() => setSelectedTransfer(transfer)}>{transfer.transfer_type === 'internal' ? `${transfer.currency} ${t('dashboardTransfers.common.to')} ${transfer.target_currency}` : transfer.recipient_name || t('dashboardTransfers.history.externalTransfer')}</button><small>{transfer.bank_name}</small></td>
+          <td>{formatDate(transfer.created_at)}</td><td><StatusBadge t={t} status={transfer.status} /></td><td className="workspace-money">{formatCurrency(transfer.amount,transfer.currency,language)}</td>
+        </tr>)}</tbody></table></div> : <WorkspaceEmpty icon={Building2} title={t(type === 'internal' ? 'dashboardTransfers.history.noInternalBanking' : 'dashboardTransfers.history.noExternalBanking')} />}
+      </WorkspacePanel>
       {selectedTransfer && (
         <BankTransferDetailModal
           t={t}
@@ -607,66 +454,12 @@ function CryptoTransferHistory({
 
   return (
     <>
-      <div className="rounded-2xl border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-        <div className="border-b border-[#AA151B]/10 px-5 py-4">
-          <h3 className="font-semibold text-neutral-900">
-            {type === 'internal'
-              ? t('dashboardTransfers.history.internalCrypto')
-              : t('dashboardTransfers.history.externalCrypto')}
-          </h3>
-        </div>
-
-        <div className="divide-y divide-[#AA151B]/10">
-          {transfers.length === 0 ? (
-            <div className="px-5 py-10 text-center">
-              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#AA151B]/10">
-                <ArrowUpRight className="w-5 h-5 text-[#AA151B]" />
-              </div>
-              <p className="text-sm text-neutral-400">
-                {type === 'internal'
-                  ? t('dashboardTransfers.history.noInternalCrypto')
-                  : t('dashboardTransfers.history.noExternalCrypto')}
-              </p>
-            </div>
-          ) : (
-            transfers.slice(0, 10).map((tx) => (
-              <button
-                key={tx.id}
-                type="button"
-                onClick={() => setSelectedTransfer(tx)}
-                className="flex w-full items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#AA151B]/[0.03] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#AA151B]/20"
-              >
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center bg-[#AA151B]/10 text-[#AA151B]">
-                  {tx.transfer_type === 'internal' ? (
-                    <ArrowRightLeft className="w-4 h-4" />
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-neutral-900">
-                    {tx.transfer_type === 'internal'
-                      ? `${tx.symbol} ${t('dashboardTransfers.common.to')} ${tx.target_symbol}`
-                      : tx.direction === 'receive'
-                      ? `${t('dashboardTransfers.crypto.receive')} ${tx.symbol} ${t('dashboardTransfers.common.from')} ${shortenAddress(tx.sender_address)}`
-                      : `${t('dashboardTransfers.crypto.send')} ${tx.symbol} ${t('dashboardTransfers.common.to')} ${shortenAddress(tx.recipient_address)}`}
-                  </p>
-                  <p className="text-[11px] text-neutral-400">{formatDate(tx.created_at)}</p>
-                </div>
-
-                <div className="flex-shrink-0 text-right">
-                  <p className="text-sm font-semibold text-neutral-900 tabular-nums">
-                    {formatCryptoAmount(tx.amount, tx.symbol)}
-                  </p>
-                  <StatusBadge t={t} status={tx.status} />
-                </div>
-              </button>
-            ))
-          )}
-        </div>
-      </div>
-
+      <WorkspacePanel title={t(type === 'internal' ? 'dashboardTransfers.history.internalCrypto' : 'dashboardTransfers.history.externalCrypto')} action={<span className="workspace-badge">{transfers.length}</span>} bodyClassName="workspace-panel-body--flush">
+        {transfers.length ? <div className="workspace-scroll"><table className="workspace-table"><thead><tr><th>{t('dashboardTransfers.details.description')}</th><th>{t('dashboardTransfers.details.created')}</th><th>{t('dashboardTransfers.details.status')}</th><th className="text-right">{t('dashboardTransfers.details.amount')}</th></tr></thead><tbody>{transfers.slice(0,10).map((transfer) => <tr key={transfer.id}>
+          <td><button type="button" className="workspace-row-button" onClick={() => setSelectedTransfer(transfer)}>{transfer.transfer_type === 'internal' ? `${transfer.symbol} ${t('dashboardTransfers.common.to')} ${transfer.target_symbol}` : transfer.direction === 'receive' ? `${t('dashboardTransfers.crypto.receive')} ${transfer.symbol}` : `${t('dashboardTransfers.crypto.send')} ${transfer.symbol}`}</button><small>{shortenAddress(transfer.direction === 'receive' ? transfer.sender_address : transfer.recipient_address)}</small></td>
+          <td>{formatDate(transfer.created_at)}</td><td><StatusBadge t={t} status={transfer.status} /></td><td className="workspace-money">{formatCryptoAmount(transfer.amount,transfer.symbol)}</td>
+        </tr>)}</tbody></table></div> : <WorkspaceEmpty icon={Send} title={t(type === 'internal' ? 'dashboardTransfers.history.noInternalCrypto' : 'dashboardTransfers.history.noExternalCrypto')} />}
+      </WorkspacePanel>
       {selectedTransfer && (
         <CryptoTransferDetailModal
           t={t}
@@ -688,63 +481,16 @@ function CryptoBalancesSidebar({
   wallets: { symbol: string; name: string }[];
   balances: { symbol: string; balance: number; status?: string }[];
 }) {
-  const CRYPTO_COLORS: Record<string, { bg: string; text: string }> = {
-    BTC: { bg: 'bg-[#AA151B]/10', text: 'text-[#AA151B]' },
-    ETH: { bg: 'bg-[#AA151B]/10', text: 'text-[#AA151B]' },
-    SOL: { bg: 'bg-[#AA151B]/10', text: 'text-[#AA151B]' },
-    DOGE: { bg: 'bg-[#AA151B]/10', text: 'text-[#AA151B]' },
-    USDT: { bg: 'bg-[#AA151B]/10', text: 'text-[#AA151B]' },
-    USDC: { bg: 'bg-[#AA151B]/10', text: 'text-[#AA151B]' },
-  };
   const restrictedCount = balances.filter((balance) => !isBalanceAvailable(balance.status)).length;
 
   return (
-    <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-      <div className="flex items-center gap-2 mb-3">
-        <Wallet className="w-4 h-4 text-[#AA151B]" />
-        <h3 className="font-semibold text-neutral-900 text-sm">
-          {t('dashboardTransfers.cryptoBalances.title')}
-        </h3>
-      </div>
-
-      <div className="space-y-1">
-        {wallets.map((w) => {
-          const bal = balances.find((b) => b.symbol === w.symbol);
-          const amount = bal ? Number(bal.balance) : 0;
-          const colors = CRYPTO_COLORS[w.symbol] || { bg: 'bg-neutral-50', text: 'text-neutral-600' };
-          return (
-            <div key={w.symbol} className="flex items-center justify-between gap-3 border-b border-[#AA151B]/10 py-2 last:border-0">
-              <div className="flex min-w-0 items-center gap-2">
-                <span
-                  className={`w-6 h-6 rounded-full ${colors.bg} ${colors.text} flex items-center justify-center text-[9px] font-bold`}
-                >
-                  {w.symbol.charAt(0)}
-                </span>
-                <div className="min-w-0">
-                  <span className="text-xs font-medium text-neutral-700">{w.symbol}</span>
-                  {bal ? (
-                    <div className="mt-1">
-                      <span className={`rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${getBalanceStatusClasses(bal.status)}`}>
-                        {getLocalizedBalanceStatusLabel(t, bal.status)}
-                      </span>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-              <span className="text-xs font-semibold tabular-nums text-neutral-900">
-                {formatCryptoAmount(amount, w.symbol)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
-      {restrictedCount > 0 ? (
-        <p className="mt-3 text-xs text-neutral-500">
-          {getLocalizedBalanceRestrictionMessage(t, 'transfers')}
-        </p>
-      ) : null}
-    </div>
+    <WorkspacePanel title={t('dashboardTransfers.cryptoBalances.title')} icon={Wallet}>
+      <dl className="workspace-account-strip">{wallets.map((wallet) => {
+        const balance = balances.find((entry) => entry.symbol === wallet.symbol);
+        return <div key={wallet.symbol}><dt>{wallet.symbol}{balance && <span className={`workspace-badge ${getBalanceStatusClasses(balance.status)}`}>{getLocalizedBalanceStatusLabel(t,balance.status)}</span>}</dt><dd>{formatCryptoAmount(Number(balance?.balance || 0),wallet.symbol)}</dd></div>;
+      })}</dl>
+      {restrictedCount > 0 && <p className="mt-4 text-xs text-slate-500">{getLocalizedBalanceRestrictionMessage(t,'transfers')}</p>}
+    </WorkspacePanel>
   );
 }
 
@@ -757,37 +503,9 @@ function FiatBalancesSidebar({
 }) {
   const { language } = useLanguage();
   return (
-    <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-      <div className="mb-3 flex items-center gap-2">
-        <Building2 className="h-4 w-4 text-[#AA151B]" />
-        <h3 className="text-sm font-semibold text-neutral-900">
-          {t('dashboardTransfers.fiatBalances.title')}
-        </h3>
-      </div>
-
-      <div className="space-y-1">
-        {balances.map((balance) => (
-          <div key={balance.id} className="flex items-center justify-between gap-3 border-b border-[#AA151B]/10 py-2 last:border-0">
-            <div className="flex min-w-0 items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#AA151B]/10 text-[9px] font-bold text-[#AA151B]">
-                {balance.currency.slice(0, 2)}
-              </span>
-              <div className="min-w-0">
-                <span className="text-xs font-medium text-neutral-700">{balance.currency}</span>
-                <div className="mt-1">
-                  <span className={`rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${getBalanceStatusClasses(balance.status)}`}>
-                    {getLocalizedBalanceStatusLabel(t, balance.status)}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <span className="text-xs font-semibold tabular-nums text-neutral-900">
-              {formatCurrency(Number(balance.balance), balance.currency, language)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <WorkspacePanel title={t('dashboardTransfers.fiatBalances.title')} icon={Building2}>
+      <dl className="workspace-account-strip">{balances.map((balance) => <div key={balance.id}><dt>{balance.currency}<span className={`workspace-badge ${getBalanceStatusClasses(balance.status)}`}>{getLocalizedBalanceStatusLabel(t,balance.status)}</span></dt><dd>{formatCurrency(Number(balance.balance),balance.currency,language)}</dd></div>)}</dl>
+    </WorkspacePanel>
   );
 }
 

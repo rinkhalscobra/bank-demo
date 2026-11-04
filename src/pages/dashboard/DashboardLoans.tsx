@@ -1,3 +1,4 @@
+import { WorkspacePage, WorkspaceHeader, WorkspacePanel, WorkspaceMetrics, WorkspaceStat, WorkspaceEmpty } from '../../components/dashboard/workspace/Workspace';
 import { useState } from 'react';
 import {
   Banknote,
@@ -9,7 +10,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useLoans, LOAN_TYPES, calculateMonthlyPayment } from '../../hooks/useLoans';
-import Dropdown from '../../components/ui/Dropdown';
+import Dropdown from '../../components/dashboard/workspace/WorkspaceDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
 import '../../i18n/dashboard-loans/translations';
 
@@ -179,90 +180,22 @@ export default function DashboardLoans() {
   }
 
   return (
-    <div className="dashboard-route space-y-7">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-serif font-bold text-neutral-900">
-            {t('dashboardLoans.title')}
-          </h1>
-          <p className="mt-1 text-sm text-[#AA151B]">
-            {t('dashboardLoans.subtitle')}
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowApply(!showApply)}
-          className="flex self-start items-center gap-2 rounded-xl bg-[#AA151B] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#710D14]"
-        >
-          <Plus className="w-4 h-4" />
-          {t('dashboardLoans.actions.applyForLoan')}
-        </button>
-      </div>
-
-      <div className="grid sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <div className="flex items-center gap-2 mb-2">
-            <Banknote className="h-5 w-5 text-[#AA151B]" />
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#AA151B]/70">
-              {t('dashboardLoans.summary.outstanding')}
-            </p>
-          </div>
-          <p className="text-2xl font-bold text-neutral-900">{formatCurrency(totalOutstanding)}</p>
-        </div>
-
-        <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <div className="flex items-center gap-2 mb-2">
-            <FileText className="h-5 w-5 text-[#AA151B]" />
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#AA151B]/70">
-              {t('dashboardLoans.summary.activeLoans')}
-            </p>
-          </div>
-          <p className="text-2xl font-bold text-[#AA151B]">{activeLoans.length}</p>
-        </div>
-
-        <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-5 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-5 w-5 text-[#AA151B]" />
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#AA151B]/70">
-              {t('dashboardLoans.summary.pending')}
-            </p>
-          </div>
-          <p className="text-2xl font-bold text-[#AA151B]">{pendingLoans.length}</p>
-        </div>
-      </div>
-
+    <WorkspacePage className="workspace-loans">
+      <WorkspaceHeader title={t('dashboardLoans.title')} description={t('dashboardLoans.subtitle')} icon={Banknote} actions={<button type="button" className="workspace-button workspace-button--primary" onClick={() => setShowApply(!showApply)}><Plus size={16} />{t(showApply ? 'dashboardLoans.actions.cancel' : 'dashboardLoans.actions.applyForLoan')}</button>} />
+      <WorkspaceMetrics className="workspace-metrics--hero">
+        <WorkspaceStat label={t('dashboardLoans.summary.outstanding')} value={formatCurrency(totalOutstanding)} icon={Banknote} />
+        <WorkspaceStat label={t('dashboardLoans.summary.activeLoans')} value={activeLoans.length} icon={FileText} />
+        <WorkspaceStat label={t('dashboardLoans.summary.pending')} value={pendingLoans.length} icon={Clock} />
+      </WorkspaceMetrics>
       {result && (
         <div className="flex items-center gap-3 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] px-4 py-3 text-sm text-[#AA151B]">
           {result.success ? <CheckCircle className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
           {result.message}
         </div>
       )}
-
-      {showApply && (
-        <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-6 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <h2 className="mb-4 font-semibold text-neutral-900">
-            {t('dashboardLoans.application.title')}
-          </h2>
-
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-6">
-            {LOAN_TYPES.map((tpe) => (
-              <button
-                key={tpe.key}
-                type="button"
-                onClick={() => setLoanType(tpe.key)}
-                className={`rounded-2xl border p-3 text-center transition-all ${
-                  loanType === tpe.key
-                    ? 'border-[#AA151B] bg-[#AA151B]/[0.04] shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]'
-                    : 'border-[#AA151B]/14 bg-white hover:border-[#AA151B]/25'
-                }`}
-              >
-                <p className="text-xs font-bold text-neutral-900">{loanTypeLabel(tpe.key, tpe.label)}</p>
-                <p className="mt-0.5 text-[10px] text-[#AA151B]/70">{tpe.minRate}-{tpe.maxRate}%</p>
-              </button>
-            ))}
-          </div>
-
-          <form onSubmit={handleApply} className="space-y-4">
+      <div className="workspace-split">
+        <div className="workspace-stack">
+          {showApply && <WorkspacePanel title={t('dashboardLoans.application.title')}><form onSubmit={handleApply} className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-neutral-800">
@@ -297,27 +230,6 @@ export default function DashboardLoans() {
               </div>
             </div>
 
-            {numPrincipal >= 1000 && (
-              <div className="grid gap-4 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] p-4 text-sm sm:grid-cols-4">
-                <div>
-                  <p className="mb-0.5 text-xs text-[#AA151B]/70">{t('dashboardLoans.calculator.interestRate')}</p>
-                  <p className="font-bold text-neutral-900">{formatNumber(interestRate, 1)}% {t('dashboardLoans.calculator.perYear')}</p>
-                </div>
-                <div>
-                  <p className="mb-0.5 text-xs text-[#AA151B]/70">{t('dashboardLoans.calculator.monthlyPayment')}</p>
-                  <p className="font-bold text-neutral-900">{formatCurrency(monthlyPayment)}</p>
-                </div>
-                <div>
-                  <p className="mb-0.5 text-xs text-[#AA151B]/70">{t('dashboardLoans.calculator.totalInterest')}</p>
-                  <p className="font-bold text-[#AA151B]">{formatCurrency(totalInterest)}</p>
-                </div>
-                <div>
-                  <p className="mb-0.5 text-xs text-[#AA151B]/70">{t('dashboardLoans.calculator.totalPayable')}</p>
-                  <p className="font-bold text-neutral-900">{formatCurrency(totalPayable)}</p>
-                </div>
-              </div>
-            )}
-
             <div className="flex gap-3">
               <button
                 type="submit"
@@ -334,97 +246,42 @@ export default function DashboardLoans() {
                 {t('dashboardLoans.actions.cancel')}
               </button>
             </div>
-          </form>
-        </div>
-      )}
-
-      {loans.length > 0 && (
-        <div className="rounded-2xl border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <div className="border-b border-[#AA151B]/10 px-6 py-4">
-            <h2 className="font-semibold text-neutral-900">{t('dashboardLoans.yourLoans')}</h2>
-          </div>
-          <div className="divide-y divide-[#AA151B]/10">
-            {loans.map((loan) => {
-              const paid = loan.principal > 0 ? ((loan.total_paid / (loan.monthly_payment * loan.term_months)) * 100) : 0;
-              const loanInfo = LOAN_TYPES.find((tpe) => tpe.key === loan.loan_type);
-
-              return (
-                <div key={loan.id} className="space-y-3 px-6 py-5 transition-colors hover:bg-[#AA151B]/[0.03]">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#AA151B]/10">
-                        <Banknote className="h-5 w-5 text-[#AA151B]" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-neutral-900">
-                            {loanTypeLabel(loan.loan_type, loanInfo?.label || loan.loan_type)}
-                          </p>
-                          <span className={`px-2 py-0.5 text-[10px] font-medium ${STATUS_STYLES[loan.status]}`}>
-                            {statusLabel(loan.status)}
-                          </span>
-                        </div>
-                        <p className="text-xs text-[#AA151B]/70">
-                          {formatCurrency(loan.principal)} {t('dashboardLoans.loanCard.at')} {loan.interest_rate}% {t('dashboardLoans.loanCard.for')} {loan.term_months} {t('dashboardLoans.application.months')}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-neutral-900">{formatCurrency(loan.remaining_balance)}</p>
-                      <p className="text-xs text-[#AA151B]/70">{t('dashboardLoans.loanCard.remaining')}</p>
-                    </div>
-                  </div>
-
-                  {loan.status === 'active' && (
-                    <>
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <div className="h-2 overflow-hidden rounded-full bg-[#AA151B]/10">
-                            <div
-                              className="h-full rounded-full bg-[#AA151B] transition-all duration-500"
-                              style={{ width: `${Math.min(100, paid)}%` }}
-                            />
-                          </div>
-                        </div>
-                        <span className="flex-shrink-0 text-xs text-[#AA151B]/70">{formatNumber(paid, 0)}% {t('dashboardLoans.loanCard.paid')}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 text-xs text-[#AA151B]/70">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {t('dashboardLoans.loanCard.next')}: {loan.next_payment_date ? formatDate(loan.next_payment_date) : t('dashboardLoans.loanCard.na')}
-                          </span>
-                          <span>{t('dashboardLoans.loanCard.monthly')}: {formatCurrency(loan.monthly_payment)}</span>
-                        </div>
-                        <button
-                          onClick={() => handlePayment(loan.id)}
-                          className="rounded-lg bg-[#AA151B] px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#710D14]"
-                        >
-                          {t('dashboardLoans.actions.makePayment')}
-                        </button>
-                      </div>
-                    </>
-                  )}
+          </form></WorkspacePanel>}
+          <WorkspacePanel title={t('dashboardLoans.yourLoans')} icon={Banknote}>
+            {loans.length ? <div className="workspace-loan-rows">{loans.map((loan) => {
+              const denominator = loan.monthly_payment * loan.term_months;
+              const paid = denominator > 0 ? Math.min(100, Math.max(0, loan.total_paid / denominator * 100)) : 0;
+              const loanInfo = LOAN_TYPES.find((type) => type.key === loan.loan_type);
+              return <article key={loan.id} className="workspace-loan-row">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2"><h3>{loanTypeLabel(loan.loan_type, loanInfo?.label)}</h3><span className={`workspace-badge ${STATUS_STYLES[loan.status] || ''}`}>{statusLabel(loan.status)}</span></div>
+                  <dl>
+                    <div><dt>{t('dashboardLoans.loanCard.remaining')}</dt><dd>{formatCurrency(loan.remaining_balance)}</dd></div>
+                    <div><dt>{t('dashboardLoans.application.amount')}</dt><dd>{formatCurrency(loan.principal)}</dd></div>
+                    <div><dt>{t('dashboardLoans.calculator.interestRate')}</dt><dd>{loan.interest_rate}%</dd></div>
+                    <div><dt>{t('dashboardLoans.application.term')}</dt><dd>{loan.term_months} {t('dashboardLoans.application.months')}</dd></div>
+                  </dl>
+                  {loan.status === 'active' && <><div className="workspace-progress"><span style={{width: `${paid}%`}} /></div><p className="mt-2 text-xs text-slate-500">{formatNumber(paid, 0)}% {t('dashboardLoans.loanCard.paid')}</p><p className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-600"><Calendar size={14} />{t('dashboardLoans.loanCard.next')}: {loan.next_payment_date ? formatDate(loan.next_payment_date) : t('dashboardLoans.loanCard.na')} · {t('dashboardLoans.loanCard.monthly')}: {formatCurrency(loan.monthly_payment)}</p></>}
                 </div>
-              );
-            })}
-          </div>
+                {loan.status === 'active' && <button type="button" className="workspace-button workspace-button--primary self-start" onClick={() => void handlePayment(loan.id)}>{t('dashboardLoans.actions.makePayment')}</button>}
+              </article>;
+            })}</div> : <WorkspaceEmpty icon={Banknote} title={t('dashboardLoans.empty.title')} description={t('dashboardLoans.empty.subtitle')} action={!showApply && <button type="button" className="workspace-button workspace-button--primary" onClick={() => setShowApply(true)}>{t('dashboardLoans.empty.cta')}</button>} />}
+          </WorkspacePanel>
         </div>
-      )}
-
-      {loans.length === 0 && !showApply && (
-        <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-16 text-center shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <Banknote className="mx-auto mb-4 h-12 w-12 text-[#AA151B]/30" />
-          <h3 className="mb-2 text-lg font-semibold text-neutral-900">{t('dashboardLoans.empty.title')}</h3>
-          <p className="mb-6 text-sm text-[#AA151B]/70">{t('dashboardLoans.empty.subtitle')}</p>
-          <button
-            onClick={() => setShowApply(true)}
-            className="rounded-xl bg-[#AA151B] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#710D14]"
-          >
-            {t('dashboardLoans.empty.cta')}
-          </button>
-        </div>
-      )}
-    </div>
+        <aside className="workspace-stack">
+          <WorkspacePanel title={t('dashboardWorkspace.products')}>
+            <div className="workspace-loan-products">{LOAN_TYPES.map((type) => <button type="button" key={type.key} aria-pressed={loanType === type.key} onClick={() => { setLoanType(type.key); setTermMonths((current) => Math.min(current, type.maxTerm)); setShowApply(true); }}><strong>{loanTypeLabel(type.key, type.label)}</strong><small>{type.minRate}–{type.maxRate}%</small></button>)}</div>
+          </WorkspacePanel>
+          {showApply && numPrincipal >= 1000 && <WorkspacePanel title={t('dashboardWorkspace.summary')}>
+            <dl className="workspace-definition">
+              <div><dt>{t('dashboardLoans.calculator.interestRate')}</dt><dd>{formatNumber(interestRate, 1)}% {t('dashboardLoans.calculator.perYear')}</dd></div>
+              <div><dt>{t('dashboardLoans.calculator.monthlyPayment')}</dt><dd>{formatCurrency(monthlyPayment)}</dd></div>
+              <div><dt>{t('dashboardLoans.calculator.totalInterest')}</dt><dd>{formatCurrency(totalInterest)}</dd></div>
+              <div><dt>{t('dashboardLoans.calculator.totalPayable')}</dt><dd>{formatCurrency(totalPayable)}</dd></div>
+            </dl>
+          </WorkspacePanel>}
+        </aside>
+      </div>
+    </WorkspacePage>
   );
 }

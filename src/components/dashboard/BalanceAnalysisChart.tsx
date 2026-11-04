@@ -84,7 +84,19 @@ function DonutChart({
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const total = segments.reduce((s, seg) => s + seg.value, 0);
-  if (total === 0) return null;
+  if (total === 0) {
+    return (
+      <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+        <svg width={size} height={size} aria-hidden="true">
+          <circle cx={size / 2} cy={size / 2} r={size * 0.38} fill="none" stroke={UI_COLORS.barTrack} strokeWidth={size * 0.14} />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <span className="text-lg font-semibold text-neutral-900">{formatUsd(0, locale)}</span>
+          <span className="mt-1 text-[10px] text-neutral-500">{centerTotalLabel}</span>
+        </div>
+      </div>
+    );
+  }
 
   const cx = size / 2;
   const cy = size / 2;
@@ -473,6 +485,8 @@ export default function BalanceAnalysisChart({
             {DATA_FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.key}
+                type="button"
+                aria-pressed={dataFilter === opt.key}
                 onClick={() => setDataFilter(opt.key)}
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
                   dataFilter === opt.key
@@ -494,6 +508,9 @@ export default function BalanceAnalysisChart({
               return (
                 <button
                   key={vm.key}
+                  type="button"
+                  aria-label={vm.tip}
+                  aria-pressed={viewMode === vm.key}
                   onClick={() => setViewMode(vm.key)}
                   title={vm.tip}
                   className={`p-1.5 rounded-md transition-all duration-200 ${

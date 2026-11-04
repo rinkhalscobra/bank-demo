@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { WorkspacePage, WorkspaceHeader, WorkspacePanel, WorkspaceMetrics, WorkspaceStat, WorkspaceEmpty } from '../../components/dashboard/workspace/Workspace';
+import { useState } from 'react';
+import WorkspaceDropdown from '../../components/dashboard/workspace/WorkspaceDropdown';
 import {
   CreditCard,
   Snowflake,
@@ -14,7 +16,7 @@ import {
   Briefcase,
   DollarSign,
   Target,
-  ChevronDown,
+  Clock,
 } from 'lucide-react';
 import { useCards, CardApplication } from '../../hooks/useCards';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -57,81 +59,9 @@ type SelectOption<T extends string | number> = {
   label: string;
 };
 
-function CustomSelect<T extends string | number>({
-  value,
-  options,
-  onChange,
-}: {
-  value: T;
-  options: SelectOption<T>[];
-  onChange: (value: T) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const selectRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const selectedOption = options.find((option) => option.value === value) || options[0];
-
-  return (
-    <div ref={selectRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex w-full items-center justify-between rounded-xl border border-[#AA151B]/14 bg-white px-4 py-2.5 text-left text-sm text-neutral-900 transition-all duration-200 ${
-          open ? 'ring-2 ring-[#AA151B]/20' : 'hover:border-[#AA151B]/25'
-        }`}
-      >
-        <span className="truncate">{selectedOption?.label}</span>
-        <ChevronDown
-          className={`h-4 w-4 flex-shrink-0 text-[#AA151B] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-[#AA151B]/14 bg-white shadow-[0_24px_70px_-38px_rgba(170,21,27,0.45)]">
-          <div className="max-h-60 overflow-y-auto p-2">
-            {options.map((option) => {
-              const active = option.value === value;
-
-              return (
-                <button
-                  key={String(option.value)}
-                  type="button"
-                  onClick={() => {
-                    onChange(option.value);
-                    setOpen(false);
-                  }}
-                  className={`flex w-full items-center rounded-xl px-3 py-2.5 text-sm transition-colors ${
-                    active
-                      ? 'bg-[#AA151B] text-white'
-                      : 'text-neutral-700 hover:bg-[#AA151B]/[0.05] hover:text-[#AA151B]'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+function CustomSelect<T extends string | number>({ value, options, onChange }: { value: T; options: SelectOption<T>[]; onChange: (value: T) => void }) {
+  return <WorkspaceDropdown value={String(value)} options={options.map((option) => ({value:String(option.value),label:option.label}))} onChange={(selected) => { const option = options.find((entry) => String(entry.value) === selected); if (option) onChange(option.value); }} />;
 }
-
-const BRAND_COLORS: Record<string, { gradient: string; accent: string }> = {
-  visa: { gradient: 'from-[#710D14] to-[#AA151B]', accent: 'text-white' },
-  mastercard: { gradient: 'from-[#AA151B] to-[#5f7f99]', accent: 'text-white' },
-};
 
 const INITIAL_FORM: CardApplication = {
   cardholderName: '',
@@ -154,6 +84,8 @@ export default function DashboardCards() {
   const { language, t } = useLanguage();
 
   const [showCreate, setShowCreate] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState('');
+  const selectedCard = cards.find((card) => card.id === selectedCardId) || cards[0];
   const [form, setForm] = useState<CardApplication>({ ...INITIAL_FORM });
   const [creating, setCreating] = useState(false);
   const [showDetails, setShowDetails] = useState<string | null>(null);
@@ -272,33 +204,29 @@ export default function DashboardCards() {
   }
 
   return (
-    <div className="dashboard-route space-y-7">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-serif font-bold text-neutral-900">{t('dashboardCards.title')}</h1>
-          <p className="mt-1 text-sm text-[#AA151B]">{t('dashboardCards.subtitle')}</p>
-        </div>
-
-        <button
+    <WorkspacePage className="workspace-cards">
+      <WorkspaceHeader title={t('dashboardCards.title')} description={t('dashboardCards.subtitle')} icon={CreditCard} actions={<button
           onClick={() => {
             setShowCreate(!showCreate);
             setStep(1);
             setForm({ ...INITIAL_FORM });
           }}
-          className="flex self-start items-center gap-2 rounded-xl bg-[#AA151B] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#710D14]"
+          className="workspace-button workspace-button--primary"
         >
           <Plus className="w-4 h-4" />
           {t('dashboardCards.actions.applyForCard')}
-        </button>
-      </div>
-
+        </button>} />
+      <WorkspaceMetrics>
+        <WorkspaceStat icon={CreditCard} label={t('dashboardCards.title')} value={cards.length} />
+        <WorkspaceStat icon={Snowflake} label={t('dashboardCards.card.frozen')} value={cards.filter((card) => card.status === 'frozen').length} />
+        <WorkspaceStat icon={Clock} label={t('dashboardCards.messages.pendingApprovalTitleOne')} value={pendingApplications.length} />
+      </WorkspaceMetrics>
       {result && (
         <div className="flex items-center gap-3 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] px-4 py-3 text-sm text-[#AA151B]">
           {result.success ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
           {result.message}
         </div>
       )}
-
       {pendingApplications.length > 0 && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-4 text-sm text-amber-800">
           <div className="flex items-start gap-3">
@@ -321,9 +249,8 @@ export default function DashboardCards() {
           </div>
         </div>
       )}
-
       {showCreate && (
-        <div className="rounded-3xl border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
+        <div className="workspace-panel workspace-card-application">
           <div className="border-b border-[#AA151B]/10 px-6 py-4">
             <h2 className="font-semibold text-neutral-900">{t('dashboardCards.application.title')}</h2>
             <p className="mt-1 text-xs text-[#AA151B]">{t('dashboardCards.application.subtitle')}</p>
@@ -715,146 +642,42 @@ export default function DashboardCards() {
           </form>
         </div>
       )}
-
-      <div className="flex flex-wrap gap-6">
-        {cards.map((card) => {
-          const brand = BRAND_COLORS[card.card_brand] || BRAND_COLORS.visa;
-          const isRevealed = showDetails === card.id;
-          const isFrozen = card.status === 'frozen';
-
-          return (
-            <div key={card.id} className="w-full max-w-[28rem] space-y-4 sm:w-[28rem]">
-              <div
-                className={`relative bg-gradient-to-br ${brand.gradient} rounded-xl p-6 text-white overflow-hidden ${
-                  isFrozen ? 'opacity-70' : ''
-                }`}
-              >
-                {isFrozen && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#003d2b]/35">
-                    <div className="flex items-center gap-2 rounded-lg bg-[#AA151B]/90 px-4 py-2">
-                      <Snowflake className="w-5 h-5" />
-                      <span className="font-semibold text-sm">{t('dashboardCards.card.frozen')}</span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -tranneutral-y-1/2 tranneutral-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full tranneutral-y-1/2 -tranneutral-x-1/2" />
-
-                <div className="flex items-center justify-between mb-8 relative z-[1]">
-                  <div className="flex items-center gap-2">
-                    <Wifi className="w-5 h-5 rotate-90 text-white/60" />
-                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-white/10 text-white/70">
-                      {card.currency || 'USD'}
-                    </span>
-                  </div>
-
-                  <span className={`text-lg font-bold uppercase tracking-wider ${brand.accent}`}>
-                    {card.card_brand}
-                  </span>
-                </div>
-
-                <div className="mb-6 relative z-[1]">
-                  <p className="text-xl font-mono tracking-widest">
-                    {isRevealed ? formatCardNumber(card.card_number) : maskCard(card.card_number)}
-                  </p>
-                </div>
-
-                <div className="flex items-end justify-between relative z-[1]">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">
-                      {t('dashboardCards.card.cardholder')}
-                    </p>
-                    <p className="text-sm font-semibold tracking-wider">{card.cardholder_name}</p>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">
-                      {t('dashboardCards.card.expires')}
-                    </p>
-                    <p className="text-sm font-semibold">{isRevealed ? card.expiry_date : '**/**'}</p>
-                  </div>
-
-                  {isRevealed && (
-                    <div className="text-right">
-                      <p className="text-[10px] uppercase tracking-wider text-white/50 mb-0.5">
-                        {t('dashboardCards.card.cvv')}
-                      </p>
-                      <p className="text-sm font-semibold">{card.cvv}</p>
-                    </div>
-                  )}
-                </div>
+      {selectedCard ? (
+        <div className="workspace-split workspace-split--rail">
+          <WorkspacePanel title={t('dashboardCards.title')} icon={CreditCard}>
+            <div className="workspace-selector-list">
+              {cards.map((card) => <button type="button" key={card.id} aria-pressed={selectedCard.id === card.id} onClick={() => { setSelectedCardId(card.id); setShowDetails(null); }}>
+                <CreditCard size={21} /><span><strong className="uppercase">{card.card_brand}</strong><small>{maskCard(card.card_number)}</small></span><span className="workspace-badge">{card.currency || 'USD'}{card.status === 'frozen' && <Snowflake size={12} />}</span>
+              </button>)}
+            </div>
+          </WorkspacePanel>
+          <WorkspacePanel title={t('dashboardWorkspace.accountDetails')} action={<span className="workspace-badge workspace-badge--brand">{selectedCard.currency || 'USD'}</span>} bodyClassName="workspace-panel-body--flush">
+            <div className="workspace-card-detail">
+              <div className="workspace-card-visual">
+                <header><Wifi size={23} className="rotate-90" /><strong className="uppercase tracking-wider">{selectedCard.card_brand}</strong>{selectedCard.status === 'frozen' && <Snowflake size={19} />}</header>
+                <p className="workspace-card-number">{showDetails === selectedCard.id ? formatCardNumber(selectedCard.card_number) : maskCard(selectedCard.card_number)}</p>
+                <footer>
+                  <div><small>{t('dashboardCards.card.cardholder')}</small><strong>{selectedCard.cardholder_name}</strong></div>
+                  <div><small>{t('dashboardCards.card.expires')}</small><strong>{showDetails === selectedCard.id ? selectedCard.expiry_date : '**/**'}</strong></div>
+                  {showDetails === selectedCard.id && <div><small>{t('dashboardCards.card.cvv')}</small><strong>{selectedCard.cvv}</strong></div>}
+                </footer>
               </div>
-
-              <div className="space-y-3 rounded-2xl border border-[#AA151B]/14 bg-white p-4 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#AA151B]">{t('dashboardCards.card.dailyLimit')}</span>
-                  <span className="font-medium text-neutral-900">
-                    {formatCurrency(card.daily_limit, card.currency || 'USD', language)}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#AA151B]">{t('dashboardCards.card.monthlyLimit')}</span>
-                  <span className="font-medium text-neutral-900">
-                    {formatCurrency(card.monthly_limit, card.currency || 'USD', language)}
-                  </span>
-                </div>
-
-                <div className="flex gap-2 border-t border-[#AA151B]/10 pt-2">
-                  <button
-                    onClick={() => setShowDetails(isRevealed ? null : card.id)}
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#AA151B]/14 px-3 py-2 text-xs font-medium text-[#AA151B] transition-colors hover:bg-[#AA151B]/[0.04]"
-                  >
-                    <Shield className="w-3.5 h-3.5" />
-                    {isRevealed
-                      ? t('dashboardCards.actions.hideDetails')
-                      : t('dashboardCards.actions.showDetails')}
-                  </button>
-
-                  <button
-                    onClick={() => handleFreeze(card.id, card.status)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors ${
-                      isFrozen
-                        ? 'border border-[#AA151B]/14 bg-[#AA151B]/10 text-[#AA151B] hover:bg-[#AA151B]/15'
-                        : 'border border-[#AA151B]/14 bg-[#AA151B]/[0.05] text-[#AA151B] hover:bg-[#AA151B]/10'
-                    }`}
-                  >
-                    {isFrozen ? <Play className="w-3.5 h-3.5" /> : <Snowflake className="w-3.5 h-3.5" />}
-                    {isFrozen ? t('dashboardCards.actions.unfreeze') : t('dashboardCards.actions.freeze')}
-                  </button>
+              <div>
+                <dl className="workspace-definition">
+                  <div><dt>{t('dashboardCards.card.dailyLimit')}</dt><dd>{formatCurrency(selectedCard.daily_limit, selectedCard.currency || 'USD', language)}</dd></div>
+                  <div><dt>{t('dashboardCards.card.monthlyLimit')}</dt><dd>{formatCurrency(selectedCard.monthly_limit, selectedCard.currency || 'USD', language)}</dd></div>
+                </dl>
+                <div className="workspace-card-tools">
+                  <button type="button" className="workspace-button" onClick={() => setShowDetails(showDetails === selectedCard.id ? null : selectedCard.id)}><Shield size={16} />{t(showDetails === selectedCard.id ? 'dashboardCards.actions.hideDetails' : 'dashboardCards.actions.showDetails')}</button>
+                  <button type="button" className="workspace-button workspace-button--primary" onClick={() => void handleFreeze(selectedCard.id, selectedCard.status)}>{selectedCard.status === 'frozen' ? <Play size={16} /> : <Snowflake size={16} />}{t(selectedCard.status === 'frozen' ? 'dashboardCards.actions.unfreeze' : 'dashboardCards.actions.freeze')}</button>
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {cards.length === 0 && pendingApplications.length === 0 && !showCreate && (
-        <div className="rounded-3xl border border-[#AA151B]/14 bg-white p-16 text-center shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-          <CreditCard className="mx-auto mb-4 h-12 w-12 text-[#AA151B]/35" />
-          <h3 className="text-lg font-semibold text-neutral-900 mb-2">{t('dashboardCards.empty.title')}</h3>
-          <p className="mb-6 text-sm text-[#AA151B]">{t('dashboardCards.empty.subtitle')}</p>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="rounded-xl bg-[#AA151B] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#710D14]"
-          >
-            {t('dashboardCards.empty.cta')}
-          </button>
+          </WorkspacePanel>
         </div>
+      ) : !showCreate && (
+        <WorkspacePanel><WorkspaceEmpty icon={CreditCard} title={t(pendingApplications.length ? 'dashboardCards.messages.noApprovedCardsTitle' : 'dashboardCards.empty.title')} description={t(pendingApplications.length ? 'dashboardCards.messages.noApprovedCardsDescription' : 'dashboardCards.empty.subtitle')} action={!pendingApplications.length && <button type="button" className="workspace-button workspace-button--primary" onClick={() => setShowCreate(true)}><Plus size={16} />{t('dashboardCards.empty.cta')}</button>} /></WorkspacePanel>
       )}
-
-      {cards.length === 0 && pendingApplications.length > 0 && !showCreate && (
-        <div className="rounded-3xl border border-amber-200 bg-white p-16 text-center shadow-[0_24px_60px_-48px_rgba(180,83,9,0.2)]">
-          <CreditCard className="mx-auto mb-4 h-12 w-12 text-amber-500/60" />
-          <h3 className="mb-2 text-lg font-semibold text-neutral-900">
-            {t('dashboardCards.messages.noApprovedCardsTitle')}
-          </h3>
-          <p className="text-sm text-amber-700">
-            {t('dashboardCards.messages.noApprovedCardsDescription')}
-          </p>
-        </div>
-      )}
-    </div>
+    </WorkspacePage>
   );
 }

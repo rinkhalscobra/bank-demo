@@ -1,3 +1,4 @@
+import { WorkspacePage, WorkspaceHeader, WorkspacePanel } from '../../components/dashboard/workspace/Workspace';
 import { useState, useEffect } from 'react';
 import { User, CheckCircle, AlertCircle } from 'lucide-react';
 import { useProfile } from '../../hooks/useBankingData';
@@ -70,116 +71,34 @@ export default function DashboardProfile() {
   }
 
   return (
-    <div className="dashboard-route min-w-0 space-y-7">
-      <div>
-        <h1 className="text-2xl font-serif font-bold text-neutral-900">
-          {t('dashboardProfile.title')}
-        </h1>
-        <p className="mt-1 text-sm text-[#AA151B]">
-          {t('dashboardProfile.subtitle')}
-        </p>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-6 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)] sm:p-8">
-            {result && (
-              <div
-                className="mb-6 flex items-center gap-3 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] px-4 py-3 text-sm text-[#AA151B]"
-              >
-                {result.success ? (
-                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                )}
-                {result.message}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-neutral-800">
-                  {t('dashboardProfile.fullName')}
-                </label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full rounded-xl border border-[#AA151B]/14 bg-[#AA151B]/[0.03] px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#AA151B]/20"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-neutral-800">
-                  {t('dashboardProfile.emailAddress')}
-                </label>
-                <input
-                  type="email"
-                  value={user?.email || ''}
-                  disabled
-                  className="w-full rounded-xl border border-[#AA151B]/10 bg-[#AA151B]/[0.04] px-4 py-3 text-sm text-neutral-600"
-                />
-                <p className="mt-1 text-xs text-[#AA151B]/70">
-                  {t('dashboardProfile.emailCannotChange')}
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex items-center justify-center gap-2 rounded-xl bg-[#AA151B] px-8 py-3 font-semibold text-white transition-colors hover:bg-[#710D14] disabled:bg-neutral-300 disabled:text-neutral-500"
-              >
-                {saving ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  t('dashboardProfile.saveChanges')
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-6 text-center shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[#AA151B]/10">
-              <User className="h-10 w-10 text-[#AA151B]" />
+    <WorkspacePage className="workspace-profile">
+      <WorkspaceHeader title={t('dashboardProfile.title')} description={t('dashboardProfile.subtitle')} icon={User} />
+      {result && <div className="workspace-note" role="status">{result.success ? <CheckCircle size={19} /> : <AlertCircle size={19} />}<p>{result.message}</p></div>}
+      <div className="workspace-split workspace-split--rail workspace-profile-layout">
+        <aside className="workspace-stack">
+          <WorkspacePanel>
+            <div className="workspace-profile-identity">
+              <span className="workspace-profile-avatar">{(profile?.full_name || user?.email || '?').trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</span>
+              <div><h2>{profile?.full_name || t('dashboardProfile.userFallback')}</h2><p className="mt-2">{user?.email}</p></div>
+              {profile?.show_account_created_at !== false && <span className="workspace-badge">{interpolate(t('dashboardProfile.memberSince'), { date: profile?.created_at ? formatMemberSince(profile.created_at) : t('dashboardProfile.notAvailable') })}</span>}
             </div>
-            <h3 className="font-semibold text-neutral-900">
-              {profile?.full_name || t('dashboardProfile.userFallback')}
-            </h3>
-            <p className="mt-1 text-sm text-[#AA151B]/70">{user?.email}</p>
-            {profile?.show_account_created_at !== false && (
-              <p className="mt-3 text-xs text-[#AA151B]/70">
-                {profile?.created_at
-                  ? interpolate(t('dashboardProfile.memberSince'), {
-                      date: formatMemberSince(profile.created_at),
-                    })
-                  : interpolate(t('dashboardProfile.memberSince'), {
-                      date: t('dashboardProfile.notAvailable'),
-                    })}
-              </p>
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-[#AA151B]/14 bg-[#AA151B] p-6 text-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.55)]">
-            <h3 className="mb-3 font-semibold">{t('dashboardProfile.security')}</h3>
-            <ul className="space-y-2 text-sm text-white/85">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-white" />
-                {t('dashboardProfile.emailVerified')}
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-white" />
-                {t('dashboardProfile.encryption')}
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-white" />
-                {t('dashboardProfile.secureSession')}
-              </li>
+          </WorkspacePanel>
+          <WorkspacePanel title={t('dashboardProfile.security')}>
+            <ul className="workspace-security-list">
+              {user?.email_confirmed_at && <li><CheckCircle size={17} />{t('dashboardProfile.emailVerified')}</li>}
+              <li><CheckCircle size={17} />{t('dashboardProfile.encryption')}</li>
+              <li><CheckCircle size={17} />{t('dashboardProfile.secureSession')}</li>
             </ul>
-          </div>
-        </div>
+          </WorkspacePanel>
+        </aside>
+        <WorkspacePanel title={t('dashboardWorkspace.personalDetails')} description={t('dashboardProfile.subtitle')} icon={User}>
+          <form onSubmit={handleSubmit} className="workspace-profile-fields">
+            <label>{t('dashboardProfile.fullName')}<input type="text" autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} /></label>
+            <label>{t('dashboardProfile.emailAddress')}<input type="email" autoComplete="email" value={user?.email || ''} disabled /><small>{t('dashboardProfile.emailCannotChange')}</small></label>
+            <footer><button type="submit" disabled={saving} className="workspace-button workspace-button--primary">{saving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : t('dashboardProfile.saveChanges')}</button></footer>
+          </form>
+        </WorkspacePanel>
       </div>
-    </div>
+    </WorkspacePage>
   );
 }

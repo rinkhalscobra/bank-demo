@@ -1,3 +1,6 @@
+import { BarChart3 } from 'lucide-react';
+import { WorkspacePage, WorkspaceHeader, WorkspacePanel, WorkspaceMetrics, WorkspaceStat, WorkspaceTabs } from '../../components/dashboard/workspace/Workspace';
+import '../../i18n/dashboardcards/translations';
 import { useMemo, useState } from 'react';
 import { useTransactions } from '../../hooks/useBankingData';
 import { useFiatBalances } from '../../hooks/useFiatBalances';
@@ -12,13 +15,6 @@ import { useCurrencyExchange } from '../../hooks/useCurrencyExchange';
 import { useTaxSummary } from '../../hooks/useTaxSummary';
 import BalanceHistoryChart from '../../components/dashboard/BalanceHistoryChart';
 import RestrictedBalanceReference from '../../components/dashboard/RestrictedBalanceReference';
-import {
-  AssetAllocationCard,
-  TransfersCard,
-  CardsAndBillsCard,
-  LoansCard,
-  TaxCard,
-} from '../../components/dashboard/AnalyticsCards';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { isBalanceAvailable } from '../../lib/balanceStatus';
 import { getLocalizedRestrictedBalanceCountMessage } from '../../lib/balanceStatusI18n';
@@ -28,7 +24,10 @@ const FIAT_USD: Record<string, number> = { USD: 1, EUR: 1.08, CAD: 0.74, CHF: 1.
 const CRYPTO_USD: Record<string, number> = { BTC: 62000, ETH: 3400, SOL: 145, USDC: 1, USDT: 1 };
 
 export default function DashboardAnalytics() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [operationsTab, setOperationsTab] = useState<'transfers' | 'cards' | 'loans' | 'taxes'>('transfers');
+  const formatUsd = (value: number) => new Intl.NumberFormat(language, {style:'currency',currency:'USD'}).format(value);
+  const formatNumber = (value: number, digits = 1) => new Intl.NumberFormat(language, {maximumFractionDigits:digits}).format(value);
 
   const { transactions, loading } = useTransactions();
   const { fiatBalances } = useFiatBalances();
@@ -110,132 +109,72 @@ export default function DashboardAnalytics() {
   const pendingCount = filteredTxns.filter((t) => t.status === 'pending').length;
   const uniqueReferenceCount = new Set(filteredTxns.map((t) => t.reference).filter(Boolean)).size;
 
+  const reportRows: Record<typeof operationsTab, {label:string;value:string | number;detail?:string}[]> = {
+    transfers: [
+      {label:t('dashboard.transfers.bankTransfers'), value:transfers.length, detail:t('dashboard.transfers.totalVolume').replace('{amount}',formatUsd(bankTransferVolume))},
+      {label:t('dashboard.transfers.pending').replace('{count}',String(bankTransferPending)),value:bankTransferPending},
+      {label:t('dashboard.transfers.cryptoTransfers'),value:cryptoTransfers.length,detail:t('dashboard.transfers.unitsMoved').replace('{amount}',formatNumber(cryptoTransferVolume,4))},
+      {label:t('dashboard.transfers.pending').replace('{count}',String(cryptoTransferPending)),value:cryptoTransferPending},
+      {label:t('dashboard.transfers.currencyExchanges'),value:exchanges.length,detail:t('dashboard.transfers.exchanged').replace('{amount}',formatUsd(exchangeVolume))}
+    ],
+    cards: [
+      {label:t('dashboard.cardsBills.cards'),value:cards.length},
+      {label:t('dashboard.cardsBills.active'),value:activeCards},
+      {label:t('dashboard.cardsBills.frozen'),value:frozenCards},
+      {label:t('dashboard.cardsBills.paid'),value:billsCompleted.length,detail:t('dashboard.cardsBills.totalPaid')+': '+formatUsd(billsTotalPaid)},
+      {label:t('dashboard.cardsBills.pending'),value:billsPending.length}
+    ],
+    loans: [
+      {label:t('dashboard.loans.activeLoans'),value:activeLoans.length},
+      {label:t('dashboard.loans.pendingApproval'),value:loans.filter((loan)=>loan.status==='pending_approval').length},
+      {label:t('dashboard.loans.remainingDebt'),value:formatUsd(totalDebt)},
+      {label:t('dashboard.loans.monthlyPayment'),value:formatUsd(totalMonthlyPayment)},
+      {label:t('dashboard.loans.repaymentProgress'),value:formatNumber(loanProgress)+'%'}
+    ],
+    taxes: [
+      {label:t('dashboard.taxes.pending'),value:formatUsd(taxSummary.totals.pending)},
+      {label:t('dashboard.taxes.onHold'),value:formatUsd(taxSummary.totals.on_hold)},
+      {label:t('dashboard.taxes.paid'),value:formatUsd(taxSummary.totals.paid)},
+      {label:t('dashboard.taxes.totalOutstanding'),value:formatUsd(taxSummary.totals.pending+taxSummary.totals.on_hold)}
+    ]
+  };
   return (
-    <div className="dashboard-route space-y-7">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-serif font-bold text-neutral-900">
-            {t('dashboardAnalytics.title')}
-          </h1>
-          <p className="mt-1 text-sm text-[#AA151B]">
-            {t('dashboardAnalytics.subtitle')}
-          </p>
-        </div>
-
-        <div className="flex self-start gap-1 rounded-xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] p-1">
-          {(
-            [
-              ['all', t('dashboardAnalytics.periods.all')],
-              ['90', t('dashboardAnalytics.periods.90days')],
-              ['30', t('dashboardAnalytics.periods.30days')],
-            ] as const
-          ).map(([key, label]) => (
-            <button
-              key={key}
-              onClick={() => setPeriod(key as 'all' | '30' | '90')}
-              className={`px-4 py-2 text-xs font-medium rounded-md transition-all ${
-                period === key
-                  ? 'bg-white text-[#AA151B] shadow-sm'
-                  : 'text-[#AA151B]/70 hover:text-[#AA151B]'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
+    <WorkspacePage className="workspace-analytics">
+      <WorkspaceHeader title={t('dashboardAnalytics.title')} description={t('dashboardAnalytics.subtitle')} icon={BarChart3} actions={<WorkspaceTabs value={period} onChange={setPeriod} label={t('dashboardAnalytics.title')} items={[{value:'all',label:t('dashboardAnalytics.periods.all')},{value:'90',label:t('dashboardAnalytics.periods.90days')},{value:'30',label:t('dashboardAnalytics.periods.30days')}]} />} />
+      <WorkspaceMetrics className="workspace-metrics--hero">
+        <WorkspaceStat label={t('dashboardAnalytics.transactionSummary.totalTransactions')} value={filteredTxns.length} />
+        <WorkspaceStat label={t('dashboardAnalytics.transactionSummary.completed')} value={completedCount} />
+        <WorkspaceStat label={t('dashboardAnalytics.transactionSummary.pending')} value={pendingCount} />
+        <WorkspaceStat label={t('dashboardAnalytics.transactionSummary.uniqueReferences')} value={uniqueReferenceCount} />
+      </WorkspaceMetrics>
       {restrictedBalanceCount > 0 ? (
         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
           {getLocalizedRestrictedBalanceCountMessage(t, 'analytics', restrictedBalanceCount)}
         </div>
       ) : null}
-
       <RestrictedBalanceReference t={t} fiatBalances={fiatBalances} cryptoBalances={cryptoBalances} />
-
-      <BalanceHistoryChart assetSeries={visibleAssetSeries} />
-
-      <div className="grid lg:grid-cols-2 gap-6">
-        <AssetAllocationCard
-          fiatBalances={availableFiatBalances}
-          cryptoBalances={availableCryptoBalances}
-          fiatTotalUsd={fiatTotalUsd}
-          cryptoTotalUsd={cryptoTotalUsd}
-          fiatPct={fiatPct}
-          cryptoPct={cryptoPct}
-          totalBalance={totalBalance}
-        />
-        <TransfersCard
-          bankTransferCount={transfers.length}
-          bankTransferVolume={bankTransferVolume}
-          bankTransferPending={bankTransferPending}
-          cryptoTransferCount={cryptoTransfers.length}
-          cryptoTransferVolume={cryptoTransferVolume}
-          cryptoTransferPending={cryptoTransferPending}
-          exchangeCount={exchanges.length}
-          exchangeVolume={exchangeVolume}
-        />
+      <div className="workspace-analytics-grid">
+        <div className="workspace-panel workspace-embedded-panel"><BalanceHistoryChart assetSeries={visibleAssetSeries} /></div>
+        <WorkspacePanel title={t('dashboard.assetAllocation.title')} description={t('dashboard.assetAllocation.subtitle')}>
+          <p className="workspace-eyebrow">{t('dashboardWorkspace.portfolio')}</p><p className="mt-2 text-3xl font-semibold tracking-tight">{formatUsd(totalBalance)}</p>
+          <dl className="workspace-definition">
+            <div><dt>{t('dashboard.assetAllocation.fiatCurrencies')}</dt><dd>{formatUsd(fiatTotalUsd)} <small className="text-slate-500">({formatNumber(fiatPct)}%)</small></dd></div>
+          </dl>
+          <div className="workspace-progress"><span style={{width: `${fiatPct}%`}} /></div>
+          <dl className="workspace-definition">
+            <div><dt>{t('dashboard.assetAllocation.cryptoAssets')}</dt><dd>{formatUsd(cryptoTotalUsd)} <small className="text-slate-500">({formatNumber(cryptoPct)}%)</small></dd></div>
+          </dl>
+          <div className="workspace-progress"><span style={{width: `${cryptoPct}%`}} /></div>
+          <dl className="workspace-definition mt-4">
+            {availableFiatBalances.map((balance) => <div key={balance.id}><dt>{balance.currency}</dt><dd>{new Intl.NumberFormat(language,{style:'currency',currency:balance.currency}).format(balance.balance)}</dd></div>)}
+            {availableCryptoBalances.filter((balance) => balance.balance > 0).map((balance) => <div key={balance.id}><dt>{balance.symbol}</dt><dd>{formatNumber(balance.balance, 4)} {balance.symbol}</dd></div>)}
+          </dl>
+        </WorkspacePanel>
       </div>
-
-      <div className="grid lg:grid-cols-3 gap-6">
-        <CardsAndBillsCard
-          activeCards={activeCards}
-          frozenCards={frozenCards}
-          totalCards={cards.length}
-          billsPaidCount={billsCompleted.length}
-          billsPendingCount={billsPending.length}
-          billsTotalPaid={billsTotalPaid}
-        />
-        <LoansCard
-          activeCount={activeLoans.length}
-          totalDebt={totalDebt}
-          monthlyPayment={totalMonthlyPayment}
-          progress={loanProgress}
-          pendingApproval={loans.filter((l) => l.status === 'pending_approval').length}
-        />
-        <TaxCard
-          pendingAmount={taxSummary.totals.pending}
-          onHoldAmount={taxSummary.totals.on_hold}
-          paidAmount={taxSummary.totals.paid}
-          totalOutstanding={taxSummary.totals.pending + taxSummary.totals.on_hold}
-        />
-      </div>
-
-      <div className="rounded-2xl border border-[#AA151B]/14 bg-white p-6 shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
-        <h2 className="mb-4 font-semibold text-neutral-900">
-          {t('dashboardAnalytics.transactionSummary.title')}
-        </h2>
-
-        <div className="grid sm:grid-cols-4 gap-6 text-center">
-          <div>
-            <p className="text-3xl font-bold text-neutral-900">{filteredTxns.length}</p>
-            <p className="mt-1 text-xs text-[#AA151B]/70">
-              {t('dashboardAnalytics.transactionSummary.totalTransactions')}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-3xl font-bold text-[#AA151B]">{completedCount}</p>
-            <p className="mt-1 text-xs text-[#AA151B]/70">
-              {t('dashboardAnalytics.transactionSummary.completed')}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-3xl font-bold text-[#AA151B]">{pendingCount}</p>
-            <p className="mt-1 text-xs text-[#AA151B]/70">
-              {t('dashboardAnalytics.transactionSummary.pending')}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-3xl font-bold text-neutral-900">{uniqueReferenceCount}</p>
-            <p className="mt-1 text-xs text-[#AA151B]/70">
-              {t('dashboardAnalytics.transactionSummary.uniqueReferences')}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+      <WorkspacePanel title={t('dashboardWorkspace.activity')} bodyClassName="workspace-panel-body--flush">
+        <div className="p-5"><WorkspaceTabs value={operationsTab} onChange={setOperationsTab} label={t('dashboardWorkspace.activity')} items={[{value:'transfers',label:t('dashboard.transfers.title')},{value:'cards',label:t('dashboard.cardsBills.title')},{value:'loans',label:t('dashboard.loans.title')},{value:'taxes',label:t('dashboard.taxes.title')}]} /></div>
+        <div className="workspace-scroll"><table className="workspace-table"><tbody>{reportRows[operationsTab].map((row, index) => <tr key={`${operationsTab}-${index}`}><td><strong>{row.label}</strong>{row.detail && <small>{row.detail}</small>}</td><td className="workspace-money">{row.value}</td></tr>)}</tbody></table></div>
+      </WorkspacePanel>
+    </WorkspacePage>
   );
 }

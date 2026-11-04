@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ArrowRightLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import type { FiatBalance } from '../../hooks/useFiatBalances';
 import type { InternalTransferPayload } from '../../hooks/useTransfers';
-import Dropdown from '../ui/Dropdown';
+import Dropdown from '../dashboard/workspace/WorkspaceDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { isBalanceAvailable } from '../../lib/balanceStatus';
 import { getLocalizedTransferError } from '../../lib/transferErrorI18n';
