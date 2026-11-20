@@ -46,14 +46,14 @@ export default function Header() {
 
   const active = (path: string) => path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
   const navClass = (path: string) => `relative px-3 py-2 text-[13px] font-semibold transition-colors ${
-    active(path) ? 'text-[#AA151B]' : 'text-[#626262] hover:text-[#AA151B]'
+    active(path) ? 'text-[#F1BF00]' : 'text-white/70 hover:text-white'
   }`;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-[#AA151B]/15 bg-white/95 shadow-[0_16px_45px_-38px_rgba(107,15,20,0.5)] backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#6B0F14] shadow-[0_16px_45px_-38px_rgba(107,15,20,0.5)]">
       <div className="absolute inset-x-0 top-0 h-1 bg-[#F1BF00]" aria-hidden="true" />
       <div className="mx-auto flex h-20 max-w-[1500px] items-center px-4 pt-1 sm:px-6 lg:px-8">
-        <Link to="/" className="mr-2 flex shrink-0 items-center border-r border-[#AA151B]/20 pr-2 sm:mr-8 sm:pr-8">
+        <Link to="/" className="mr-2 flex shrink-0 items-center border-r border-white/10 pr-2 sm:mr-8 sm:pr-8">
           <BrandLogo src={branding.navbarLogoUrl} alt={branding.brandName} className="w-auto max-w-[12rem] object-contain" style={{ height: branding.logoSize }} />
         </Link>
 
@@ -66,7 +66,7 @@ export default function Header() {
           ))}
 
           <div className="relative" onMouseEnter={() => setPersonalOpen(true)} onMouseLeave={() => setPersonalOpen(false)}>
-            <button className="flex items-center gap-1 px-3 py-2 text-[13px] font-semibold text-[#626262] hover:text-[#AA151B]">
+            <button className="flex items-center gap-1 px-3 py-2 text-[13px] font-semibold text-white/70 hover:text-white">
               {t('personal')} <ChevronDown className={`h-3.5 w-3.5 transition-transform ${personalOpen ? 'rotate-180' : ''}`} />
             </button>
             {personalOpen && (
@@ -111,7 +111,7 @@ export default function Header() {
           <Link to="/online-banking" className="hidden h-11 items-center bg-[#AA151B] px-5 text-sm font-bold text-white hover:bg-[#8C1118] sm:inline-flex">
             {t('onlineBanking')}
           </Link>
-          <button onClick={() => setMobileOpen((value) => !value)} className="flex h-11 w-11 items-center justify-center border border-[#AA151B]/20 text-[#AA151B] lg:hidden" aria-label="Toggle navigation">
+          <button onClick={() => setMobileOpen((value) => !value)} className="flex h-11 w-11 items-center justify-center border border-white/20 text-white hover:bg-white/10 lg:hidden" aria-label="Toggle navigation">
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>

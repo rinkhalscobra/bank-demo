@@ -5,6 +5,7 @@ import {
   Banknote,
   ChevronDown,
   CreditCard,
+  ExternalLink,
   FileText,
   Globe2,
   Grid2X2,
@@ -101,7 +102,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (isCrmAdmin) {
     return (
-      <div className="crm-workspace h-dvh overflow-hidden bg-[#FFFDF7]">
+      <div className="crm-workspace fixed inset-0 min-h-0 overflow-hidden bg-[#FFFDF7]">
         <main className="crm-workspace__content h-full overflow-y-auto overscroll-contain p-4 sm:p-6">
           <div className="crm-workspace__frame">{children}</div>
         </main>
@@ -167,6 +168,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="ml-auto flex items-center gap-2">
+            <Link
+              to="/"
+              aria-label={t('dashboardLayout.header.visitWebsite')}
+              title={t('dashboardLayout.header.visitWebsite')}
+              className="flex h-11 w-11 shrink-0 items-center justify-center gap-2 border border-[#6B0F14]/10 text-sm font-semibold text-[#626262] hover:bg-[#FFFDF7] sm:w-auto sm:px-4"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('dashboardLayout.header.visitWebsite')}</span>
+            </Link>
             <div ref={languageRef} className="relative">
               <button onClick={() => setLanguageOpen((value) => !value)} className="flex h-11 items-center gap-2 border border-[#6B0F14]/10 bg-[#FFFDF7] px-3 text-sm font-semibold hover:bg-white">
                 <Globe2 className="h-4 w-4 text-[#AA151B]" />

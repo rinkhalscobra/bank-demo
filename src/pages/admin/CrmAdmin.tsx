@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
   ArrowDown,
@@ -15,6 +15,7 @@ import {
   Image as ImageIcon,
   Landmark,
   Layers3,
+  LayoutDashboard,
   Loader2,
   LogOut,
   PencilLine,
@@ -2674,7 +2675,7 @@ function BrandingSettingsCard({
               {SITE_PALETTES.map((palette) => {
                 const selected = form.palette === palette.id;
                 return (
-                  <label key={palette.id} className={`cursor-pointer rounded-xl border p-3 transition ${selected ? 'border-slate-900 ring-2 ring-slate-900/10' : 'border-slate-200 hover:border-slate-400'}`}>
+                  <label key={palette.id} className={`relative cursor-pointer rounded-xl border p-3 transition focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-slate-900 ${selected ? 'border-slate-900 ring-2 ring-slate-900/10' : 'border-slate-200 hover:border-slate-400'}`}>
                     <input
                       type="radio"
                       name="site-palette"
@@ -7806,6 +7807,13 @@ export default function CrmAdmin() {
           <span className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] ${getCrmRoleClasses(viewerRole)}`}>
             {getCrmRoleLabel(viewerRole)}
           </span>
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            <LayoutDashboard className="h-4 w-4" />
+            Dashboard
+          </Link>
           <button
             type="button"
             onClick={() => void handleCrmSignOut()}

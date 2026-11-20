@@ -20,6 +20,7 @@ registerTranslations({
     'dashboardLayout.nav.profile': 'Profile',
 
     'dashboardLayout.header.dashboard': 'Dashboard',
+    'dashboardLayout.header.visitWebsite': 'Visit Website',
     'dashboardLayout.header.quickTransfer': 'Quick Transfer',
     'dashboardLayout.header.signOut': 'Sign Out',
     'dashboardLayout.header.language': 'Language',
@@ -45,6 +46,7 @@ registerTranslations({
     'dashboardLayout.nav.profile': 'Profil',
 
     'dashboardLayout.header.dashboard': 'Tableau de bord',
+    'dashboardLayout.header.visitWebsite': 'Visiter le site',
     'dashboardLayout.header.quickTransfer': 'Transfert rapide',
     'dashboardLayout.header.signOut': 'Se déconnecter',
     'dashboardLayout.header.language': 'Langue',
@@ -70,6 +72,7 @@ registerTranslations({
     'dashboardLayout.nav.profile': 'Profil',
 
     'dashboardLayout.header.dashboard': 'Dashboard',
+    'dashboardLayout.header.visitWebsite': 'Website besuchen',
     'dashboardLayout.header.quickTransfer': 'Schnellüberweisung',
     'dashboardLayout.header.signOut': 'Abmelden',
     'dashboardLayout.header.language': 'Sprache',
@@ -95,6 +98,7 @@ registerTranslations({
     'dashboardLayout.nav.profile': 'Perfil',
 
     'dashboardLayout.header.dashboard': 'Panel',
+    'dashboardLayout.header.visitWebsite': 'Visitar el sitio web',
     'dashboardLayout.header.quickTransfer': 'Transferencia rápida',
     'dashboardLayout.header.signOut': 'Cerrar sesión',
     'dashboardLayout.header.language': 'Idioma',
@@ -120,6 +124,7 @@ registerTranslations({
     'dashboardLayout.nav.profile': 'Profilo',
 
     'dashboardLayout.header.dashboard': 'Dashboard',
+    'dashboardLayout.header.visitWebsite': 'Visita il sito web',
     'dashboardLayout.header.quickTransfer': 'Trasferimento rapido',
     'dashboardLayout.header.signOut': 'Esci',
     'dashboardLayout.header.language': 'Lingua',
@@ -145,6 +150,7 @@ registerTranslations({
     'dashboardLayout.nav.profile': 'Προφίλ',
 
     'dashboardLayout.header.dashboard': 'Πίνακας ελέγχου',
+    'dashboardLayout.header.visitWebsite': 'Επίσκεψη στον ιστότοπο',
     'dashboardLayout.header.quickTransfer': 'Γρήγορη μεταφορά',
     'dashboardLayout.header.signOut': 'Αποσύνδεση',
     'dashboardLayout.header.language': 'Γλώσσα',
@@ -170,6 +176,7 @@ registerTranslations({
     'dashboardLayout.nav.profile': 'Profil',
 
     'dashboardLayout.header.dashboard': 'Panel klienta',
+    'dashboardLayout.header.visitWebsite': 'Odwiedź stronę',
     'dashboardLayout.header.quickTransfer': 'Szybki przelew',
     'dashboardLayout.header.signOut': 'Wyloguj się',
     'dashboardLayout.header.language': 'Język',

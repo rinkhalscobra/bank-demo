@@ -13,6 +13,7 @@ export const lt = {
   'dashboardLayout.nav.analytics': 'Analizė',
   'dashboardLayout.nav.profile': 'Profilis',
   'dashboardLayout.header.dashboard': 'Valdymo skydas',
+  'dashboardLayout.header.visitWebsite': 'Apsilankyti svetainėje',
   'dashboardLayout.header.quickTransfer': 'Greitasis pervedimas',
   'dashboardLayout.header.signOut': 'Atsijungti',
   'dashboardLayout.header.language': 'Kalba',

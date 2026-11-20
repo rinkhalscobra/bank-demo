@@ -721,7 +721,9 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
       return {
         branding: localSavedBranding,
         persisted: 'local',
-        error: error.message,
+        error: error.code === '23514' && error.message.includes('site_branding_palette_check')
+          ? 'The database palette list is out of date. Run supabase/migrations/20261104120000_expand_site_branding_palettes.sql in the Supabase SQL Editor, then save site settings again.'
+          : error.message,
       };
     }
 
