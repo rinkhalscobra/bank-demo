@@ -24,6 +24,8 @@ import {
   RotateCcw,
   Save,
   Search,
+  Settings2,
+  ShieldCheck,
   Trash2,
   Upload,
   Wallet,
@@ -218,6 +220,13 @@ type DeleteUserResponse = {
 
 type BrandingForm = BrandingUpdate;
 type DirectoryRoleFilter = 'all' | CrmRole;
+type CrmSection = 'directory' | 'ip-whitelist' | 'branding';
+
+const CRM_SECTIONS: Array<{ value: CrmSection; label: string; icon: LucideIcon }> = [
+  { value: 'directory', label: 'Full CRM directory', icon: Database },
+  { value: 'ip-whitelist', label: 'IP whitelist', icon: ShieldCheck },
+  { value: 'branding', label: 'Brand and institutional settings', icon: Settings2 },
+];
 
 const PROFILE_RECORD_SELECT = 'id, full_name, email, account_iban, created_at, updated_at, kyc_status, crm_role, is_admin, assigned_manager_id, assigned_agent_id, plain_password, show_account_created_at';
 
@@ -387,6 +396,7 @@ const TAB_TABLES = [
 const DEFAULT_TABLE = TAB_TABLES[0]?.name ?? '';
 
 type CrmAdminViewState = {
+  activeSection?: CrmSection;
   selectedUserId?: string;
   activeTable?: string;
   search?: string;
@@ -4864,6 +4874,9 @@ export default function CrmAdmin() {
     uploadFavicon,
   } = useBranding();
   const [initialViewState] = useState<CrmAdminViewState>(() => readCrmAdminViewState());
+  const [activeSection, setActiveSection] = useState<CrmSection>(() =>
+    CRM_SECTIONS.find((section) => section.value === initialViewState.activeSection)?.value ?? 'directory'
+  );
   const restoredScrollRef = useRef(false);
   const mainScrollRef = useRef<HTMLElement | null>(null);
 
@@ -4920,6 +4933,7 @@ export default function CrmAdmin() {
   const [savingBalanceStatus, setSavingBalanceStatus] = useState(false);
   const viewerRole = crmRole;
   const isViewerAdmin = viewerRole === 'admin';
+  const visibleSection = isViewerAdmin ? activeSection : 'directory';
   const canCreateUsers = viewerRole === 'admin' || viewerRole === 'superior_manager' || viewerRole === 'agent';
   const profileMap = useMemo(() => new Map(profiles.map((profile) => [profile.id, profile])), [profiles]);
   const directoryEyebrow = isViewerAdmin ? 'All profiles' : viewerRole === 'superior_manager' ? 'Assigned teams' : 'Assigned customers';
@@ -5268,6 +5282,7 @@ export default function CrmAdmin() {
 
   useEffect(() => {
     updateCrmAdminViewState({
+      activeSection: visibleSection,
       selectedUserId,
       activeTable,
       search,
@@ -5275,7 +5290,7 @@ export default function CrmAdmin() {
       directoryPage: safeDirectoryPage,
       directoryPageSize,
     });
-  }, [selectedUserId, activeTable, search, directoryRoleFilter, safeDirectoryPage, directoryPageSize]);
+  }, [visibleSection, selectedUserId, activeTable, search, directoryRoleFilter, safeDirectoryPage, directoryPageSize]);
 
   useEffect(() => {
     if (directoryPage > directoryPageCount) {
@@ -7825,6 +7840,53 @@ export default function CrmAdmin() {
         </div>
       </section>
 
+      {isViewerAdmin && (
+        <div
+          role="tablist"
+          aria-label="CRM sections"
+          className="flex flex-col gap-2 rounded-2xl border border-[#6B0F14]/14 bg-white p-2 sm:flex-row sm:flex-wrap"
+          onKeyDown={(event) => {
+            const currentIndex = CRM_SECTIONS.findIndex((section) => section.value === visibleSection);
+            let nextIndex: number;
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+              nextIndex = (currentIndex + 1) % CRM_SECTIONS.length;
+            } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+              nextIndex = (currentIndex + CRM_SECTIONS.length - 1) % CRM_SECTIONS.length;
+            } else if (event.key === 'Home') {
+              nextIndex = 0;
+            } else if (event.key === 'End') {
+              nextIndex = CRM_SECTIONS.length - 1;
+            } else {
+              return;
+            }
+            event.preventDefault();
+            const nextSection = CRM_SECTIONS[nextIndex].value;
+            setActiveSection(nextSection);
+            document.getElementById(`crm-tab-${nextSection}`)?.focus();
+          }}
+        >
+          {CRM_SECTIONS.map(({ value, label, icon: Icon }) => (
+            <button
+              key={value}
+              id={`crm-tab-${value}`}
+              type="button"
+              role="tab"
+              aria-selected={visibleSection === value}
+              aria-controls={`crm-panel-${value}`}
+              tabIndex={visibleSection === value ? 0 : -1}
+              onClick={() => setActiveSection(value)}
+              className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B0F14] focus-visible:ring-offset-2 ${visibleSection === value
+                ? 'bg-[#6B0F14] text-white'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-[#6B0F14]'
+              }`}
+            >
+              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {notice && (
         <div className={`flex items-start gap-3 border px-4 py-3 text-sm ${statusClasses(notice.kind)}`}>
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -7856,6 +7918,36 @@ export default function CrmAdmin() {
         />
       )}
 
+      {isViewerAdmin && (
+        <>
+          <div
+            id="crm-panel-ip-whitelist"
+            role="tabpanel"
+            aria-labelledby="crm-tab-ip-whitelist"
+            hidden={visibleSection !== 'ip-whitelist'}
+            tabIndex={0}
+          >
+            <IpWhitelistCard />
+          </div>
+          <div
+            id="crm-panel-branding"
+            role="tabpanel"
+            aria-labelledby="crm-tab-branding"
+            hidden={visibleSection !== 'branding'}
+            tabIndex={0}
+          >
+            {brandingPanel}
+          </div>
+        </>
+      )}
+
+      <div
+        id="crm-panel-directory"
+        role={isViewerAdmin ? 'tabpanel' : undefined}
+        aria-labelledby={isViewerAdmin ? 'crm-tab-directory' : undefined}
+        hidden={visibleSection !== 'directory'}
+        tabIndex={isViewerAdmin ? 0 : undefined}
+      >
       {selectedProfile ? (
         <section className="space-y-6">
           <div className="flex flex-col gap-4 rounded-[28px] border border-[#6B0F14]/14 bg-white px-5 py-5 shadow-[0_24px_60px_-48px_rgba(107,15,20,0.45)] lg:flex-row lg:items-center lg:justify-between">
@@ -8553,12 +8645,9 @@ export default function CrmAdmin() {
           </>
         </section>
       ) : (
-        <>
-          {isViewerAdmin && <IpWhitelistCard />}
-          {isViewerAdmin && brandingPanel}
-          {customerDirectory}
-        </>
+        customerDirectory
       )}
+      </div>
     </div>
   );
 }
