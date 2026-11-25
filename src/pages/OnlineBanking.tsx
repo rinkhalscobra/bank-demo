@@ -203,7 +203,7 @@ export default function OnlineBanking() {
         <div className="absolute inset-0 bg-black/65" aria-hidden="true" />
         <div className="relative z-10 flex w-full items-center justify-center px-4 pb-10 pt-24 sm:px-6 lg:px-8">
           <div className="w-full max-w-md">
-            <div className="rounded-[2rem] border border-white/65 bg-white/12 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)] backdrop-blur-xl sm:p-8">
+            <div className="rounded-[2rem] bg-white/12 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)] backdrop-blur-xl sm:p-8">
               <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#AA151B] text-white shadow-lg">
                 <KeyRound className="h-7 w-7" strokeWidth={1.7} />
               </div>
@@ -301,7 +301,7 @@ export default function OnlineBanking() {
       <div className="absolute inset-0 bg-black/65" aria-hidden="true" />
       <div className="relative z-10 flex w-full items-center justify-center px-4 pb-10 pt-24 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
-          <div className="rounded-[2rem] border border-white/65 bg-white/12 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)] backdrop-blur-xl sm:p-8">
+          <div className="rounded-[2rem] bg-white/12 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)] backdrop-blur-xl sm:p-8">
             <div className="mb-8 flex items-center justify-center gap-3 lg:hidden">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#AA151B]">
                 <Building2 className="h-5 w-5 text-white" strokeWidth={1.5} />
