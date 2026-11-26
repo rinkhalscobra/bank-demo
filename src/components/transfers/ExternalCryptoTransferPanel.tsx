@@ -265,7 +265,7 @@ function SendPanel({
             {t('externalCryptoTransfer.fields.amount')}
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -tranneutral-y-1/2 text-neutral-400 text-sm font-medium">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-medium">
               {symbol}
             </span>
             <input
@@ -444,7 +444,7 @@ function ReceiveForm({
           {t('externalCryptoTransfer.fields.amount')}
         </label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -tranneutral-y-1/2 text-neutral-400 text-sm font-medium">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-medium">
             {symbol}
           </span>
           <input

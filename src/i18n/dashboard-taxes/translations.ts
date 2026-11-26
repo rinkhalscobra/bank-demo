@@ -6,6 +6,9 @@ registerTranslations({
   lt,
   pl,
   en: {
+    'dashboardTaxes.notes.title': 'Tax Information',
+    'dashboardTaxes.notes.subtitle': 'Details and instructions for your tax obligations.',
+    'dashboardTaxes.notes.updated': 'Updated',
     'dashboardTaxes.title': 'Taxes',
     'dashboardTaxes.subtitle': 'Track and manage your tax obligations',
 
@@ -51,6 +54,9 @@ registerTranslations({
   },
 
   fr: {
+    'dashboardTaxes.notes.title': 'Informations fiscales',
+    'dashboardTaxes.notes.subtitle': 'Informations et instructions concernant vos obligations fiscales.',
+    'dashboardTaxes.notes.updated': 'Mis à jour le',
     'dashboardTaxes.title': 'Impôts',
     'dashboardTaxes.subtitle': 'Suivez et gérez vos obligations fiscales',
 
@@ -96,6 +102,9 @@ registerTranslations({
   },
 
   de: {
+    'dashboardTaxes.notes.title': 'Steuerinformationen',
+    'dashboardTaxes.notes.subtitle': 'Informationen und Hinweise zu Ihren steuerlichen Pflichten.',
+    'dashboardTaxes.notes.updated': 'Aktualisiert am',
     'dashboardTaxes.title': 'Steuern',
     'dashboardTaxes.subtitle': 'Verfolgen und verwalten Sie Ihre Steuerpflichten',
 
@@ -141,6 +150,9 @@ registerTranslations({
   },
 
   es: {
+    'dashboardTaxes.notes.title': 'Información fiscal',
+    'dashboardTaxes.notes.subtitle': 'Detalles e instrucciones sobre tus obligaciones fiscales.',
+    'dashboardTaxes.notes.updated': 'Actualizado el',
     'dashboardTaxes.title': 'Impuestos',
     'dashboardTaxes.subtitle': 'Controla y administra tus obligaciones fiscales',
 
@@ -186,6 +198,9 @@ registerTranslations({
   },
 
   it: {
+    'dashboardTaxes.notes.title': 'Informazioni fiscali',
+    'dashboardTaxes.notes.subtitle': 'Dettagli e indicazioni sui tuoi obblighi fiscali.',
+    'dashboardTaxes.notes.updated': 'Aggiornato il',
     'dashboardTaxes.title': 'Tasse',
     'dashboardTaxes.subtitle': 'Monitora e gestisci i tuoi obblighi fiscali',
 
@@ -231,6 +246,9 @@ registerTranslations({
   },
 
   el: {
+    'dashboardTaxes.notes.title': 'Φορολογικές πληροφορίες',
+    'dashboardTaxes.notes.subtitle': 'Πληροφορίες και οδηγίες για τις φορολογικές σας υποχρεώσεις.',
+    'dashboardTaxes.notes.updated': 'Ενημερώθηκε',
     'dashboardTaxes.title': 'Φόροι',
     'dashboardTaxes.subtitle': 'Παρακολουθήστε και διαχειριστείτε τις φορολογικές σας υποχρεώσεις',
 

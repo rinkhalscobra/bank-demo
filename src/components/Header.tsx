@@ -50,8 +50,8 @@ export default function Header() {
   }`;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#6B0F14] shadow-[0_16px_45px_-38px_rgba(107,15,20,0.5)]">
-      <div className="absolute inset-x-0 top-0 h-1 bg-[#F1BF00]" aria-hidden="true" />
+    <header className="site-navbar fixed inset-x-0 top-0 z-50 border-b border-white/10 shadow-[0_16px_45px_-38px_rgba(107,15,20,0.5)]">
+      <div className="site-navbar-accent absolute inset-x-0 top-0 h-1" aria-hidden="true" />
       <div className="mx-auto flex h-20 max-w-[1500px] items-center px-4 pt-1 sm:px-6 lg:px-8">
         <Link to="/" className="mr-2 flex shrink-0 items-center border-r border-white/10 pr-2 sm:mr-8 sm:pr-8">
           <BrandLogo src={branding.navbarLogoUrl} alt={branding.brandName} className="w-auto max-w-[12rem] object-contain" style={{ height: branding.logoSize }} />

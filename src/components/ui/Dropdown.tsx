@@ -147,16 +147,16 @@ export default function Dropdown({
           transition-all duration-150
           focus:outline-none focus:ring-2 focus:border-transparent
           ${isSpainAccent
-            ? 'border-[#AA151B]/15 hover:border-[#AA151B]/30 hover:bg-[#F1BF00]/[0.08] focus:ring-[#F1BF00]/35'
+            ? 'border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_15%,transparent)] hover:border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_30%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--palette-accent,#A5CDE8)_8%,transparent)] focus:ring-[color:color-mix(in_srgb,var(--palette-accent,#A5CDE8)_35%,transparent)]'
             : 'border-[#006446]/14 hover:border-[#006446]/25 hover:bg-[#006446]/[0.03] focus:ring-[#006446]/20'}
-          ${open ? (isSpainAccent ? 'ring-2 ring-[#F1BF00]/35 border-transparent' : 'ring-2 ring-[#006446]/20 border-transparent') : ''}
+          ${open ? (isSpainAccent ? 'ring-2 ring-[color:color-mix(in_srgb,var(--palette-accent,#A5CDE8)_35%,transparent)] border-transparent' : 'ring-2 ring-[#006446]/20 border-transparent') : ''}
         `}
       >
         {selected?.icon && <span className="flex-shrink-0">{selected.icon}</span>}
         <span className={`min-w-0 flex-1 truncate ${selected ? 'text-slate-900' : 'text-slate-400'}`}>
           {selected?.label || placeholder || 'Select...'}
         </span>
-        <ChevronDown className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${isSpainAccent ? 'text-[#AA151B]' : 'text-[#006446]'} ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${isSpainAccent ? 'text-[color:var(--palette-primary,#244A73)]' : 'text-[#006446]'} ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && createPortal(
@@ -164,15 +164,15 @@ export default function Dropdown({
           ref={menuRef}
           style={menuPosition}
           className={`fixed z-[9999] flex flex-col overflow-hidden rounded-2xl border bg-white animate-in ${isSpainAccent
-            ? 'border-[#AA151B]/15 shadow-[0_24px_70px_-38px_rgba(107,15,20,0.38)]'
+            ? 'border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_15%,transparent)] shadow-[0_24px_70px_-38px_color-mix(in_srgb,var(--palette-primary,#244A73)_38%,transparent)]'
             : 'border-[#006446]/14 shadow-[0_24px_70px_-38px_rgba(0,100,70,0.45)]'}`}
         >
           {searchable && (
-            <div className={`flex-shrink-0 border-b bg-white p-2 ${isSpainAccent ? 'border-[#AA151B]/10' : 'border-[#006446]/10'}`}>
+            <div className={`flex-shrink-0 border-b bg-white p-2 ${isSpainAccent ? 'border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_10%,transparent)]' : 'border-[#006446]/10'}`}>
               <div className={`flex items-center gap-2 rounded-xl border px-3 focus-within:ring-2 ${isSpainAccent
-                ? 'border-[#AA151B]/15 bg-[#F1BF00]/[0.06] focus-within:border-[#AA151B]/30 focus-within:ring-[#F1BF00]/20'
+                ? 'border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_15%,transparent)] bg-[color:color-mix(in_srgb,var(--palette-accent,#A5CDE8)_6%,transparent)] focus-within:border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_30%,transparent)] focus-within:ring-[color:color-mix(in_srgb,var(--palette-accent,#A5CDE8)_20%,transparent)]'
                 : 'border-[#006446]/15 bg-[#006446]/[0.03] focus-within:border-[#006446]/30 focus-within:ring-[#006446]/10'}`}>
-                <Search className={`h-4 w-4 flex-shrink-0 ${isSpainAccent ? 'text-[#AA151B]/70' : 'text-[#006446]/65'}`} />
+                <Search className={`h-4 w-4 flex-shrink-0 ${isSpainAccent ? 'text-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_70%,transparent)]' : 'text-[#006446]/65'}`} />
                 <input
                   ref={searchInputRef}
                   type="search"
@@ -205,13 +205,13 @@ export default function Dropdown({
                   className={`
                     w-full min-w-0 flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-left transition-colors
                     ${isSpainAccent
-                      ? (isSelected ? 'bg-[#F1BF00]/20 text-[#AA151B]' : 'text-neutral-700 hover:bg-[#F1BF00]/10 hover:text-[#AA151B]')
+                      ? (isSelected ? 'bg-[color:color-mix(in_srgb,var(--palette-accent,#A5CDE8)_20%,transparent)] text-[color:var(--palette-primary,#244A73)]' : 'text-neutral-700 hover:bg-[color:color-mix(in_srgb,var(--palette-accent,#A5CDE8)_10%,transparent)] hover:text-[color:var(--palette-primary,#244A73)]')
                       : (isSelected ? 'bg-[#006446]/10 text-[#006446]' : 'text-slate-700 hover:bg-[#006446]/[0.05] hover:text-[#006446]')}
                   `}
                 >
                   {opt.icon && <span className="flex-shrink-0">{opt.icon}</span>}
                   <span className="min-w-0 flex-1 truncate">{opt.label}</span>
-                  {isSelected && <Check className={`w-3.5 h-3.5 flex-shrink-0 ${isSpainAccent ? 'text-[#AA151B]' : 'text-[#006446]'}`} />}
+                  {isSelected && <Check className={`w-3.5 h-3.5 flex-shrink-0 ${isSpainAccent ? 'text-[color:var(--palette-primary,#244A73)]' : 'text-[#006446]'}`} />}
                 </button>
               );
             })}

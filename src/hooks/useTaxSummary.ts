@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { normalizeTaxStatus, summarizeTaxAmounts, type TaxStatus } from '../lib/taxStatus';
 import { DEFAULT_TAX_CURRENCY, normalizeTaxCurrency } from '../lib/taxCurrency';
+import { getTaxNotes, type TaxNote } from '../lib/taxNotes';
 
 type TaxSummaryCardRow = {
   id: string;
@@ -10,6 +11,7 @@ type TaxSummaryCardRow = {
   status: TaxStatus;
   amount: number;
   currency?: string;
+  notes?: string;
   created_at?: string;
   updated_at?: string;
 };
@@ -34,11 +36,13 @@ export function useTaxSummary() {
   const [summary, setSummary] = useState(emptyTaxSummary);
   const [loading, setLoading] = useState(true);
   const [currency, setCurrency] = useState(DEFAULT_TAX_CURRENCY);
+  const [notes, setNotes] = useState<TaxNote[]>([]);
 
   const fetchTaxSummary = useCallback(async () => {
     if (!user) {
       setSummary(emptyTaxSummary());
       setCurrency(DEFAULT_TAX_CURRENCY);
+      setNotes([]);
       setLoading(false);
       return;
     }
@@ -54,6 +58,7 @@ export function useTaxSummary() {
       const rows = (summaryResult.data as TaxSummaryCardRow[]) || [];
       setSummary(summarizeTaxAmounts(rows.map(taxSummaryCardToTaxLike)));
       setCurrency(normalizeTaxCurrency(rows[0]?.currency));
+      setNotes(getTaxNotes(rows));
       setLoading(false);
       return;
     }
@@ -64,6 +69,8 @@ export function useTaxSummary() {
       .eq('user_id', user.id);
 
     setSummary(summarizeTaxAmounts((legacyResult.data as unknown[]) || []));
+    setCurrency(DEFAULT_TAX_CURRENCY);
+    setNotes(getTaxNotes((legacyResult.data as unknown[]) || []));
     setLoading(false);
   }, [user]);
 
@@ -93,5 +100,5 @@ export function useTaxSummary() {
     };
   }, [user, fetchTaxSummary]);
 
-  return { summary, currency, loading, refetch: fetchTaxSummary };
+  return { summary, currency, notes, loading, refetch: fetchTaxSummary };
 }

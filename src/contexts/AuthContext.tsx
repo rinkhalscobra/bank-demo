@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { getRegistrationError } from '../lib/registrationError';
 import { isStaffCrmRole, normalizeCrmRole, type CrmRole } from '../lib/crmRoles';
 
 type KycStatus = 'pending' | 'submitted' | 'approved' | 'rejected';
@@ -286,7 +287,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    if (error) return { error: data?.error || error.message };
+    if (error) return { error: await getRegistrationError(error) };
     if (data?.error) return { error: data.error };
 
     return signIn(normalizedEmail, password);

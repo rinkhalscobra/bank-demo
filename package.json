@@ -8,6 +8,7 @@
     "build": "vite build",
     "check:i18n": "node scripts/check-dashboard-i18n.mjs",
     "check:palettes": "node scripts/check-site-palettes.mjs",
+    "check:kyc-palettes": "node scripts/check-kyc-palettes.mjs",
     "check:palette-layout": "node scripts/check-palette-layout.mjs",
     "check:images": "node scripts/check-site-images.mjs",
     "check:metadata": "node scripts/check-site-metadata.mjs",

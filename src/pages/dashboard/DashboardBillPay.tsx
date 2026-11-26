@@ -235,7 +235,7 @@ export default function DashboardBillPay() {
                   {t('dashboardBillPay.fields.amountUsd')} <span className="text-[#AA151B]">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -tranneutral-y-1/2 text-[#AA151B] text-sm">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#AA151B] text-sm">$</span>
                   <input
                     type="number"
                     step="0.01"

@@ -27,20 +27,17 @@ import { useCryptoTransfers } from '../../hooks/useCryptoWallets';
 import { useFiatBalances } from '../../hooks/useFiatBalances';
 import { useCryptoBalances } from '../../hooks/useCryptoBalances';
 import { useAuth } from '../../contexts/AuthContext';
-import BalanceAnalysisChart from '../../components/dashboard/BalanceAnalysisChart';
 import { useTaxSummary } from '../../hooks/useTaxSummary';
 import { useLanguage } from '../../contexts/LanguageContext';
 import {
   isBalanceAvailable,
 } from '../../lib/balanceStatus';
 import {
-  getLocalizedBalanceStatusLabel,
   getLocalizedRestrictedBalanceCountMessage,
 } from '../../lib/balanceStatusI18n';
 import '../../i18n/dashboardOverview/translations';
 import { formatTaxCurrency } from '../../lib/taxCurrency';
 import OverviewAssetLedger, { type OverviewAsset } from '../../components/dashboard/overview/OverviewAssetLedger';
-import OverviewAccountSelector from '../../components/dashboard/overview/OverviewAccountSelector';
 import '../../i18n/dashboardOverview/layoutTranslations';
 import '../../components/dashboard/overview/overview.css';
 
@@ -138,7 +135,6 @@ export default function DashboardOverview() {
   const { t, language } = useLanguage();
   const [showBalances, setShowBalances] = useState(true);
   const [ibanCopied, setIbanCopied] = useState(false);
-  const [selectedAccountId, setSelectedAccountId] = useState('');
   const localeMap: Record<string, string> = {
     en: 'en-US',
     fr: 'fr-FR',
@@ -262,8 +258,6 @@ export default function DashboardOverview() {
 
   const completedTransactions = transactions.filter((tx) => tx.status === 'completed').length;
   const pendingTransactions = transactions.filter((tx) => tx.status === 'pending').length;
-  const availableFiatBalances = fiatBalances.filter((balance) => isBalanceAvailable(balance.status));
-  const availableCryptoBalances = cryptoBalances.filter((balance) => isBalanceAvailable(balance.status));
   const restrictedBalanceCount =
     fiatBalances.filter((balance) => !isBalanceAvailable(balance.status)).length +
     cryptoBalances.filter((balance) => !isBalanceAvailable(balance.status)).length;
@@ -297,9 +291,6 @@ export default function DashboardOverview() {
     );
   }
 
-  const selectedAccount = fiatBalances.find((account) => account.id === selectedAccountId)
-    || availableFiatBalances[0]
-    || fiatBalances[0];
   const assets: OverviewAsset[] = [
     ...fiatBalances.map((balance) => ({
       id: `fiat:${balance.id}`, kind: 'fiat' as const, code: balance.currency,
@@ -341,52 +332,67 @@ export default function DashboardOverview() {
         </button>
       </header>
 
-      <div className="overview-top">
-        <section className="overview-account" aria-labelledby="overview-account-title">
-          <div className="overview-account-top">
-            <span className="overview-account-label"><Landmark size={18} aria-hidden="true" /><span id="overview-account-title">{t('dashboardOverview.layout.accountBalance')}</span></span>
-            {fiatBalances.length > 0 && (
-              <OverviewAccountSelector
-                label={t('dashboardOverview.layout.selectAccount')}
-                value={selectedAccount?.id || ''}
-                options={fiatBalances.map((account) => ({ id: account.id, currency: account.currency, name: getFiatAssetName(account.currency, account.name) }))}
-                onChange={setSelectedAccountId}
-              />
-            )}
-          </div>
-          <div className="overview-account-value">
-            <strong>{!showBalances ? '••••' : selectedAccount ? formatCurrency(selectedAccount.balance, selectedAccount.currency, currentLocale) : '—'}</strong>
-            {selectedAccount && <span className="overview-account-state">{isBalanceAvailable(selectedAccount.status) ? <CheckCircle size={14} /> : <PauseCircle size={14} />}{getLocalizedBalanceStatusLabel(t, selectedAccount.status)}</span>}
-          </div>
-          <div className="overview-account-details">
-            <div><p>{t('dashboardOverview.account.iban')}</p><span className="overview-iban">{profile?.account_iban || t('dashboardOverview.account.notAssigned')}</span></div>
-            <button type="button" onClick={() => void handleCopyIban()} disabled={!profile?.account_iban} className="overview-copy">
-              {ibanCopied ? <Check size={15} /> : <Copy size={15} />}
-              <span aria-live="polite">{t(ibanCopied ? 'dashboardOverview.account.copied' : 'dashboardOverview.account.copy')}</span>
-            </button>
-          </div>
-        </section>
-
-        <section className="overview-actions" aria-labelledby="overview-actions-title">
-          <h2 id="overview-actions-title">{t('dashboardOverview.quickActions.title')}</h2>
-          <div className="overview-actions-grid">
-            {actions.map((action) => (
-              <Link key={action.key} to={action.to} className="overview-action">
-                <span className="overview-action-icon"><action.icon size={21} aria-hidden="true" /></span>
-                <span><strong>{t(`dashboardOverview.quickActions.${action.key}`)}</strong><small>{t(`dashboardOverview.quickActions.${action.key}Desc`)}</small></span>
-                <ArrowUpRight className="overview-action-arrow" size={15} aria-hidden="true" />
-              </Link>
-            ))}
-          </div>
-        </section>
-      </div>
+      <section className="overview-actions" aria-labelledby="overview-actions-title">
+        <h2 id="overview-actions-title">{t('dashboardOverview.quickActions.title')}</h2>
+        <div className="overview-actions-grid">
+          {actions.map((action) => (
+            <Link key={action.key} to={action.to} className="overview-action">
+              <span className="overview-action-icon"><action.icon size={21} aria-hidden="true" /></span>
+              <span><strong>{t(`dashboardOverview.quickActions.${action.key}`)}</strong><small>{t(`dashboardOverview.quickActions.${action.key}Desc`)}</small></span>
+              <ArrowUpRight className="overview-action-arrow" size={15} aria-hidden="true" />
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <div className="overview-body">
         <div className="overview-assets-column">
           <OverviewAssetLedger assets={assets} showBalances={showBalances} />
           {restrictedBalanceCount > 0 && <div className="overview-notice" role="status"><PauseCircle size={17} aria-hidden="true" /><p>{getLocalizedRestrictedBalanceCountMessage(t, 'overview', restrictedBalanceCount)}</p></div>}
+          <section className="overview-panel overview-activity" aria-labelledby="overview-activity-title">
+            <header className="overview-panel-heading">
+              <div className="overview-heading-title"><span className="overview-icon"><Receipt size={19} aria-hidden="true" /></span><h2 id="overview-activity-title">{t('dashboardOverview.activity.title')}</h2></div>
+              <Link className="overview-text-link" to="/dashboard/transactions">{t('dashboardOverview.activity.viewTransactions')}<ArrowUpRight size={15} aria-hidden="true" /></Link>
+            </header>
+            <div className="overview-activity-layout">
+              <div className="overview-activity-list">
+                {recentActivity.length ? recentActivity.map((activity) => (
+                  <article key={activity.id} className="overview-activity-row">
+                    <span className={`overview-movement overview-movement--${activity.inflow ? 'in' : 'out'}`}>{activity.inflow ? <ArrowDownLeft size={18} aria-hidden="true" /> : <ArrowUpRight size={18} aria-hidden="true" />}</span>
+                    <div className="overview-activity-description">
+                      <h3>{activity.description}</h3>
+                      <p><time dateTime={activity.createdAt}>{formatDate(activity.createdAt)}</time><span>{activity.typeLabel}</span></p>
+                      <small>{showBalances ? activity.reference : '••••'}</small>
+                    </div>
+                    <span className={`overview-status ${bankingStatusClasses(activity.status)}`}>{getLocalizedTransactionStatus(t, activity.status)}</span>
+                  </article>
+                )) : (
+                  <div className="overview-empty"><Receipt size={30} aria-hidden="true" /><p>{t('dashboardOverview.activity.empty')}</p><Link to="/dashboard/transfers" className="overview-text-link">{t('dashboardOverview.quickActions.transferMoney')}<ArrowRight size={15} aria-hidden="true" /></Link></div>
+                )}
+              </div>
+              <aside className="overview-activity-summary">
+                <p className="overview-eyebrow">{t('dashboardOverview.layout.activitySummary')}</p>
+                <dl>
+                  <div><dt><CheckCircle size={16} aria-hidden="true" />{t('dashboardOverview.monthlySummary.completed')}</dt><dd>{completedTransactions}</dd></div>
+                  <div><dt><Clock size={16} aria-hidden="true" />{t('dashboardOverview.monthlySummary.pending')}</dt><dd>{pendingTransactions}</dd></div>
+                </dl>
+                <Link className="overview-text-link" to="/dashboard/transfers">{t('dashboardOverview.activity.viewTransfers')}<ArrowRight size={15} aria-hidden="true" /></Link>
+              </aside>
+            </div>
+          </section>
         </div>
         <aside className="overview-insights">
+          <section className="overview-bank-details" aria-labelledby="overview-account-title">
+            <div className="overview-account-label"><Landmark size={18} aria-hidden="true" /><h2 id="overview-account-title">{t('dashboardOverview.layout.accountDetails')}</h2></div>
+            <p className="overview-account-holder">{profile?.full_name || user?.user_metadata?.full_name || user?.email}</p>
+            <div className="overview-account-details">
+              <div><p>{t('dashboardOverview.account.iban')}</p><span className="overview-iban">{profile?.account_iban || t('dashboardOverview.account.notAssigned')}</span></div>
+              <button type="button" onClick={() => void handleCopyIban()} disabled={!profile?.account_iban} className="overview-copy" aria-label={t('dashboardOverview.account.copy')}>
+                {ibanCopied ? <Check size={15} /> : <Copy size={15} />}
+                <span aria-live="polite">{t(ibanCopied ? 'dashboardOverview.account.copied' : 'dashboardOverview.account.copy')}</span>
+              </button>
+            </div>
+          </section>
           <section className="overview-panel overview-tax" aria-labelledby="overview-tax-title">
             <header className="overview-panel-heading">
               <div className="overview-heading-title"><span className="overview-icon"><FileText size={19} aria-hidden="true" /></span><h2 id="overview-tax-title">{t('dashboardOverview.tax.title')}</h2></div>
@@ -402,43 +408,9 @@ export default function DashboardOverview() {
             </dl>
             <Link className="overview-button overview-tax-action" to="/dashboard/taxes">{t('dashboardOverview.tax.payTaxes')}<ArrowRight size={16} aria-hidden="true" /></Link>
           </section>
-          <div className="overview-analysis">
-            <BalanceAnalysisChart fiatBalances={availableFiatBalances} cryptoBalances={availableCryptoBalances} showBalances={showBalances} />
-          </div>
+          <Link className="overview-button overview-analytics-link" to="/dashboard/analytics">{t('dashboardLayout.nav.analytics')}<ArrowRight size={16} aria-hidden="true" /></Link>
         </aside>
       </div>
-
-      <section className="overview-panel overview-activity" aria-labelledby="overview-activity-title">
-        <header className="overview-panel-heading">
-          <div className="overview-heading-title"><span className="overview-icon"><Receipt size={19} aria-hidden="true" /></span><h2 id="overview-activity-title">{t('dashboardOverview.activity.title')}</h2></div>
-          <Link className="overview-text-link" to="/dashboard/transactions">{t('dashboardOverview.activity.viewTransactions')}<ArrowUpRight size={15} aria-hidden="true" /></Link>
-        </header>
-        <div className="overview-activity-layout">
-          <div className="overview-activity-list">
-            {recentActivity.length ? recentActivity.map((activity) => (
-              <article key={activity.id} className="overview-activity-row">
-                <span className={`overview-movement overview-movement--${activity.inflow ? 'in' : 'out'}`}>{activity.inflow ? <ArrowDownLeft size={18} aria-hidden="true" /> : <ArrowUpRight size={18} aria-hidden="true" />}</span>
-                <div className="overview-activity-description">
-                  <h3>{activity.description}</h3>
-                  <p><time dateTime={activity.createdAt}>{formatDate(activity.createdAt)}</time><span>{activity.typeLabel}</span></p>
-                  <small>{showBalances ? activity.reference : '••••'}</small>
-                </div>
-                <span className={`overview-status ${bankingStatusClasses(activity.status)}`}>{getLocalizedTransactionStatus(t, activity.status)}</span>
-              </article>
-            )) : (
-              <div className="overview-empty"><Receipt size={30} aria-hidden="true" /><p>{t('dashboardOverview.activity.empty')}</p><Link to="/dashboard/transfers" className="overview-text-link">{t('dashboardOverview.quickActions.transferMoney')}<ArrowRight size={15} aria-hidden="true" /></Link></div>
-            )}
-          </div>
-          <aside className="overview-activity-summary">
-            <p className="overview-eyebrow">{t('dashboardOverview.layout.activitySummary')}</p>
-            <dl>
-              <div><dt><CheckCircle size={16} aria-hidden="true" />{t('dashboardOverview.monthlySummary.completed')}</dt><dd>{completedTransactions}</dd></div>
-              <div><dt><Clock size={16} aria-hidden="true" />{t('dashboardOverview.monthlySummary.pending')}</dt><dd>{pendingTransactions}</dd></div>
-            </dl>
-            <Link className="overview-text-link" to="/dashboard/transfers">{t('dashboardOverview.activity.viewTransfers')}<ArrowRight size={15} aria-hidden="true" /></Link>
-          </aside>
-        </div>
-      </section>
     </div>
   );
 }

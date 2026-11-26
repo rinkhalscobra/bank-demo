@@ -24,11 +24,9 @@ export default function OnlineBanking() {
 
   const { user, pinVerified, signIn, signUp, verifyPin, signOut } = useAuth();
   const { branding } = useBranding();
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
 
   const localizeAuthError = (message: string, action: 'login' | 'register') => {
-    if (language === 'en') return message;
-
     const normalized = message.toLowerCase();
     if (
       normalized.includes('invalid login credentials') ||
@@ -42,8 +40,10 @@ export default function OnlineBanking() {
     }
     if (
       normalized.includes('already registered') ||
+      normalized.includes('already been registered') ||
       normalized.includes('already exists') ||
-      normalized.includes('user already registered')
+      normalized.includes('email_exists') ||
+      normalized.includes('user_already_exists')
     ) {
       return t('onlineBanking.errors.alreadyRegistered');
     }

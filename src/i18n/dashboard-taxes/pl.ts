@@ -1,4 +1,7 @@
 export const pl = {
+  'dashboardTaxes.notes.title': 'Informacje podatkowe',
+  'dashboardTaxes.notes.subtitle': 'Informacje i wskazówki dotyczące Twoich zobowiązań podatkowych.',
+  'dashboardTaxes.notes.updated': 'Zaktualizowano',
   'dashboardTaxes.title': 'Podatki',
   'dashboardTaxes.subtitle': 'Monitoruj swoje zobowiązania podatkowe i zarządzaj nimi',
   'dashboardTaxes.actions.payTaxes': 'Zapłać podatki',

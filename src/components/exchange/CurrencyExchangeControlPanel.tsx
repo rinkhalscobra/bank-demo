@@ -516,7 +516,7 @@ export default function CurrencyExchangeControlPanel({
                   {t('dashboardCurrencyExchange.fields.amount')}
                 </label>
                 <div className="relative">
-                  <span className="pointer-events-none absolute left-3 top-1/2 flex w-12 -tranneutral-y-1/2 items-center text-sm font-semibold text-[#AA151B]">
+                  <span className="pointer-events-none absolute left-3 top-1/2 flex w-12 -translate-y-1/2 items-center text-sm font-semibold text-[#AA151B]">
                     {getCurrencySymbol(fromCurrency)}
                   </span>
                   <input
@@ -1029,7 +1029,7 @@ export default function CurrencyExchangeControlPanel({
                   {t('dashboardCurrencyExchange.fields.amount')}
                 </label>
                 <div className="relative">
-                  <span className="pointer-events-none absolute left-3 top-1/2 flex w-12 -tranneutral-y-1/2 items-center text-sm font-semibold text-[#AA151B]">
+                  <span className="pointer-events-none absolute left-3 top-1/2 flex w-12 -translate-y-1/2 items-center text-sm font-semibold text-[#AA151B]">
                     {getCurrencySymbol(fromCurrency)}
                   </span>
                   <input

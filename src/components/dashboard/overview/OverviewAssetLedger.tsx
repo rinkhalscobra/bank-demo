@@ -52,7 +52,7 @@ export default function OverviewAssetLedger({ assets, showBalances }: { assets: 
       <div className="overview-asset-tabs" role="group" aria-label={t('dashboardOverview.layout.accounts')}>
         {(['all', 'fiat', 'crypto'] as const).map((kind) => (
           <button key={kind} type="button" aria-pressed={filter === kind} onClick={() => setFilter(kind)}>
-            {kind === 'all' ? t('balanceAnalysis.filters.all') : t(`dashboardOverview.sections.${kind === 'fiat' ? 'fiatCurrencies' : 'cryptoAssets'}`)}
+            {kind === 'all' ? t('dashboardOverview.layout.all') : t(`dashboardOverview.sections.${kind === 'fiat' ? 'fiatCurrencies' : 'cryptoAssets'}`)}
             <span>{kind === 'all' ? assets.length : assets.filter((asset) => asset.kind === kind).length}</span>
           </button>
         ))}

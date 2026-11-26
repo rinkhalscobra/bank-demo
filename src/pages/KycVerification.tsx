@@ -228,7 +228,7 @@ const COUNTRIES = [
 ].sort((countryA, countryB) => countryA.localeCompare(countryB, 'en', { sensitivity: 'base' }));
 
 const INPUT_CLASS_NAME =
-  'w-full rounded-xl border border-[#AA151B]/14 bg-[#AA151B]/[0.03] px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 transition-all focus:outline-none focus:ring-2 focus:ring-[#AA151B]/20';
+  'w-full rounded-xl border border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_14%,transparent)] bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_3%,transparent)] px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 transition-all focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_20%,transparent)]';
 
 const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({
   value: country,
@@ -449,8 +449,9 @@ export default function KycVerification() {
   const stepIcons = [User, MapPin, CreditCard, Camera];
 
   return (
-    <div className="min-h-screen bg-[#AA151B]/[0.04]">
-      <div className="bg-[#AA151B] py-6 px-4">
+    <div className="kyc-shell min-h-screen bg-[color:var(--palette-surface,#F5F8FC)]">
+      <div className="site-navbar relative py-6 px-4">
+        <div className="site-navbar-accent absolute inset-x-0 top-0 h-1" aria-hidden="true" />
         <div className="max-w-3xl mx-auto flex items-center gap-3">
           <Building2 className="w-8 h-8 text-white" strokeWidth={1.5} />
           <div>
@@ -462,7 +463,7 @@ export default function KycVerification() {
 
       <div className="max-w-3xl mx-auto px-4 py-10">
         <div className="text-center mb-10">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#AA151B]/14 bg-[#AA151B]/10 px-4 py-2 text-sm font-medium text-[#AA151B]">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_14%,transparent)] bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_10%,transparent)] px-4 py-2 text-sm font-medium text-[color:var(--palette-primary,#244A73)]">
             <Shield className="w-4 h-4" />
             Required for account activation
           </div>
@@ -485,23 +486,23 @@ export default function KycVerification() {
                   <div
                     className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
                       isCompleted
-                        ? 'bg-[#AA151B] text-white'
+                        ? 'bg-[color:var(--palette-primary,#244A73)] text-white'
                         : isCurrent
-                        ? 'bg-[#AA151B]/15 text-[#AA151B]'
-                        : 'bg-white text-[#AA151B]/45 border border-[#AA151B]/10'
+                        ? 'bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_15%,transparent)] text-[color:var(--palette-primary,#244A73)]'
+                        : 'bg-white text-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_45%,transparent)] border border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_10%,transparent)]'
                     }`}
                   >
                     {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                   </div>
                   <span className={`text-xs mt-2 font-medium hidden sm:block ${
-                    isCurrent ? 'text-[#AA151B]' : isCompleted ? 'text-[#AA151B]' : 'text-[#AA151B]/45'
+                    isCurrent ? 'text-[color:var(--palette-primary,#244A73)]' : isCompleted ? 'text-[color:var(--palette-primary,#244A73)]' : 'text-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_45%,transparent)]'
                   }`}>
                     {label}
                   </span>
                 </div>
                 {i < steps.length - 1 && (
                   <div className={`mx-1 h-0.5 w-8 sm:mx-2 sm:w-16 ${
-                    i < step ? 'bg-[#AA151B]' : 'bg-[#AA151B]/15'
+                    i < step ? 'bg-[color:var(--palette-primary,#244A73)]' : 'bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_15%,transparent)]'
                   }`} />
                 )}
               </div>
@@ -510,13 +511,13 @@ export default function KycVerification() {
         </div>
 
         {error && (
-          <div className="mx-auto mb-6 flex max-w-lg items-center gap-2 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/10 px-4 py-3 text-sm text-[#AA151B]">
+          <div className="mx-auto mb-6 flex max-w-lg items-center gap-2 rounded-2xl border border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_14%,transparent)] bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_10%,transparent)] px-4 py-3 text-sm text-[color:var(--palette-primary,#244A73)]">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
           </div>
         )}
 
-        <div className="mx-auto max-w-lg rounded-2xl border border-[#AA151B]/14 bg-white shadow-[0_24px_60px_-48px_rgba(170,21,27,0.45)]">
+        <div className="mx-auto max-w-lg rounded-2xl border border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_14%,transparent)] bg-white shadow-[0_24px_60px_-48px_color-mix(in_srgb,var(--palette-primary,#244A73)_45%,transparent)]">
           <div className="p-6 sm:p-8">
             {step === 0 && (
               <PersonalInfoStep
@@ -571,11 +572,11 @@ export default function KycVerification() {
             )}
           </div>
 
-          <div className="flex items-center justify-between border-t border-[#AA151B]/10 bg-[#AA151B]/[0.04] px-6 py-4 sm:px-8">
+          <div className="flex items-center justify-between border-t border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_10%,transparent)] bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_4%,transparent)] px-6 py-4 sm:px-8">
             {step > 0 ? (
               <button
                 onClick={prevStep}
-                className="flex items-center gap-2 text-sm font-medium text-[#AA151B] transition-colors hover:text-[#710D14]"
+                className="flex items-center gap-2 text-sm font-medium text-[color:var(--palette-primary,#244A73)] transition-colors hover:text-[color:var(--palette-primary-dark,#12263F)]"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Back
@@ -587,7 +588,7 @@ export default function KycVerification() {
             {step < steps.length - 1 ? (
               <button
                 onClick={nextStep}
-                className="flex items-center gap-2 rounded-xl bg-[#AA151B] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#710D14]"
+                className="flex items-center gap-2 rounded-xl bg-[color:var(--palette-primary,#244A73)] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[color:var(--palette-primary-dark,#12263F)]"
               >
                 Continue
                 <ChevronRight className="w-4 h-4" />
@@ -596,7 +597,7 @@ export default function KycVerification() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex items-center gap-2 rounded-xl bg-[#AA151B] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#710D14] disabled:bg-neutral-300 disabled:text-neutral-500"
+                className="flex items-center gap-2 rounded-xl bg-[color:var(--palette-primary,#244A73)] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[color:var(--palette-primary-dark,#12263F)] disabled:bg-neutral-300 disabled:text-neutral-500"
               >
                 {submitting ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -611,7 +612,7 @@ export default function KycVerification() {
           </div>
         </div>
 
-        <p className="mx-auto mt-8 max-w-md text-center text-xs text-[#AA151B]/70">
+        <p className="mx-auto mt-8 max-w-md text-center text-xs text-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_70%,transparent)]">
           Your documents are encrypted and stored securely. We only use them for identity verification as required by financial regulations.
         </p>
       </div>
@@ -828,9 +829,9 @@ function SelfieStep({
         label="Upload a selfie"
         acceptCapture
       />
-      <div className="space-y-2 rounded-2xl border border-[#AA151B]/14 bg-[#AA151B]/[0.04] p-4 text-sm text-neutral-700">
+      <div className="space-y-2 rounded-2xl border border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_14%,transparent)] bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_4%,transparent)] p-4 text-sm text-neutral-700">
         <p className="font-medium text-neutral-800">Tips for a good selfie:</p>
-        <ul className="list-inside list-disc space-y-1 text-[#AA151B]/80">
+        <ul className="list-inside list-disc space-y-1 text-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_80%,transparent)]">
           <li>Face the camera directly with a neutral expression</li>
           <li>Ensure even lighting with no shadows on your face</li>
           <li>Remove glasses, hats, or face coverings</li>
@@ -854,10 +855,10 @@ function FileUploadZone({
   if (preview) {
     return (
       <div className="relative group">
-        <img src={preview} alt="Preview" className="h-48 w-full rounded-2xl border border-[#AA151B]/14 object-cover" />
+        <img src={preview} alt="Preview" className="h-48 w-full rounded-2xl border border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_14%,transparent)] object-cover" />
         <button
           onClick={onClear}
-          className="absolute right-2 top-2 rounded-full bg-[#AA151B]/90 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
+          className="absolute right-2 top-2 rounded-full bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_90%,transparent)] p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
         >
           <X className="w-4 h-4" />
         </button>
@@ -869,14 +870,14 @@ function FileUploadZone({
     <button
       type="button"
       onClick={() => inputRef.current?.click()}
-      className="flex w-full cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-[#AA151B]/20 bg-[#AA151B]/[0.04] py-10 transition-colors hover:border-[#AA151B]/40 hover:bg-[#AA151B]/[0.07]"
+      className="flex w-full cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_20%,transparent)] bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_4%,transparent)] py-10 transition-colors hover:border-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_40%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_7%,transparent)]"
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#AA151B]/10">
-        {acceptCapture ? <Camera className="h-6 w-6 text-[#AA151B]" /> : <Upload className="h-6 w-6 text-[#AA151B]" />}
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_10%,transparent)]">
+        {acceptCapture ? <Camera className="h-6 w-6 text-[color:var(--palette-primary,#244A73)]" /> : <Upload className="h-6 w-6 text-[color:var(--palette-primary,#244A73)]" />}
       </div>
       <div className="text-center">
         <p className="text-sm font-medium text-neutral-800">{label}</p>
-        <p className="mt-1 text-xs text-[#AA151B]/70">JPG, PNG up to 10MB</p>
+        <p className="mt-1 text-xs text-[color:color-mix(in_srgb,var(--palette-primary,#244A73)_70%,transparent)]">JPG, PNG up to 10MB</p>
       </div>
       <input
         ref={inputRef}

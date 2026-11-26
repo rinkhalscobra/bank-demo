@@ -9,7 +9,7 @@ export default function LoadingScreen() {
   const isCrmAdmin = window.location.pathname.startsWith('/crm-admin');
 
   return (
-    <div className={`flex min-h-screen items-center justify-center px-6 text-surface-900 ${isCrmAdmin ? 'bg-[#f7f9f8]' : 'bg-[#FFFDF4]'}`}>
+    <div className={`flex min-h-screen items-center justify-center px-6 text-surface-900 ${isCrmAdmin ? 'bg-[#f7f9f8]' : 'bg-[color:var(--palette-surface,#F5F8FC)]'}`}>
       <div className="flex w-full max-w-[320px] flex-col items-center gap-7">
         <div className="flex items-center gap-3">
           <BrandLogo src={branding.navbarLogoUrl} alt={branding.brandName} className="h-[4.5rem] w-auto object-contain" />
@@ -24,7 +24,7 @@ export default function LoadingScreen() {
             role="status"
             aria-label={t('loadingScreen.statusLabel')}
           >
-            <div className={`h-full w-1/2 rounded-full animate-[loading-bar_1.25s_ease-in-out_infinite] ${isCrmAdmin ? 'bg-gradient-to-r from-[#6B0F14] via-[#AA151B] to-[#F1BF00]' : 'bg-gradient-to-r from-[#AA151B] to-[#F1BF00]'}`} />
+            <div className={`h-full w-1/2 rounded-full animate-[loading-bar_1.25s_ease-in-out_infinite] ${isCrmAdmin ? 'bg-gradient-to-r from-[#6B0F14] via-[#AA151B] to-[#F1BF00]' : 'bg-gradient-to-r from-[color:var(--palette-primary,#244A73)] to-[color:var(--palette-accent,#A5CDE8)]'}`} />
           </div>
           <p className="text-xs text-surface-500">
             {t('loadingScreen.verifyingAccess')}

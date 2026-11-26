@@ -78,6 +78,15 @@
   }
 }
 
+/* The website and all KYC screens share the CRM-selected navbar color. */
+.site-navbar {
+  background-color: var(--palette-primary-dark, #12263F);
+}
+
+.site-navbar-accent {
+  background-color: var(--palette-accent, #A5CDE8);
+}
+
 /* Public experience: Spanish institutional banking. */
 .public-site {
   --bank-red: var(--palette-primary, #aa151b);

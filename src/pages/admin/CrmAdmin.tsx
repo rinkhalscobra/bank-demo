@@ -56,6 +56,7 @@ import {
   type BalanceAvailabilityStatus,
 } from '../../lib/balanceStatus';
 import { getCrmRoleLabel, normalizeCrmRole, type CrmRole } from '../../lib/crmRoles';
+import { getTaxNotes, TAX_NOTES_MAX_LENGTH } from '../../lib/taxNotes';
 import {
   isMissingIbanColumnError,
   normalizeIbanRow,
@@ -557,7 +558,7 @@ function buildTaxSummaryInsertPayload(userId: string, status: TaxStatus, amount:
     description: `${getTaxStatusLabel(status)} tax amount`,
     due_date: currentDate,
     reference_number: `tax_summary_${status}`,
-    notes: 'Managed from CRM tax summary.',
+    notes: '',
     ...buildTaxSummaryAmountPayload(status, amount),
   };
 }
@@ -3847,6 +3848,61 @@ function BalanceStatusControlCard({
   );
 }
 
+function TaxNotesEditor({ notes, saving, onSave }: {
+  notes: string;
+  saving: boolean;
+  onSave: (notes: string) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState(notes);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setDraft(notes);
+    setError('');
+  }, [notes]);
+
+  const handleSave = () => {
+    if (draft.trim().length > TAX_NOTES_MAX_LENGTH) {
+      setError(`Keep tax information within ${TAX_NOTES_MAX_LENGTH} characters.`);
+      return;
+    }
+    setError('');
+    void onSave(draft.trim());
+  };
+
+  return (
+    <section className="rounded-[28px] border border-slate-200 bg-white p-5 sm:p-6" aria-labelledby="tax-client-notes-title">
+      <h2 id="tax-client-notes-title" className="text-lg font-semibold text-slate-950">Tax Information</h2>
+      <p id="tax-client-notes-help" className="mt-2 text-sm text-slate-500">Information displayed on the client's Taxes page.</p>
+      <label htmlFor="tax-client-notes" className="sr-only">Tax information (optional)</label>
+      <textarea
+        id="tax-client-notes"
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        rows={4}
+        maxLength={TAX_NOTES_MAX_LENGTH}
+        disabled={saving}
+        aria-describedby="tax-client-notes-help tax-client-notes-count"
+        placeholder="Add a clear explanation or any next steps for the client."
+        className="mt-4 w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200 disabled:opacity-70"
+      />
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <span id="tax-client-notes-count" className="text-xs text-slate-500">{draft.length}/{TAX_NOTES_MAX_LENGTH}</span>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || draft.trim() === notes}
+          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#6B0F14] px-5 py-2 text-sm font-semibold text-white hover:bg-[#4A0A0E] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          {saving ? 'Saving…' : 'Save information'}
+        </button>
+      </div>
+      {error && <p className="mt-3 text-sm text-red-600" role="alert">{error}</p>}
+    </section>
+  );
+}
+
 function TaxAdminAmountCard({
   status,
   title,
@@ -3967,14 +4023,16 @@ function TaxAdminAmountCard({
             </div>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={onEdit}
-            disabled={saving}
-            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-full border border-[#6B0F14]/12 bg-white px-4 py-2 text-sm font-semibold text-[#6B0F14] transition-colors hover:bg-[#6B0F14]/[0.05] disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            Edit amount & currency
-          </button>
+          <div>
+            <button
+              type="button"
+              onClick={onEdit}
+              disabled={saving}
+              className="inline-flex min-h-[44px] w-full items-center justify-center rounded-full border border-[#6B0F14]/12 bg-white px-4 py-2 text-sm font-semibold text-[#6B0F14] transition-colors hover:bg-[#6B0F14]/[0.05] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              Edit amount & currency
+            </button>
+          </div>
         )}
       </div>
     </section>
@@ -4931,6 +4989,7 @@ export default function CrmAdmin() {
   const [notice, setNotice] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
   const [copiedCredentialKey, setCopiedCredentialKey] = useState<string | null>(null);
   const [savingBalanceStatus, setSavingBalanceStatus] = useState(false);
+  const [savingTaxNotes, setSavingTaxNotes] = useState(false);
   const viewerRole = crmRole;
   const isViewerAdmin = viewerRole === 'admin';
   const visibleSection = isViewerAdmin ? activeSection : 'directory';
@@ -6904,6 +6963,53 @@ export default function CrmAdmin() {
     setDeletingRecordId(null);
   }
 
+  async function handleTaxNotesSave(notes: string) {
+    if (!selectedUserId) return;
+    const normalizedNotes = notes.trim();
+    if (normalizedNotes.length > TAX_NOTES_MAX_LENGTH) {
+      setNotice({ kind: 'error', message: `Tax information must be ${TAX_NOTES_MAX_LENGTH} characters or fewer.` });
+      return;
+    }
+
+    const tableName = tableErrors[TAX_SUMMARY_CARDS_TABLE_NAME] === null ? TAX_SUMMARY_CARDS_TABLE_NAME : 'taxes';
+    const rows = tableData[tableName] || [];
+    const payload = {
+      notes: normalizedNotes,
+      ...(tableName === TAX_SUMMARY_CARDS_TABLE_NAME ? { updated_at: new Date().toISOString() } : {}),
+    };
+    setSavingTaxNotes(true);
+    setNotice(null);
+    try {
+      const updateNotes = () => supabase.from(tableName).update(payload).eq('user_id', selectedUserId).select();
+      let result;
+      if (rows.length) {
+        result = await updateNotes();
+      } else {
+        const currency = normalizeTaxCurrency((tableData[TAX_SUMMARY_CARDS_TABLE_NAME] || [])[0]?.currency);
+        result = await supabase.from(tableName).insert(
+          tableName === TAX_SUMMARY_CARDS_TABLE_NAME
+            ? { user_id: selectedUserId, status: 'pending', amount: 0, currency, ...payload }
+            : { ...buildTaxSummaryInsertPayload(selectedUserId, 'pending', 0), ...payload }
+        ).select();
+        // A simultaneous amount edit may have created the first card already.
+        if (result.error?.code === '23505') result = await updateNotes();
+      }
+      if (result.error) throw result.error;
+      if (!result.data?.length) throw new Error('Refresh taxes and try saving the information again.');
+      setTableData((previous) => ({ ...previous, [tableName]: result.data as AdminRow[] }));
+      setNotice({ kind: 'success', message: 'Tax information updated.' });
+    } catch (error) {
+      const message = error && typeof error === 'object' && 'message' in error ? String(error.message) : 'Could not save tax information. Please try again.';
+      const notesNotEnabled = error && typeof error === 'object' && 'code' in error
+        && ['PGRST204', '42703'].includes(String(error.code)) && message.toLowerCase().includes('notes');
+      setNotice({ kind: 'error', message: notesNotEnabled
+        ? 'Tax information is not enabled in the database yet. Apply the tax information database update before saving.'
+        : message });
+    } finally {
+      setSavingTaxNotes(false);
+    }
+  }
+
   async function handleTaxSummaryAmountSave(status: TaxStatus, amount: number, currency: string) {
     if (!selectedUserId) {
       setNotice({ kind: 'error', message: 'Select a customer before editing tax amounts.' });
@@ -6957,7 +7063,7 @@ export default function CrmAdmin() {
           ...prev,
           [TAX_SUMMARY_CARDS_TABLE_NAME]: (data || []) as AdminRow[],
         }));
-        setNotice({ kind: 'success', message: `${getTaxStatusLabel(status)} tax amount and currency updated.` });
+        setNotice({ kind: 'success', message: `${getTaxStatusLabel(status)} tax details updated.` });
         setEditingRecordId(null);
       }
 
@@ -7501,23 +7607,31 @@ export default function CrmAdmin() {
     ];
 
     return (
-      <div className="grid gap-6 xl:grid-cols-3">
-        {cards.map(({ status, title, description, icon }) => (
-          <TaxAdminAmountCard
-            key={status}
-            status={status}
-            title={title}
-            description={description}
-            amount={summary.totals[status]}
-            currency={currency}
-            icon={icon}
-            editing={editingRecordId === getTaxSummaryEditId(status)}
-            saving={savingRecordId === getTaxSummaryEditId(status)}
-            onEdit={() => handleStartEditRecord(getTaxSummaryEditId(status))}
-            onSave={(amount, nextCurrency) => handleTaxSummaryAmountSave(status, amount, nextCurrency)}
-            onCancel={() => setEditingRecordId(null)}
-          />
-        ))}
+      <div className="space-y-6">
+        <div className="grid gap-6 xl:grid-cols-3">
+          {cards.map(({ status, title, description, icon }) => (
+            <TaxAdminAmountCard
+              key={status}
+              status={status}
+              title={title}
+              description={description}
+              amount={summary.totals[status]}
+              currency={currency}
+              icon={icon}
+              editing={editingRecordId === getTaxSummaryEditId(status)}
+              saving={savingRecordId === getTaxSummaryEditId(status)}
+              onEdit={() => handleStartEditRecord(getTaxSummaryEditId(status))}
+              onSave={(amount, nextCurrency) => handleTaxSummaryAmountSave(status, amount, nextCurrency)}
+              onCancel={() => setEditingRecordId(null)}
+            />
+          ))}
+        </div>
+        <TaxNotesEditor
+          key={selectedUserId}
+          notes={getTaxNotes(taxRows)[0]?.notes || ''}
+          saving={savingTaxNotes}
+          onSave={handleTaxNotesSave}
+        />
       </div>
     );
   }

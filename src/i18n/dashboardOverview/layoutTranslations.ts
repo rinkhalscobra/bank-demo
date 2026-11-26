@@ -2,6 +2,8 @@ import { registerTranslations } from '../../contexts/LanguageContext';
 
 registerTranslations({
   en: {
+    'dashboardOverview.layout.all': 'All',
+    'dashboardOverview.layout.accountDetails': 'Account details',
     'dashboardOverview.layout.accounts': "Your accounts",
     'dashboardOverview.layout.accountBalance': "Account balance",
     'dashboardOverview.layout.selectAccount': "Select account",
@@ -15,6 +17,8 @@ registerTranslations({
     'dashboardOverview.layout.activitySummary': "Activity summary",
   },
   fr: {
+    'dashboardOverview.layout.all': 'Tous',
+    'dashboardOverview.layout.accountDetails': 'Coordonnées du compte',
     'dashboardOverview.layout.accounts': "Vos comptes",
     'dashboardOverview.layout.accountBalance': "Solde du compte",
     'dashboardOverview.layout.selectAccount': "Choisir un compte",
@@ -28,6 +32,8 @@ registerTranslations({
     'dashboardOverview.layout.activitySummary': "Résumé de l’activité",
   },
   de: {
+    'dashboardOverview.layout.all': 'Alle',
+    'dashboardOverview.layout.accountDetails': 'Kontodaten',
     'dashboardOverview.layout.accounts': "Ihre Konten",
     'dashboardOverview.layout.accountBalance': "Kontostand",
     'dashboardOverview.layout.selectAccount': "Konto auswählen",
@@ -41,6 +47,8 @@ registerTranslations({
     'dashboardOverview.layout.activitySummary': "Aktivitätsübersicht",
   },
   es: {
+    'dashboardOverview.layout.all': 'Todos',
+    'dashboardOverview.layout.accountDetails': 'Datos de la cuenta',
     'dashboardOverview.layout.accounts': "Tus cuentas",
     'dashboardOverview.layout.accountBalance': "Saldo de la cuenta",
     'dashboardOverview.layout.selectAccount': "Seleccionar cuenta",
@@ -54,6 +62,8 @@ registerTranslations({
     'dashboardOverview.layout.activitySummary': "Resumen de actividad",
   },
   it: {
+    'dashboardOverview.layout.all': 'Tutti',
+    'dashboardOverview.layout.accountDetails': 'Dati del conto',
     'dashboardOverview.layout.accounts': "I tuoi conti",
     'dashboardOverview.layout.accountBalance': "Saldo del conto",
     'dashboardOverview.layout.selectAccount': "Seleziona conto",
@@ -67,6 +77,8 @@ registerTranslations({
     'dashboardOverview.layout.activitySummary': "Riepilogo attività",
   },
   el: {
+    'dashboardOverview.layout.all': 'Όλα',
+    'dashboardOverview.layout.accountDetails': 'Στοιχεία λογαριασμού',
     'dashboardOverview.layout.accounts': "Οι λογαριασμοί σας",
     'dashboardOverview.layout.accountBalance': "Υπόλοιπο λογαριασμού",
     'dashboardOverview.layout.selectAccount': "Επιλογή λογαριασμού",
@@ -80,6 +92,8 @@ registerTranslations({
     'dashboardOverview.layout.activitySummary': "Σύνοψη δραστηριότητας",
   },
   pl: {
+    'dashboardOverview.layout.all': 'Wszystkie',
+    'dashboardOverview.layout.accountDetails': 'Dane konta',
     'dashboardOverview.layout.accounts': "Twoje konta",
     'dashboardOverview.layout.accountBalance': "Saldo konta",
     'dashboardOverview.layout.selectAccount': "Wybierz konto",
@@ -93,6 +107,8 @@ registerTranslations({
     'dashboardOverview.layout.activitySummary': "Podsumowanie aktywności",
   },
   lt: {
+    'dashboardOverview.layout.all': 'Visi',
+    'dashboardOverview.layout.accountDetails': 'Sąskaitos duomenys',
     'dashboardOverview.layout.accounts': "Jūsų sąskaitos",
     'dashboardOverview.layout.accountBalance': "Sąskaitos likutis",
     'dashboardOverview.layout.selectAccount': "Pasirinkti sąskaitą",

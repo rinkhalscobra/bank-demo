@@ -104,6 +104,11 @@
 .workspace-security-list li { display: flex; align-items: center; gap: .7rem; color: #536176; font-size: .8rem; }
 .workspace-security-list svg { color: var(--ws-primary); }
 .workspace-tax-payment { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 2rem; align-items: start; }
+.workspace-tax-notes-list { display: grid; gap: 1rem; }
+.workspace-tax-note { display: grid; min-width: 0; gap: .45rem; padding: 1rem 1.15rem; border: 1px solid var(--ws-line); border-left: 3px solid var(--ws-primary); border-radius: .65rem; background: color-mix(in srgb, var(--ws-primary) 3%, white); text-align: left; }
+.workspace-tax-note > footer { margin: 0; text-align: left; }
+.workspace-tax-note time { color: var(--ws-muted); font-size: .75rem; }
+.workspace-tax-note > p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #172235; font-size: .875rem; line-height: 1.75; }
 .workspace-tax-qr { display: grid; justify-items: center; gap: 1rem; }
 .workspace-tax-qr > div { padding: .6rem; border: 1px solid var(--ws-line); border-radius: .75rem; background: white; }
 .workspace-tax-qr > p { display: flex; align-items: center; gap: .4rem; color: var(--ws-muted); font-size: .7rem; }

@@ -1,4 +1,7 @@
 export const lt = {
+  'dashboardTaxes.notes.title': 'Mokesčių informacija',
+  'dashboardTaxes.notes.subtitle': 'Informacija ir nurodymai apie jūsų mokestines prievoles.',
+  'dashboardTaxes.notes.updated': 'Atnaujinta',
   'dashboardTaxes.title': 'Mokesčiai',
   'dashboardTaxes.subtitle': 'Stebėkite ir valdykite savo mokesčių įsipareigojimus',
   'dashboardTaxes.actions.payTaxes': 'Mokėkite savo mokesčius',

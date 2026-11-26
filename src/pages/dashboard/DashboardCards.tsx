@@ -505,7 +505,7 @@ export default function DashboardCards() {
                     </label>
 
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -tranneutral-y-1/2 text-[#AA151B] text-xs">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#AA151B] text-xs">
                         {form.currency}
                       </span>
                       <input

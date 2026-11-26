@@ -59,7 +59,7 @@ registerTranslations({
     'onlineBanking.errors.emailNotConfirmed':
       'Confirm your email address before signing in.',
     'onlineBanking.errors.alreadyRegistered':
-      'An account with this email address already exists.',
+      'This email address is already registered. Please use a different email or sign in to your existing account.',
     'onlineBanking.errors.invalidEmail':
       'Enter a valid email address.',
     'onlineBanking.errors.rateLimited':
@@ -75,6 +75,8 @@ registerTranslations({
   },
 
   fr: {
+    'onlineBanking.errors.alreadyRegistered':
+      'Cette adresse e-mail est déjà enregistrée. Veuillez utiliser une autre adresse ou vous connecter à votre compte existant.',
     'onlineBanking.login.title': 'Bon retour',
     'onlineBanking.login.subtitle':
       'Connectez-vous pour accéder à vos comptes et gérer vos finances.',
@@ -114,6 +116,8 @@ registerTranslations({
   },
 
   de: {
+    'onlineBanking.errors.alreadyRegistered':
+      'Diese E-Mail-Adresse ist bereits registriert. Bitte verwenden Sie eine andere E-Mail-Adresse oder melden Sie sich bei Ihrem bestehenden Konto an.',
     'onlineBanking.login.title': 'Willkommen zurück',
     'onlineBanking.login.subtitle':
       'Melden Sie sich an, um auf Ihre Konten zuzugreifen und Ihre Finanzen zu verwalten.',
@@ -153,6 +157,8 @@ registerTranslations({
   },
 
   es: {
+    'onlineBanking.errors.alreadyRegistered':
+      'Esta dirección de correo electrónico ya está registrada. Utiliza otra dirección o inicia sesión en tu cuenta existente.',
     'onlineBanking.login.title': 'Bienvenido de nuevo',
     'onlineBanking.login.subtitle':
       'Inicia sesión para acceder a tus cuentas y administrar tus finanzas.',
@@ -192,6 +198,8 @@ registerTranslations({
   },
 
   it: {
+    'onlineBanking.errors.alreadyRegistered':
+      'Questo indirizzo e-mail è già registrato. Utilizza un altro indirizzo o accedi al tuo account esistente.',
     'onlineBanking.login.title': 'Bentornato',
     'onlineBanking.login.subtitle':
       'Accedi per visualizzare i tuoi conti e gestire le tue finanze.',
@@ -231,6 +239,8 @@ registerTranslations({
   },
 
   el: {
+    'onlineBanking.errors.alreadyRegistered':
+      'Αυτή η διεύθυνση email είναι ήδη εγγεγραμμένη. Χρησιμοποιήστε διαφορετική διεύθυνση ή συνδεθείτε στον υπάρχοντα λογαριασμό σας.',
     'onlineBanking.login.title': 'Καλώς ήρθατε ξανά',
     'onlineBanking.login.subtitle':
       'Συνδεθείτε για να αποκτήσετε πρόσβαση στους λογαριασμούς σας και να διαχειριστείτε τα οικονομικά σας.',
@@ -314,7 +324,7 @@ registerTranslations({
     'onlineBanking.errors.emailNotConfirmed':
       'Potwierdź adres e-mail przed zalogowaniem.',
     'onlineBanking.errors.alreadyRegistered':
-      'Konto z tym adresem e-mail już istnieje.',
+      'Ten adres e-mail jest już zarejestrowany. Użyj innego adresu lub zaloguj się na istniejące konto.',
     'onlineBanking.errors.invalidEmail':
       'Wprowadź prawidłowy adres e-mail.',
     'onlineBanking.errors.rateLimited':
@@ -374,7 +384,7 @@ registerTranslations({
     'onlineBanking.errors.emailNotConfirmed':
       'Prieš prisijungdami patvirtinkite savo el. pašto adresą.',
     'onlineBanking.errors.alreadyRegistered':
-      'Paskyra su šiuo el. pašto adresu jau yra.',
+      'Šis el. pašto adresas jau užregistruotas. Naudokite kitą adresą arba prisijunkite prie esamos paskyros.',
     'onlineBanking.errors.invalidEmail':
       'Įveskite galiojantį el. pašto adresą.',
     'onlineBanking.errors.rateLimited':

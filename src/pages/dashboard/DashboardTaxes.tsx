@@ -5,6 +5,7 @@ import {
   CheckCircle,
   Clock,
   Copy,
+  FileText,
   PauseCircle,
   QrCode,
   Wallet,
@@ -18,7 +19,7 @@ import { formatTaxCurrency } from '../../lib/taxCurrency';
 
 export default function DashboardTaxes() {
   const { language, t } = useLanguage();
-  const { summary: taxSummary, currency, loading } = useTaxSummary();
+  const { summary: taxSummary, currency, notes, loading } = useTaxSummary();
   const { wallet, loading: walletLoading } = useTaxWallet();
   const paymentWallet = wallet || {
     wallet_address: '',
@@ -51,6 +52,20 @@ export default function DashboardTaxes() {
   return (
     <WorkspacePage className="workspace-taxes">
       <WorkspaceHeader title={t('dashboardTaxes.title')} description={t('dashboardTaxes.subtitle')} icon={Wallet} />
+      {notes.length > 0 && (
+        <WorkspacePanel title={t('dashboardTaxes.notes.title')} description={t('dashboardTaxes.notes.subtitle')} icon={FileText} className="workspace-tax-notes">
+          <div className="workspace-tax-notes-list">
+            {notes.map((note) => (
+              <article key={note.id} className="workspace-tax-note">
+                <p>{note.notes}</p>
+                {note.updatedAt && (
+                  <footer><time dateTime={note.updatedAt}>{t('dashboardTaxes.notes.updated')} {new Date(note.updatedAt).toLocaleDateString(language, { day: 'numeric', month: 'short', year: 'numeric' })}</time></footer>
+                )}
+              </article>
+            ))}
+          </div>
+        </WorkspacePanel>
+      )}
       <div className="workspace-split">
         <WorkspacePanel title={t('dashboardTaxes.payPanel.title')} description={t('dashboardTaxes.payPanel.subtitle')} icon={Wallet}>
           <div className="workspace-tax-payment">

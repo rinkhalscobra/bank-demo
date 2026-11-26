@@ -202,7 +202,7 @@ export default function DashboardLoans() {
                   {t('dashboardLoans.application.amount')} ({t('dashboardLoans.application.max')} {formatCurrency(selectedLoanType?.maxAmount || 0)})
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -tranneutral-y-1/2 text-[#AA151B] text-sm">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#AA151B] text-sm">$</span>
                   <input
                     type="number"
                     step="100"
